@@ -218,37 +218,29 @@
                 currentUserElement.textContent = userData.username;
             }
         }
-        
-        function logout() {
+         
+         function logout() {
             if (confirm('确定要退出登录吗?')) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 window.location.href = '/login';
             }
-             }
-         
-         let isRedirecting = false;
-         
+         }
+          
          window.addEventListener('load', function() {
-            console.log('[main.hbs] Page load event triggered, pathname:', window.location.pathname, 'isRedirecting:', isRedirecting);
-            
-            if (isRedirecting) {
-                console.log('[main.hbs] 已在重定向中，跳过处理');
-                return;
-            }
-            
+            console.log('[main.hbs] Page loaded, pathname:', window.location.pathname);
             checkAuth();
               
               // 删除了 loadGlobalProjects() 调用，替换为 loadUserMenuPermissions()
               window.loadUserMenuPermissions();
               setTimeout(window.checkPagePermission, 500);
           });
-
-        window.addEventListener('menuPermissionsUpdated', function() {
+         
+         window.addEventListener('menuPermissionsUpdated', function() {
             window.loadUserMenuPermissions();
-        });
+         });
 
-   loadGlobalProjects();
+         loadUserMenuPermissions();
     </script>
     <script>
         let globalProjects = [];
