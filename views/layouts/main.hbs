@@ -177,6 +177,31 @@
             return true;
         }
         
+        function checkAuth() {
+            console.log('[checkAuth] 检查用户认证状态...');
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            // 如果是登录页面，不需要检查
+            if (window.location.pathname === '/login') {
+                return;
+            }
+            
+            if (!token || !user) {
+                // 未登录,跳转到登录页
+                console.log('[checkAuth] 用户未登录，跳转到登录页');
+                window.location.href = '/login';
+                return;
+            }
+            
+            // 显示用户信息
+            const userData = JSON.parse(user);
+            const currentUserElement = document.getElementById('currentUser');
+            if (currentUserElement) {
+                currentUserElement.textContent = userData.username;
+            }
+        }
+        
         function logout() {
             if (confirm('确定要退出登录吗?')) {
                 localStorage.removeItem('token');
@@ -241,49 +266,6 @@
         function getGlobalProjectId() {
             return localStorage.getItem('globalProjectId');
         }
-
-        function handleGlobalProjectChange() {
-            // 如果是登录页面，不需要检查认证
-            if (window.location.pathname === '/login') {
-                return true;
-            }
-            
-            const token = localStorage.getItem('token');
-            const user = localStorage.getItem('user');
-            
-            if (!token || !user) {
-                // 未登录,跳转到登录页
-                window.location.href = '/login';
-                return false;
-            }
-            
-            // 显示用户信息
-            const userData = JSON.parse(user);
-            const currentUserElement = document.getElementById('currentUser');
-            if (currentUserElement) {
-                currentUserElement.textContent = userData.username;
-            }
-            
-            return true;
-        }
-        
-        function logout() {
-            if (confirm('确定要退出登录吗?')) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = '/login';
-            }
-        }
-        
-        window.addEventListener('load', function() {
-            checkAuth();
-            window.loadUserMenuPermissions();
-            setTimeout(window.checkPagePermission, 500);
-        });
-
-        window.addEventListener('menuPermissionsUpdated', function() {
-            window.loadUserMenuPermissions();
-        });
 
         loadGlobalProjects();
     </script>
