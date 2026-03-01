@@ -6,25 +6,29 @@ echo ========================================
 echo.
 
 REM 检测3000端口是否被占用
-echo Checking port 3000...
+echo [Step 1/3] Checking port 3000...
 
+set PORT_OCCUPIED=0
 set KILL_FAILED=0
 
 for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000') do (
-    echo Port 3000 is occupied by PID %%a
-    
-    if "%%a" neq "" if %%a gtr 0 (
-        echo Killing process...
-        taskkill /F /PID %%a >nul 2>&1
-        if !errorlevel! equ 0 (
-            echo Process killed successfully
+    if "%%a" neq "" (
+        set PORT_OCCUPIED=1
+        echo   - Port 3000 is occupied by PID %%a
+        echo   - Killing process...
+        
+        if %%a gtr 0 (
+            taskkill /F /PID %%a >nul 2>&1
+            if !errorlevel! equ 0 (
+                echo   - Process killed successfully
+            ) else (
+                echo   - Warning: Failed to kill process
+                set KILL_FAILED=1
+            )
         ) else (
-            echo Failed to kill process
+            echo   - Warning: Invalid PID: %%a
             set KILL_FAILED=1
         )
-    ) else (
-        echo Invalid PID: %%a
-        set KILL_FAILED=1
     )
 )
 
@@ -34,23 +38,30 @@ if %KILL_FAILED% equ 1 (
     exit /b 1
 )
 
-echo Port 3000 is free
+if %PORT_OCCUPIED% equ 0 (
+    echo   - Port 3000 is free
+)
+
 echo.
 
 REM 构建项目
-echo Building project...
-npm run build
+echo [Step 2/3] Building project...
+call npm run build
 if !errorlevel! neq 0 (
     echo.
+    echo ========================================
     echo ERROR: Build failed!
+    echo ========================================
     pause
     exit /b 1
 )
 
-echo Build completed successfully
+echo   - Build completed successfully
 echo.
 
 REM 启动服务
-echo Starting service in production mode...
+echo [Step 3/3] Starting service in production mode...
 echo.
-npm run start:prod
+echo ========================================
+echo.
+call npm run start:prod
