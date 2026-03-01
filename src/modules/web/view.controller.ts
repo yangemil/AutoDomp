@@ -16,10 +16,9 @@ export class ViewController {
   ) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async index(@Req() req: any, @Res() res: Response, @Query('page') page: number = 1, @Query('pageSize') pageSize: number = 10) {
     if (!req.user) {
-      throw new UnauthorizedException();
+      return res.redirect('/login');
     }
     
     const projects = await this.permissionsService.getUserProjects(
