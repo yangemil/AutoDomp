@@ -177,25 +177,42 @@
             return true;
         }
         
-        function checkAuth() {
-            console.log('[checkAuth] 检查用户认证状态...');
+         function checkAuth() {
+            console.log('[checkAuth] 检查用户认证状态...', 'pathname:', window.location.pathname);
             const token = localStorage.getItem('token');
             const user = localStorage.getItem('user');
             
+            console.log('[checkAuth] token exists:', !!token);
+            console.log('[checkAuth] user exists:', !!user);
+            
             // 如果是登录页面，不需要检查
             if (window.location.pathname === '/login') {
+                console.log('[checkAuth] 是登录页面，跳过认证检查');
                 return;
             }
             
             if (!token || !user) {
                 // 未登录,跳转到登录页
                 console.log('[checkAuth] 用户未登录，跳转到登录页');
+                isRedirecting = true;
                 window.location.href = '/login';
                 return;
             }
             
             // 显示用户信息
-            const userData = JSON.parse(user);
+            let userData;
+            try {
+                userData = JSON.parse(user);
+                console.log('[checkAuth] 用户数据解析成功:', userData);
+            } catch (error) {
+                console.error('[checkAuth] 用户数据解析失败:', error);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                isRedirecting = true;
+                window.location.href = '/login';
+                return;
+            }
+            
             const currentUserElement = document.getElementById('currentUser');
             if (currentUserElement) {
                 currentUserElement.textContent = userData.username;
@@ -210,13 +227,22 @@
             }
              }
          
+         let isRedirecting = false;
+         
          window.addEventListener('load', function() {
-             checkAuth();
-             
-             // 删除了 loadGlobalProjects() 调用，替换为 loadUserMenuPermissions()
-             window.loadUserMenuPermissions();
-             setTimeout(window.checkPagePermission, 500);
-         });
+            console.log('[main.hbs] Page load event triggered, pathname:', window.location.pathname, 'isRedirecting:', isRedirecting);
+            
+            if (isRedirecting) {
+                console.log('[main.hbs] 已在重定向中，跳过处理');
+                return;
+            }
+            
+            checkAuth();
+              
+              // 删除了 loadGlobalProjects() 调用，替换为 loadUserMenuPermissions()
+              window.loadUserMenuPermissions();
+              setTimeout(window.checkPagePermission, 500);
+          });
 
         window.addEventListener('menuPermissionsUpdated', function() {
             window.loadUserMenuPermissions();
