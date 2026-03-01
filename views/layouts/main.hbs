@@ -183,13 +183,15 @@
                 localStorage.removeItem('user');
                 window.location.href = '/login';
             }
-        }
-        
-        window.addEventListener('load', function() {
-            checkAuth();
-            window.loadUserMenuPermissions();
-            setTimeout(window.checkPagePermission, 500);
-        });
+             }
+         
+         window.addEventListener('load', function() {
+             checkAuth();
+             
+             // 删除了 loadGlobalProjects() 调用，替换为 loadUserMenuPermissions()
+             window.loadUserMenuPermissions();
+             setTimeout(window.checkPagePermission, 500);
+         });
 
         window.addEventListener('menuPermissionsUpdated', function() {
             window.loadUserMenuPermissions();
