@@ -1,0 +1,198 @@
+{
+  "admin": {
+    "name": "系统管理员",
+    "description": "拥有所有权限",
+    "menus": [
+      {
+        "id": "home",
+        "name": "首页",
+        "path": "/"
+      },
+      {
+        "id": "test-management",
+        "name": "测试管理",
+        "items": [
+          { "id": "test-cases", "name": "测试用例", "path": "/test-cases" },
+          { "id": "scenarios", "name": "测试场景", "path": "/scenarios" }
+        ]
+      },
+      {
+        "id": "schedule",
+        "name": "定时",
+        "items": [
+          { "id": "schedules", "name": "待执行", "path": "/schedules" },
+          { "id": "schedule-executions", "name": "已执行", "path": "/schedule-executions" }
+        ]
+      },
+      {
+        "id": "execution",
+        "name": "执行",
+        "items": [
+          { "id": "executions", "name": "执行记录", "path": "/executions" },
+          { "id": "reports", "name": "测试报告", "path": "/reports" }
+        ]
+      },
+      {
+        "id": "log",
+        "name": "日志",
+        "items": [
+          { "id": "log-explorer", "name": "日志查询", "path": "/log-explorer" },
+          { "id": "log-management", "name": "日志管理", "path": "/log-management" }
+        ]
+      },
+      {
+        "id": "resource",
+        "name": "资源",
+        "items": [
+          { "id": "templates", "name": "步骤模板", "path": "/templates" },
+          { "id": "selector-tool", "name": "选择器工具", "path": "/selector-tool" }
+        ]
+      },
+      {
+        "id": "project",
+        "name": "项目",
+        "items": [
+          { "id": "projects", "name": "项目管理", "path": "/projects" },
+          { "id": "project-members", "name": "项目成员", "path": "/project-members" }
+        ]
+      },
+      {
+        "id": "settings",
+        "name": "设置",
+        "path": "/settings"
+      },
+      {
+        "id": "user-management",
+        "name": "用户管理",
+        "path": "/user-management"
+      },
+      {
+        "id": "role-menu-permissions",
+        "name": "角色菜单权限",
+        "path": "/role-menu-permissions"
+      }
+    ]
+  },
+  "project_manager": {
+    "name": "项目管理员",
+    "description": "可以管理分配的项目",
+    "menus": [
+      { "id": "home", "name": "首页", "path": "/" },
+      {
+        "id": "test-management",
+        "name": "测试管理",
+        "items": [
+          { "id": "test-cases", "name": "测试用例", "path": "/test-cases" },
+          { "id": "scenarios", "name": "测试场景", "path": "/scenarios" }
+        ]
+      },
+      {
+        "id": "schedule",
+        "name": "定时",
+        "items": [
+          { "id": "schedules", "name": "待执行", "path": "/schedules" },
+          { "id": "schedule-executions", "name": "已执行", "path": "/schedule-executions" }
+        ]
+      },
+      {
+        "id": "execution",
+        "name": "执行",
+        "items": [
+          { "id": "executions", "name": "执行记录", "path": "/executions" },
+          { "id": "reports", "name": "测试报告", "path": "/reports" }
+        ]
+      },
+      {
+        "id": "log",
+        "name": "日志",
+        "items": [
+          { "id": "log-explorer", "name": "日志查询", "path": "/log-explorer" }
+        ]
+      },
+      {
+        "id": "resource",
+        "name": "资源",
+        "items": [
+          { "id": "templates", "name": "步骤模板", "path": "/templates" },
+          { "id": "selector-tool", "name": "选择器工具", "path": "/selector-tool" }
+        ]
+      },
+      {
+        "id": "project",
+        "name": "项目",
+        "items": [
+          { "id": "projects", "name": "项目管理", "path": "/projects" },
+          { "id": "project-members", "name": "项目成员", "path": "/project-members" }
+        ]
+      },
+      { "id": "settings", "name": "设置", "path": "/settings" }
+    ]
+  },
+  "tester": {
+    "name": "测试人员",
+    "description": "可以执行测试和查看报告",
+    "menus": [
+      { "id": "home", "name": "首页", "path": "/" },
+      {
+        "id": "test-management",
+        "name": "测试管理",
+        "items": [
+          { "id": "test-cases", "name": "测试用例", "path": "/test-cases" },
+          { "id": "scenarios", "name": "测试场景", "path": "/scenarios" }
+        ]
+      },
+      {
+        "id": "schedule",
+        "name": "定时",
+        "items": [
+          { "id": "schedules", "name": "待执行", "path": "/schedules" }
+        ]
+      },
+      {
+        "id": "execution",
+        "name": "执行",
+        "items": [
+          { "id": "executions", "name": "执行记录", "path": "/executions" },
+          { "id": "reports", "name": "测试报告", "path": "/reports" }
+        ]
+      },
+      {
+        "id": "log",
+        "name": "日志",
+        "items": [
+          { "id": "log-explorer", "name": "日志查询", "path": "/log-explorer" }
+        ]
+      }
+    ]
+  },
+  "viewer": {
+    "name": "只读用户",
+    "description": "只能查看信息",
+    "menus": [
+      { "id": "home", "name": "首页", "path": "/" },
+      {
+        "id": "test-management",
+        "name": "测试管理",
+        "items": [
+          { "id": "test-cases", "name": "测试用例", "path": "/test-cases" },
+          { "id": "scenarios", "name": "测试场景", "path": "/scenarios" }
+        ]
+      },
+      {
+        "id": "execution",
+        "name": "执行",
+        "items": [
+          { "id": "executions", "name": "执行记录", "path": "/executions" },
+          { "id": "reports", "name": "测试报告", "path": "/reports" }
+        ]
+      },
+      {
+        "id": "log",
+        "name": "日志",
+        "items": [
+          { "id": "log-explorer", "name": "日志查询", "path": "/log-explorer" }
+        ]
+      }
+    ]
+  }
+}
