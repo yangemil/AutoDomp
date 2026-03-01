@@ -1,0 +1,22 @@
+{
+  "ai": {
+    "enabled": true,
+    "provider": "custom",
+    "model": "local-Qwen3-32B-no-think",
+    "apiUrl": "http://10.142.25.235:8088/aimate-core/v1",
+    "apiKey": "sk-2532d2b9a2fa487c82c22484e77f18c5",
+    "temperature": 0.7,
+    "maxTokens": 2000
+  },
+  "test": {
+    "baseUrl": "https://litemall.hogwarts.ceshiren.com",
+    "headless": false,
+    "slowMo": 200,
+    "screenshot": {
+      "enabled": true,
+      "onStep": false,
+      "onFailure": true
+    },
+    "timeout": 30000
+  }
+}

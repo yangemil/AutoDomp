@@ -1,0 +1,78 @@
+{
+  "id": "example-test-001",
+  "name": "示例测试 - 商品添加表单验证",
+  "description": "测试商品添加页面的表单验证功能",
+  "url": "/goods/create",
+  "steps": [
+    {
+      "id": "step-1",
+      "order": 1,
+      "action": "navigate",
+      "value": "/goods/create",
+      "description": "访问商品添加页面",
+      "screenshot": false
+    },
+    {
+      "id": "step-2",
+      "order": 2,
+      "action": "fill",
+      "selector": "input:first-of-type",
+      "value": "TEST001",
+      "description": "填写商品编号",
+      "screenshot": false
+    },
+    {
+      "id": "step-3",
+      "order": 3,
+      "action": "fill",
+      "selector": "input:nth-of-type(2)",
+      "value": "测试商品名称",
+      "description": "填写商品名称",
+      "screenshot": false
+    },
+    {
+      "id": "step-4",
+      "order": 4,
+      "action": "fill",
+      "selector": "input[type='number'], input:nth-of-type(3)",
+      "value": "99.99",
+      "description": "填写商品价格",
+      "screenshot": false
+    },
+    {
+      "id": "step-5",
+      "order": 5,
+      "action": "click",
+      "selector": "button:has-text('上架')",
+      "description": "点击上架按钮",
+      "screenshot": true
+    },
+    {
+      "id": "step-6",
+      "order": 6,
+      "action": "wait",
+      "value": "2000",
+      "description": "等待2秒",
+      "screenshot": false
+    },
+    {
+      "id": "step-7",
+      "order": 7,
+      "action": "screenshot",
+      "description": "最终截图",
+      "screenshot": true
+    }
+  ],
+  "expectedResults": [
+    "商品应该成功添加",
+    "页面应该显示成功提示"
+  ],
+  "testData": {
+    "goodsSn": "TEST001",
+    "goodsName": "测试商品名称",
+    "price": 99.99
+  },
+  "tags": ["商品管理", "表单验证", "示例"],
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}

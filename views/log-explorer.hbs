@@ -1,0 +1,560 @@
+<div class="page">
+    <div class="page-header">
+        <h1>日志查询</h1>
+    </div>
+
+    <div class="query-section">
+        <div class="query-form">
+            <div class="form-group">
+                <label>执行ID</label>
+                <input type="text" id="executionId" placeholder="请输入执行记录ID" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>执行记录</label>
+                <select id="recentExecutions" class="form-control">
+                    <option value="">-- 选择执行记录 --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button onclick="queryExecution()" class="btn btn-primary">查询</button>
+                <button onclick="exportJSON()" class="btn btn-secondary">导出 JSON</button>
+                <button onclick="exportCSV()" class="btn btn-secondary">导出 CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultSection" style="display: none;">
+        <div class="cards-row">
+            <div class="info-card">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <span>日志统计</span>
+                </div>
+                <div class="card-body" id="logsSummary">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-header">
+                    <span class="card-icon">⚡</span>
+                    <span>性能指标</span>
+                </div>
+                <div class="card-body" id="performanceMetrics">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-header">
+                    <span class="card-icon">🖥️</span>
+                    <span>环境信息</span>
+                </div>
+                <div class="card-body" id="environmentInfo">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="logs-section">
+            <div class="section-header">
+                <h2>📝 执行日志</h2>
+                <div class="log-filters">
+                    <button onclick="filterLogs('all')" class="filter-btn active" data-level="all">全部</button>
+                    <button onclick="filterLogs('error')" class="filter-btn btn-error" data-level="error">错误</button>
+                    <button onclick="filterLogs('warn')" class="filter-btn btn-warn" data-level="warn">警告</button>
+                    <button onclick="filterLogs('info')" class="filter-btn btn-info" data-level="info">信息</button>
+                    <button onclick="filterLogs('debug')" class="filter-btn btn-debug" data-level="debug">调试</button>
+                </div>
+            </div>
+            <div class="logs-container" id="structuredLogs">
+                <div class="empty-message">请先查询执行记录</div>
+            </div>
+        </div>
+
+        <div class="raw-section">
+            <div class="section-header">
+                <h2>📄 原始 JSON 数据</h2>
+                <button onclick="toggleRawJSON()" class="btn btn-sm btn-secondary" id="toggleRawBtn">展开</button>
+            </div>
+            <div class="raw-container" id="rawJSON" style="display: none;">
+                <pre id="rawJSONContent"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+}
+.page-header h1 {
+    font-size: 24px;
+    color: #1f2937;
+    font-weight: 600;
+    margin: 0;
+}
+.query-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.query-form {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+}
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+.cards-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+.info-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.card-icon {
+    font-size: 20px;
+}
+.card-body {
+    padding: 20px;
+}
+.loading {
+    color: #9ca3af;
+    font-style: italic;
+}
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+.stat-row:last-child {
+    border-bottom: none;
+}
+.stat-label {
+    color: #6b7280;
+    font-size: 13px;
+}
+.stat-value {
+    font-weight: 600;
+    font-size: 18px;
+    color: #1f2937;
+}
+.level-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.level-debug { background: #f3e8ff; color: #8b5cf6; }
+.level-info { background: #dbeafe; color: #3b82f6; }
+.level-warn { background: #fef3c7; color: #f59e0b; }
+.level-error { background: #fee2e2; color: #ef4444; }
+.logs-section, .raw-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+}
+.section-header h2 {
+    font-size: 18px;
+    color: #1f2937;
+    font-weight: 600;
+    margin: 0;
+}
+.log-filters {
+    display: flex;
+    gap: 8px;
+}
+.filter-btn {
+    padding: 6px 16px;
+    border: 1px solid #d1d5db;
+    background: white;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+.filter-btn:hover { background: #f3f4f6; }
+.filter-btn.active { background: #667eea; color: white; border-color: #667eea; }
+.logs-container {
+    max-height: 500px;
+    overflow-y: auto;
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 12px;
+}
+.log-entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    background: white;
+    border-left: 3px solid #d1d5db;
+    font-size: 13px;
+}
+.log-entry:hover { background: #f3f4f6; }
+.log-entry.log-debug { border-left-color: #8b5cf6; }
+.log-entry.log-info { border-left-color: #3b82f6; }
+.log-entry.log-warn { border-left-color: #f59e0b; background: #fffbeb; }
+.log-entry.log-error { border-left-color: #ef4444; background: #fee2e2; }
+.log-entry.log-critical { border-left-color: #dc2626; background: #fee2e2; }
+.log-time {
+    color: #6b7280;
+    font-size: 12px;
+    font-family: monospace;
+    min-width: 80px;
+}
+.log-level-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    min-width: 60px;
+    text-align: center;
+}
+.log-level-badge.debug { background: #f3e8ff; color: #8b5cf6; }
+.log-level-badge.info { background: #dbeafe; color: #3b82f6; }
+.log-level-badge.warn { background: #fef3c7; color: #f59e0b; }
+.log-level-badge.error { background: #fee2e2; color: #ef4444; }
+.log-level-badge.critical { background: #fecaca; color: #dc2626; }
+.log-message {
+    flex: 1;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 600px;
+}
+.log-message.long {
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.log-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    color: #6b7280;
+}
+.log-meta-item {
+    padding: 2px 8px;
+    background: #e5e7eb: 4px;
+    border-radius;
+}
+.empty-message {
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+    font-style: italic;
+}
+.raw-container {
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 16px;
+    max-height: 400px;
+    overflow: auto;
+}
+.raw-container pre {
+    color: #e5e7eb;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+</style>
+
+<script>
+let currentExecutionId = '';
+let currentLogs = [];
+
+window.onload = function() {
+    // 总是加载执行记录下拉框
+    loadRecentExecutions();
+    
+    // 检查URL参数是否有executionId
+    const urlParams = new URLSearchParams(window.location.search);
+    const executionId = urlParams.get('executionId');
+    
+    if (executionId) {
+        // 延迟一下确保下拉框已加载
+        setTimeout(() => {
+            document.getElementById('executionId').value = executionId;
+            queryExecution();
+        }, 100);
+    }
+};
+
+async function loadRecentExecutions() {
+    try {
+        const projectId = localStorage.getItem('globalProjectId');
+        if (!projectId) return;
+        const response = await fetch(`/api/executions?projectId=${projectId}&pageSize=20`);
+        const executions = await response.json();
+        const select = document.getElementById('recentExecutions');
+        select.innerHTML = '<option value="">-- 选择执行记录 --</option>';
+        const execList = Array.isArray(executions) ? executions : (executions.data || []);
+        execList.slice(0, 20).forEach(exec => {
+            const option = document.createElement('option');
+            option.value = exec.id;
+            const time = new Date(exec.startTime).toLocaleString('zh-CN');
+            const status = exec.status === 'passed' ? '✅' : '❌';
+            option.textContent = `${status} ${exec.testCaseName || exec.scenarioName || '未知'} - ${time}`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('加载执行记录失败:', error);
+    }
+}
+
+document.getElementById('recentExecutions').addEventListener('change', function() {
+    const selectedId = this.value;
+    if (selectedId) {
+        document.getElementById('executionId').value = selectedId;
+        queryExecution();
+    }
+});
+
+async function queryExecution() {
+    const execId = document.getElementById('executionId').value.trim();
+    if (!execId) { alert('请输入执行ID'); return; }
+    currentExecutionId = execId;
+    document.getElementById('resultSection').style.display = 'block';
+    await Promise.all([loadLogsSummary(), loadPerformance(), loadEnvironment(), loadStructuredLogs()]);
+    loadRawJSON();
+}
+
+async function loadLogsSummary() {
+    try {
+        const response = await fetch(`/api/executions/${currentExecutionId}/logs-summary`);
+        const summary = await response.json();
+        const container = document.getElementById('logsSummary');
+        if (summary.error) { container.innerHTML = '<div class="empty-message">暂无日志统计</div>'; return; }
+        container.innerHTML = `
+            <div class="stat-row"><span class="stat-label">总日志数</span><span class="stat-value">${summary.total}</span></div>
+            <div class="stat-row"><span class="stat-label">DEBUG</span><span class="level-badge level-debug">${summary.byLevel.debug}</span></div>
+            <div class="stat-row"><span class="stat-label">INFO</span><span class="level-badge level-info">${summary.byLevel.info}</span></div>
+            <div class="stat-row"><span class="stat-label">WARN</span><span class="level-badge level-warn">${summary.byLevel.warn}</span></div>
+            <div class="stat-row"><span class="stat-label">ERROR</span><span class="level-badge level-error">${summary.byLevel.error}</span></div>
+            <div class="stat-row"><span class="stat-label">CRITICAL</span><span class="level-badge level-error">${summary.byLevel.critical}</span></div>
+        `;
+    } catch (error) {
+        document.getElementById('logsSummary').innerHTML = '<div class="empty-message">加载失败</div>';
+    }
+}
+
+async function loadPerformance() {
+    try {
+        const response = await fetch(`/api/executions/${currentExecutionId}/performance`);
+        const metrics = await response.json();
+        const container = document.getElementById('performanceMetrics');
+        if (!metrics || metrics.error) { container.innerHTML = '<div class="empty-message">暂无性能指标</div>'; return; }
+        const formatDuration = (ms) => { if (!ms) return '-'; if (ms < 1000) return ms + 'ms'; if (ms < 60000) return (ms).toFixed(1) + ' / 1000s'; return Math.floor(ms / 60000) + 'm ' + Math.round((ms % 60000) / 1000) + 's'; };
+        container.innerHTML = `
+            <div class="stat-row"><span class="stat-label">总耗时</span><span class="stat-value">${formatDuration(metrics.totalDuration)}</span></div>
+            <div class="stat-row"><span class="stat-label">平均步骤耗时</span><span class="stat-value">${formatDuration(metrics.averageStepDuration)}</span></div>
+            <div class="stat-row"><span class="stat-label">元素交互次数</span><span class="stat-value">${metrics.elementInteractions || 0}</span></div>
+            ${metrics.slowestStep ? `<div class="stat-row"><span class="stat-label">最慢步骤</span><span class="stat-value" style="font-size: 14px;">步骤${metrics.slowestStep.order}: ${metrics.slowestStep.action}<br><small style="color: #f59e0b;">${formatDuration(metrics.slowestStep.duration)}</small></span></div>` : ''}
+        `;
+    } catch (error) {
+        document.getElementById('performanceMetrics').innerHTML = '<div class="empty-message">加载失败</div>';
+    }
+}
+
+async function loadEnvironment() {
+    try {
+        const response = await fetch(`/api/executions/${currentExecutionId}/environment`);
+        const env = await response.json();
+        const container = document.getElementById('environmentInfo');
+        
+        if (!env || env === null || env === '' || (typeof env === 'object' && Object.keys(env).length === 0) || env.error) { 
+            container.innerHTML = '<div class="empty-message">暂无环境信息</div>'; 
+            return; 
+        }
+        
+        const browserInfo = env.browserVersion || '';
+        const browserVersion = browserInfo.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)?.[0] || browserInfo || '-';
+        
+        container.innerHTML = `
+            <div class="stat-row"><span class="stat-label">操作系统</span><span class="stat-value">${env.os} ${env.osVersion}</span></div>
+            <div class="stat-row"><span class="stat-label">Node.js版本</span><span class="stat-value">${env.nodeVersion}</span></div>
+            <div class="stat-row"><span class="stat-label">Playwright版本</span><span class="stat-value">${env.testPlatformVersion}</span></div>
+            <div class="stat-row"><span class="stat-label">分辨率</span><span class="stat-value">${env.resolution}</span></div>
+            <div class="stat-row"><span class="stat-label">浏览器</span><span class="stat-value">${browserVersion}</span></div>
+        `;
+    } catch (error) {
+        document.getElementById('environmentInfo').innerHTML = '<div class="empty-message">暂无环境信息</div>';
+    }
+}
+
+async function loadStructuredLogs(level = null) {
+    try {
+        let url = `/api/executions/${currentExecutionId}/structured-logs`;
+        if (level) url += `?level=${level}`;
+        const response = await fetch(url);
+        currentLogs = await response.json();
+        const container = document.getElementById('structuredLogs');
+        if (!currentLogs || currentLogs.length === 0 || currentLogs.error) { container.innerHTML = '<div class="empty-message">暂无结构化日志</div>'; return; }
+        const formatTime = (timestamp) => new Date(timestamp).toLocaleTimeString('zh-CN');
+        
+        container.innerHTML = currentLogs.map(log => {
+            let fullMessage = log.message;
+            const meta = log.metadata || {};
+            
+            if (meta.selector) {
+                fullMessage += `: ${meta.selector}`;
+                if (meta.value) {
+                    fullMessage += `: ${meta.value}`;
+                }
+            }
+            
+            const isLong = fullMessage.length > 80;
+            const messageClass = isLong ? 'log-message long' : 'log-message';
+            
+            return `
+                <div class="log-entry log-${log.level}" data-level="${log.level}">
+                    <span class="log-time">${formatTime(log.timestamp)}</span>
+                    <span class="log-level-badge ${log.level}">${log.level}</span>
+                    <span class="${messageClass}" title="${escapeHtml(fullMessage)}">${escapeHtml(fullMessage)}</span>
+                    <div class="log-meta" style="margin-left: auto;">
+                        ${log.stepOrder ? `<span class="log-meta-item">步骤 ${log.stepOrder}</span>` : ''}
+                        ${meta.action ? `<span class="log-meta-item">${meta.action}</span>` : ''}
+                        ${meta.duration ? `<span class="log-meta-item">${meta.duration}ms</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        document.getElementById('structuredLogs').innerHTML = '<div class="empty-message">加载失败</div>';
+    }
+}
+
+function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+function filterLogs(level) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    loadStructuredLogs(level === 'all' ? null : level);
+}
+
+async function loadRawJSON() {
+    try {
+        const response = await fetch(`/api/executions/${currentExecutionId}`);
+        const data = await response.json();
+        document.getElementById('rawJSONContent').textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+        document.getElementById('rawJSONContent').textContent = '加载失败';
+    }
+}
+
+function toggleRawJSON() {
+    const container = document.getElementById('rawJSON');
+    const btn = document.getElementById('toggleRawBtn');
+    container.style.display = container.style.display === 'none' ? 'block' : 'none';
+    btn.textContent = container.style.display === 'none' ? '展开' : '收起';
+}
+
+function exportJSON() {
+    if (!currentExecutionId) { alert('请先查询执行记录'); return; }
+    window.open(`/api/executions/${currentExecutionId}/export-logs/json`, '_blank');
+}
+
+function exportCSV() {
+    if (!currentExecutionId) { alert('请先查询执行记录'); return; }
+    window.open(`/api/executions/${currentExecutionId}/export-logs/csv`, '_blank');
+}
+
+document.getElementById('executionId').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') queryExecution();
+});
+</script>

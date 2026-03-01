@@ -1,0 +1,118 @@
+[
+  {
+    "id": "e9608551-7e15-43f6-b43c-ce71821b4ac0",
+    "name": "通用问题",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "pending",
+    "feishuWebhook": "https://open.feishu.cn/open-apis/bot/v2/hook/aa0781d8-70c2-4cc9-8c9a-2867c73275c7",
+    "notifyOnSuccess": true,
+    "notifyOnFailure": true,
+    "createdAt": "2026-02-27T08:11:23.078Z",
+    "updatedAt": "2026-02-28T09:05:04.647Z",
+    "cronExpression": "06 17 * * *",
+    "executedAt": "2026-02-28T07:02:56.315Z",
+    "result": {
+      "status": "passed",
+      "passedTests": 2,
+      "failedTests": 0,
+      "duration": 16386,
+      "executionId": "721160d8-d36f-4766-bc7f-8fd92d7b9aa7"
+    },
+    "lastExecutedAt": "2026-02-28T07:02:56.830Z"
+  },
+  {
+    "id": "85bc48d3-3899-413d-aad1-7e33e177cb0f",
+    "name": "通用问题",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "completed",
+    "feishuWebhook": "https://open.feishu.cn/open-apis/bot/v2/hook/aa0781d8-70c2-4cc9-8c9a-2867c73275c7",
+    "notifyOnSuccess": true,
+    "notifyOnFailure": true,
+    "createdAt": "2026-02-27T08:11:23.078Z",
+    "updatedAt": "2026-02-28T09:06:38.895Z",
+    "cronExpression": "06 17 * * *",
+    "executedAt": "2026-02-28T09:06:38.338Z",
+    "result": {
+      "status": "passed",
+      "passedTests": 2,
+      "failedTests": 0,
+      "duration": 16866,
+      "executionId": "e0cb2e4f-12dd-437b-8884-339210ee23c4"
+    },
+    "lastExecutedAt": "2026-02-28T07:02:56.830Z"
+  },
+  {
+    "id": "0d06ade9-a4be-4825-ab8a-4467f5d5a429",
+    "name": "通用问题",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "completed",
+    "feishuWebhook": "https://open.feishu.cn/open-apis/bot/v2/hook/aa0781d8-70c2-4cc9-8c9a-2867c73275c7",
+    "notifyOnSuccess": true,
+    "notifyOnFailure": true,
+    "createdAt": "2026-02-27T08:11:23.078Z",
+    "updatedAt": "2026-02-28T09:18:34.416Z",
+    "executedAt": "2026-02-28T09:18:33.867Z",
+    "result": {
+      "status": "passed",
+      "passedTests": 2,
+      "failedTests": 0,
+      "duration": 15851,
+      "executionId": "42fe4a33-4dd7-4206-b796-931c02f22db1"
+    },
+    "lastExecutedAt": "2026-02-28T07:02:56.830Z",
+    "isExecutionHistory": true
+  },
+  {
+    "id": "a3e85626-268e-4806-b51b-cecc79f6ceb6",
+    "name": "通用问题",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "completed",
+    "feishuWebhook": "https://open.feishu.cn/open-apis/bot/v2/hook/aa0781d8-70c2-4cc9-8c9a-2867c73275c7",
+    "notifyOnSuccess": true,
+    "notifyOnFailure": true,
+    "createdAt": "2026-02-27T08:11:23.078Z",
+    "updatedAt": "2026-02-28T11:47:29.828Z",
+    "executedAt": "2026-02-28T11:47:29.425Z",
+    "result": {
+      "status": "passed",
+      "passedTests": 2,
+      "failedTests": 0,
+      "duration": 15377,
+      "executionId": "9e65ff6c-6eaf-471f-bb6d-e88db19911d3"
+    },
+    "lastExecutedAt": "2026-02-28T07:02:56.830Z",
+    "isExecutionHistory": true
+  },
+  {
+    "id": "f476e1fc-fb1b-4dc8-bafe-cca6f1281de7",
+    "name": "通用问题",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "completed",
+    "feishuWebhook": "https://open.feishu.cn/open-apis/bot/v2/hook/aa0781d8-70c2-4cc9-8c9a-2867c73275c7",
+    "notifyOnSuccess": true,
+    "notifyOnFailure": true,
+    "createdAt": "2026-02-27T08:11:23.078Z",
+    "updatedAt": "2026-02-28T11:49:42.803Z",
+    "cronExpression": "06 17 * * *",
+    "executedAt": "2026-02-28T11:49:42.393Z",
+    "result": {
+      "status": "passed",
+      "passedTests": 2,
+      "failedTests": 0,
+      "duration": 14984,
+      "executionId": "b66e6dd2-5267-4a45-9eb7-fff8a0ee12e1"
+    },
+    "lastExecutedAt": "2026-02-28T07:02:56.830Z",
+    "isExecutionHistory": true
+  }
+]

@@ -1,0 +1,93 @@
+{
+  "id": "0386b5a4-8ffd-4c21-a346-af75f3171ee4",
+  "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+  "name": "上架商品",
+  "description": "",
+  "url": "/#/goods/create",
+  "useRelativeUrl": true,
+  "steps": [
+    {
+      "id": "46b81066-6440-499a-a49b8ed8a597",
+      "order": 1,
+      "action": "fill",
+      "selector": "div.el-form-item:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1)",
+      "value": "${productNo}",
+      "description": "填写商品编号",
+      "screenshot": true
+    },
+    {
+      "id": "d05553ae-d80d-45c2-9b3a-93cb50ce83dc",
+      "order": 2,
+      "action": "fill",
+      "selector": "div.el-form-item:nth-child(2) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1)",
+      "value": "${productName}",
+      "description": "填写商品名称",
+      "screenshot": true
+    },
+    {
+      "id": "fa5b8910-977b-4dde-8063-26032cd03588",
+      "order": 3,
+      "action": "click",
+      "selector": "input[placeholder='请选择']",
+      "value": "",
+      "description": "点击商品分类选择器",
+      "screenshot": true
+    },
+    {
+      "id": "b8f8ba2e-20cc-4587-84ca-1c4868e37965",
+      "order": 4,
+      "action": "click",
+      "selector": "text=居家",
+      "value": "",
+      "description": "选择第一个分类",
+      "screenshot": true
+    },
+    {
+      "id": "60b7aae9-dbb4-45f7-bcaa-10fa51169ae0",
+      "order": 5,
+      "action": "click",
+      "selector": "text=灯具",
+      "value": "",
+      "description": "选择第二个分类",
+      "screenshot": true
+    },
+    {
+      "id": "44f7790b-a1db-4931-9019-c1abb1c23038",
+      "order": 6,
+      "action": "click",
+      "selector": ".el-select > div:nth-child(1) > input:nth-child(1)",
+      "value": "",
+      "description": "",
+      "screenshot": false
+    },
+    {
+      "id": "76c57cf5-183c-415a-8f34-170b78cef32c",
+      "order": 7,
+      "action": "click",
+      "selector": "text=花生",
+      "value": "",
+      "description": "",
+      "screenshot": false
+    },
+    {
+      "id": "8fe5118b-ca82-4d52-aef2-b59c2e228d1e",
+      "order": 8,
+      "action": "click",
+      "selector": ".op-container > button:nth-child(2) > span:nth-child(1)",
+      "value": "上架",
+      "description": "",
+      "screenshot": true
+    }
+  ],
+  "expectedResults": [],
+  "testData": {},
+  "tags": [],
+  "dataDriven": {
+    "enabled": true,
+    "dataFile": "data.csv",
+    "dataRange": "1-1",
+    "executionCount": 1
+  },
+  "createdAt": "2026-02-24T00:34:45.578Z",
+  "updatedAt": "2026-02-26T03:25:10.111Z"
+}

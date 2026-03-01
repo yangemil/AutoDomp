@@ -1,0 +1,142 @@
+{
+  "id": "91026559-45a4-4ae1-8b8f-3a2f68033e56",
+  "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+  "testCaseId": "17afc4e8-353c-4ed6-b74c-942dd843668c",
+  "testCaseName": "登录",
+  "status": "failed",
+  "startTime": "2026-02-28T08:44:48.694Z",
+  "steps": [
+    {
+      "stepId": "749f987f-3b6c-4ffc-b015-ee8edb8f6dc5",
+      "order": 1,
+      "action": "click",
+      "status": "failed",
+      "startTime": "2026-02-28T08:44:53.937Z",
+      "endTime": "2026-02-28T08:44:59.155Z",
+      "duration": 5218,
+      "error": "page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.el-button')\u001b[22m\n",
+      "screenshot": "91026559-45a4-4ae1-8b8f-3a2f68033e56_step_1_error.png"
+    }
+  ],
+  "screenshots": [
+    "91026559-45a4-4ae1-8b8f-3a2f68033e56_step_1_error.png"
+  ],
+  "logs": [
+    "[2026-02-28T08:44:48.695Z] 开始执行测试用例: 登录",
+    "[2026-02-28T08:44:48.698Z] 使用场景共享页面",
+    "[2026-02-28T08:44:48.725Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard",
+    "[2026-02-28T08:44:53.937Z] 页面导航失败: page.goto: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard\", waiting until \"networkidle\"\u001b[22m\n",
+    "[2026-02-28T08:44:53.937Z] 执行步骤 1: 点击元素",
+    "[2026-02-28T08:44:53.940Z] 点击元素: .el-button",
+    "[2026-02-28T08:45:02.910Z] 步骤 1 执行失败: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.el-button')\u001b[22m\n",
+    "[2026-02-28T08:45:02.910Z] 测试执行完成，状态: failed"
+  ],
+  "context": {},
+  "structuredLogs": [
+    {
+      "id": "3cb1d937-8e89-48d9-b737-4af720feed43",
+      "timestamp": "2026-02-28T08:44:48.696Z",
+      "level": "info",
+      "message": "开始执行测试用例: 登录",
+      "executionId": "91026559-45a4-4ae1-8b8f-3a2f68033e56"
+    },
+    {
+      "id": "965191bc-5612-424b-8569-f931f3b7ff2e",
+      "timestamp": "2026-02-28T08:44:53.937Z",
+      "level": "error",
+      "message": "执行错误: page.goto: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard\", waiting until \"networkidle\"\u001b[22m\n",
+      "executionId": "91026559-45a4-4ae1-8b8f-3a2f68033e56",
+      "stepOrder": 0,
+      "metadata": {
+        "url": "https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard",
+        "action": "navigate",
+        "error": {
+          "message": "page.goto: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard\", waiting until \"networkidle\"\u001b[22m\n",
+          "stack": "page.goto: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard\", waiting until \"networkidle\"\u001b[22m\n\n    at TestEngineService.executeSingleTest (D:\\测试小工具\\autodomp\\src\\modules\\test-engine\\test-engine.service.ts:190:22)\n    at async TestEngineService.executeTestCase (D:\\测试小工具\\autodomp\\src\\modules\\test-engine\\test-engine.service.ts:502:14)\n    at async TestEngineService.executeScenario (D:\\测试小工具\\autodomp\\src\\modules\\test-engine\\test-engine.service.ts:779:37)\n    at async TimerService.executeTask (D:\\测试小工具\\autodomp\\src\\modules\\timer\\timer.service.ts:189:22)\n    at async TimerService.executeQueue (D:\\测试小工具\\autodomp\\src\\modules\\timer\\timer.service.ts:159:7)",
+          "type": "TimeoutError"
+        }
+      }
+    },
+    {
+      "id": "9c023fb9-e5a9-4aa9-b0af-d3e88abe5c63",
+      "timestamp": "2026-02-28T08:44:53.937Z",
+      "level": "debug",
+      "message": "执行步骤 1: 点击元素",
+      "executionId": "91026559-45a4-4ae1-8b8f-3a2f68033e56",
+      "stepOrder": 1,
+      "metadata": {
+        "action": "点击元素",
+        "selector": ".el-button",
+        "value": "登录"
+      }
+    },
+    {
+      "id": "a97fa214-1d8b-4a3f-b8ca-453338a4049a",
+      "timestamp": "2026-02-28T08:45:02.909Z",
+      "level": "info",
+      "message": "错误截图已保存: 91026559-45a4-4ae1-8b8f-3a2f68033e56_step_1_error.png",
+      "executionId": "91026559-45a4-4ae1-8b8f-3a2f68033e56",
+      "metadata": {
+        "screenshot": "91026559-45a4-4ae1-8b8f-3a2f68033e56_step_1_error.png"
+      }
+    },
+    {
+      "id": "221af37c-fcec-4c16-8f97-124fdf8bbdad",
+      "timestamp": "2026-02-28T08:45:02.910Z",
+      "level": "error",
+      "message": "执行错误: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.el-button')\u001b[22m\n",
+      "executionId": "91026559-45a4-4ae1-8b8f-3a2f68033e56",
+      "stepOrder": 1,
+      "metadata": {
+        "action": "click",
+        "selector": ".el-button",
+        "url": "https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard",
+        "error": {
+          "message": "page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.el-button')\u001b[22m\n",
+          "stack": "page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.el-button')\u001b[22m\n\n    at TestEngineService.executeStep (D:\\测试小工具\\autodomp\\src\\modules\\test-engine\\test-engine.service.ts:526:20)\n    at TestEngineService.executeSingleTest (D:\\测试小工具\\autodomp\\src\\modules\\test-engine\\test-engine.service.ts:278:24)\n    at async TestEngineService.executeTestCase (D:\\测试小工具\\autodomp\\src\\modules\\test-engine\\test-engine.service.ts:502:14)\n    at async TestEngineService.executeScenario (D:\\测试小工具\\autodomp\\src\\modules\\test-engine\\test-engine.service.ts:779:37)\n    at async TimerService.executeTask (D:\\测试小工具\\autodomp\\src\\modules\\timer\\timer.service.ts:189:22)\n    at async TimerService.executeQueue (D:\\测试小工具\\autodomp\\src\\modules\\timer\\timer.service.ts:159:7)",
+          "type": "TimeoutError"
+        }
+      }
+    },
+    {
+      "id": "fff90240-4d5d-46d6-912c-7d6e8e0f150a",
+      "timestamp": "2026-02-28T08:45:02.910Z",
+      "level": "info",
+      "message": "测试执行完成，状态: failed",
+      "executionId": "91026559-45a4-4ae1-8b8f-3a2f68033e56"
+    }
+  ],
+  "performanceMetrics": {
+    "totalDuration": 14216,
+    "averageStepDuration": 5218,
+    "pageLoadTimes": [],
+    "elementInteractions": 0,
+    "slowestStep": {
+      "order": 1,
+      "action": "click",
+      "description": "",
+      "duration": 5218
+    }
+  },
+  "environmentInfo": {
+    "os": "Windows 11 24H2",
+    "osVersion": "",
+    "nodeVersion": "v24.11.1",
+    "platform": "win32",
+    "browserVersion": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+    "resolution": "1280x720",
+    "timezone": "Asia/Shanghai",
+    "locale": "zh-CN",
+    "memoryUsage": {
+      "used": 19065405440,
+      "total": 34132516864,
+      "percentage": 44.14298390017489
+    },
+    "cpuUsage": 0,
+    "testPlatform": "Playwright",
+    "testPlatformVersion": "1.58.2"
+  },
+  "error": "步骤 1 失败: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.el-button')\u001b[22m\n",
+  "endTime": "2026-02-28T08:45:02.910Z",
+  "duration": 14216
+}

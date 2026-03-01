@@ -1,0 +1,79 @@
+{
+  "id": "5b75aea6-2a0f-4ed6-b0ad-227bbf883007",
+  "projectId": "281ede80-71ee-4da0-81e4-8469714efe3f",
+  "name": "用户登录成功测试",
+  "description": "验证用户使用正确的用户名和密码登录系统",
+  "url": "/login",
+  "useRelativeUrl": true,
+  "steps": [
+    {
+      "id": "c92f043b-ff52-4158-88f0-d16449bfa41a",
+      "order": 1,
+      "action": "navigate",
+      "selector": "",
+      "value": "/login",
+      "description": "访问登录页面",
+      "screenshot": true
+    },
+    {
+      "id": "839ae203-a646-45df-b676-5dc013cf5c13",
+      "order": 2,
+      "action": "fill",
+      "selector": "body > div > div.loginOutDiv > div > form > div:nth-child(1) > div > input",
+      "value": "admin",
+      "description": "输入用户名admin",
+      "screenshot": true
+    },
+    {
+      "id": "49ca98c7-076a-427b-852f-776fa38a1923",
+      "order": 3,
+      "action": "fill",
+      "selector": "body > div > div.loginOutDiv > div > form > div:nth-child(2) > div > input",
+      "value": "Huanbao@123",
+      "description": "输入密码Huanbao@123",
+      "screenshot": true
+    },
+    {
+      "id": "97656588-8d8f-44c8-9956-ea34f0330cd2",
+      "order": 4,
+      "action": "click",
+      "selector": "#login",
+      "value": "",
+      "description": "点击登录按钮",
+      "screenshot": true,
+      "highlightOnScreenshot": true
+    },
+    {
+      "id": "6569c183-eeb0-4dc5-9398-00e363409eb9",
+      "order": 5,
+      "action": "verify",
+      "selector": "",
+      "value": "",
+      "description": "验证登录后URL跳转正确",
+      "screenshot": true,
+      "assertion": {
+        "enabled": true,
+        "type": "url_contains",
+        "selector": "",
+        "value": "/base/#/index",
+        "attribute": "",
+        "timeout": 5000
+      }
+    }
+  ],
+  "expectedResults": [
+    "用户输入正确的用户名和密码后，点击登录按钮能够成功跳转到主页",
+    "页面中显示了主页的容器元素 .dashboard-container"
+  ],
+  "testData": {},
+  "tags": [
+    "登录功能",
+    "成功场景"
+  ],
+  "createdAt": "2026-02-25T06:01:23.402Z",
+  "updatedAt": "2026-02-25T10:24:47.106Z",
+  "dataDriven": {
+    "enabled": false,
+    "executionCount": 1
+  }
+}

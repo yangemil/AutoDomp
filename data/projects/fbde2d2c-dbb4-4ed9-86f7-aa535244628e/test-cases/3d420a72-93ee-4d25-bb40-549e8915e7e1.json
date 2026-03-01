@@ -1,0 +1,63 @@
+{
+  "id": "3d420a72-93ee-4d25-bb40-549e8915e7e1",
+  "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+  "name": "添加通用问题",
+  "description": "",
+  "url": "/#/mall/issue",
+  "useRelativeUrl": true,
+  "steps": [
+    {
+      "id": "89fe82de-f4b5-4b90-a546-9ac098605478",
+      "order": 1,
+      "action": "click",
+      "selector": "text=添加",
+      "value": "",
+      "description": "",
+      "screenshot": true,
+      "assertion": {
+        "enabled": true,
+        "type": "text_contains",
+        "selector": ".el-dialog__title",
+        "value": "创建",
+        "attribute": "",
+        "timeout": 2000
+      }
+    },
+    {
+      "id": "9254efdc-f0db-4799-b0b4-23a2beb2a137",
+      "order": 2,
+      "action": "fill",
+      "selector": "div.el-form-item:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1)",
+      "value": "问题001",
+      "description": "",
+      "screenshot": true
+    },
+    {
+      "id": "2aee6f0a-c6cc-4d52-87f5-b7f372d2f9e5",
+      "order": 3,
+      "action": "fill",
+      "selector": ".el-textarea__inner",
+      "value": "回复001",
+      "description": "",
+      "screenshot": true
+    },
+    {
+      "id": "bce08b2b-bd86-40d6-8890-694548ed925a",
+      "order": 4,
+      "action": "click",
+      "selector": ".dialog-footer > button:nth-child(2) > span:nth-child(1)",
+      "value": "确定",
+      "description": "",
+      "screenshot": true
+    }
+  ],
+  "expectedResults": [],
+  "testData": {},
+  "tags": [],
+  "createdAt": "2026-02-27T05:14:23.089Z",
+  "updatedAt": "2026-02-28T09:22:02.601Z",
+  "dataDriven": {
+    "enabled": false,
+    "executionCount": 1
+  }
+}

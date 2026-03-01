@@ -1,0 +1,299 @@
+<div class="page">
+    <div class="page-header">
+        <h1>执行详情</h1>
+        <a href="/executions" class="back-link">← 返回执行记录</a>
+    </div>
+
+    <div class="execution-detail">
+        <div class="detail-card">
+            <div class="detail-item">
+                <label>{{#if execution.scenarioName}}场景名称{{else}}测试用例{{/if}}</label>
+                <div>{{execution.scenarioName}}{{execution.testCaseName}}</div>
+            </div>
+            <div class="detail-item">
+                <label>状态</label>
+                <div><span class="status-badge status-{{execution.status}}">{{execution.status}}</span></div>
+            </div>
+            <div class="detail-item">
+                <label>开始时间</label>
+                <div>{{formatDate execution.startTime}}</div>
+            </div>
+            <div class="detail-item">
+                <label>耗时</label>
+                <div>{{formatDuration execution.duration}}</div>
+            </div>
+            <div class="detail-item">
+                <label>{{#if execution.scenarioName}}测试用例数{{else}}步骤数{{/if}}</label>
+                <div>{{#if execution.scenarioName}}{{execution.totalTests}}{{else}}{{execution.steps.length}}{{/if}}</div>
+            </div>
+            {{#if execution.passedTests}}
+            <div class="detail-item">
+                <label>通过/失败</label>
+                <div>
+                    <span class="result-passed">{{execution.passedTests}} 通过</span> / 
+                    <span class="result-failed">{{execution.failedTests}} 失败</span>
+                </div>
+            </div>
+            {{/if}}
+        </div>
+
+        {{#if execution.error}}
+        <div class="error-section">
+            <h2>错误信息</h2>
+            <div class="error-message">{{execution.error}}</div>
+        </div>
+        {{/if}}
+
+        {{#if execution.steps}}
+        <div class="steps-section">
+            <h2>执行步骤</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>动作</th>
+                        <th>描述</th>
+                        <th>状态</th>
+                        <th>耗时</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each execution.steps}}
+                    <tr class="step-{{this.status}}">
+                        <td>{{this.order}}</td>
+                        <td>{{this.action}}</td>
+                        <td>{{this.description}}</td>
+                        <td><span class="status-badge status-{{this.status}}">{{this.status}}</span></td>
+                        <td>{{formatDuration this.duration}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+        {{/if}}
+
+        {{#if execution.screenshots}}
+        <div class="screenshots-section">
+            <h2>执行截图</h2>
+            <div class="screenshots-grid">
+                {{#each execution.screenshots}}
+                <div class="screenshot-item">
+                    <img src="/data/screenshots/{{this}}" alt="执行截图">
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        {{/if}}
+
+        {{#if execution.logs}}
+        <div class="logs-section">
+            <h2>执行日志</h2>
+            <div class="logs-list">
+                {{#each execution.logs}}
+                    <div class="log-item">{{this}}</div>
+                {{/each}}
+            </div>
+        </div>
+        {{/if}}
+    </div>
+</div>
+
+<script>
+function formatDuration(duration) {
+    if (!duration) return '-';
+    const seconds = duration / 1000;
+    if (seconds < 60) {
+        return Math.round(seconds) + ' 秒';
+    } else {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.round(seconds % 60);
+        return minutes + ' 分 ' + remainingSeconds + ' 秒';
+    }
+}
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleString('zh-CN');
+}
+</script>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.back-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(102, 126, 234, 0.1);
+    transition: all 0.2s;
+}
+
+.back-link:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+.detail-card {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.detail-item {
+    flex: 1;
+    min-width: 0;
+}
+
+.detail-item label {
+    display: block;
+    color: #666;
+    font-size: 16.8px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.detail-item div {
+    font-weight: 700;
+    font-size: 19.2px;
+    color: #1f2937;
+    text-align: center;
+}
+
+.detail-row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row label {
+    width: 150px;
+    font-weight: 600;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.detail-row span {
+    color: #1f2937;
+}
+
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 16.8px;
+    font-weight: 700;
+}
+
+.status-passed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-failed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.steps-section, .logs-section, .screenshots-section {
+    margin-top: 24px;
+}
+
+.steps-section h2, .logs-section h2, .screenshots-section h2 {
+    font-size: 18px;
+    color: #1f2937;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.logs-list {
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.log-item {
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+}
+
+.screenshots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.screenshot-item {
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.screenshot-item img {
+    width: 100%;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.error-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fee2e2;
+    border-radius: 8px;
+}
+
+.error-section h2 {
+    color: #dc2626;
+    margin-bottom: 10px;
+}
+
+.error-message {
+    color: #dc2626;
+    font-family: monospace;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+}
+
+.result-passed {
+    color: #10b981;
+    font-weight: 700;
+}
+
+.result-failed {
+    color: #ef4444;
+    font-weight: 700;
+}
+</style>

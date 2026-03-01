@@ -1,0 +1,349 @@
+<div class="page">
+    <div class="page-header">
+        <h1>已执行</h1>
+    </div>
+
+    <div class="filter-section" style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+            <div>
+                <label>任务名称：</label>
+                <input type="text" id="filterTaskName" oninput="applyFilters()" placeholder="请输入任务名称" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
+            </div>
+            <div>
+                <label>计划执行时间：</label>
+                <input type="date" id="filterStartDate" onchange="applyFilters()" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+                <span>至</span>
+                <input type="date" id="filterEndDate" onchange="applyFilters()" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+                <label>状态：</label>
+                <select id="filterStatus" onchange="applyFilters()" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">全部</option>
+                    <option value="passed">通过</option>
+                    <option value="failed">失败</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">清除筛选</button>
+            <button class="btn btn-primary" onclick="refreshData()">刷新</button>
+        </div>
+    </div>
+
+    <div id="scheduleExecutionsList"></div>
+    
+    <div class="pagination" style="margin-top: 20px;">
+        <button type="button" class="btn btn-sm" id="prevPageBtn" onclick="prevPage()" disabled>上一页</button>
+        <span id="paginationInfo">第 1 页 / 共 1 页</span>
+        <button type="button" class="btn btn-sm" id="nextPageBtn" onclick="nextPage()" disabled>下一页</button>
+    </div>
+</div>
+
+<style>
+.schedule-exec-card {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.schedule-exec-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.schedule-exec-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+}
+.schedule-exec-status {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.status-passed {
+    background: #d1fae5;
+    color: #059669;
+}
+.status-failed {
+    background: #fee2e2;
+    color: #dc2626;
+}
+.schedule-exec-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 30px;
+    font-size: 14px;
+    color: #4b5563;
+}
+.schedule-exec-details span {
+    color: #666;
+}
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+.pagination button {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.pagination button:hover:not(:disabled) {
+    background: #f3f4f6;
+}
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.pagination button.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+</style>
+
+<script>
+let allScheduleExecutions = [];
+let currentPage = 1;
+const pageSize = 20;
+let projectNames = {};
+
+window.onload = async function() {
+    await loadData();
+    
+    window.addEventListener('globalProjectChanged', function(e) {
+        loadData();
+    });
+};
+
+async function loadData() {
+    try {
+        const [schedulesRes, projectsRes] = await Promise.all([
+            fetch('/api/schedules'),
+            fetch('/api/projects')
+        ]);
+        
+        const schedules = await schedulesRes.json();
+        const projects = await projectsRes.json();
+        
+        projectNames = {};
+        projects.forEach(p => projectNames[p.id] = p.name);
+        
+        // 将定时任务转换为执行记录格式，显示所有任务（包括待执行的）
+        allScheduleExecutions = schedules
+            .map(s => ({
+                id: s.id,
+                name: s.name,
+                projectId: s.projectId,
+                scenarioName: s.scenarioName,
+                scenarioId: s.scenarioId,
+                executionDate: s.executionDate,
+                executedAt: s.executedAt,
+                status: s.result?.status || s.status || (s.status === 'completed' ? 'passed' : s.status),
+                passedTests: s.result?.passedTests || 0,
+                failedTests: s.result?.failedTests || 0,
+                duration: s.result?.duration || 0,
+                executionId: s.result?.executionId,
+                feishuWebhook: s.feishuWebhook,
+                cronExpression: s.cronExpression
+            }))
+            .sort((a, b) => new Date(b.executionDate) - new Date(a.executionDate));
+        
+        currentPage = 1;
+        renderScheduleExecutions();
+    } catch (error) {
+        console.error('加载失败:', error);
+        document.getElementById('scheduleExecutionsList').innerHTML = '<div class="empty-state">加载失败</div>';
+    }
+}
+
+function renderScheduleExecutions() {
+    const container = document.getElementById('scheduleExecutionsList');
+    const filteredData = applyFiltersToData();
+    
+    if (filteredData.length === 0) {
+        container.innerHTML = '<div class="empty-state">暂无定时任务执行记录</div>';
+        updatePagination(0, 1);
+        return;
+    }
+    
+    const totalPages = Math.ceil(filteredData.length / pageSize);
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+    
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, filteredData.length);
+    const pageData = filteredData.slice(startIndex, endIndex);
+    
+    container.innerHTML = pageData.map(exec => {
+        let statusText = '';
+        let statusClass = '';
+        if (exec.status === 'passed') {
+            statusText = '✅ 通过';
+            statusClass = 'status-passed';
+        } else if (exec.status === 'failed') {
+            statusText = '❌ 失败';
+            statusClass = 'status-failed';
+        } else if (exec.status === 'running') {
+            statusText = '🔄 执行中';
+            statusClass = 'status-running';
+        } else if (exec.status === 'pending') {
+            statusText = '⏳ 待执行';
+            statusClass = 'status-pending';
+        } else {
+            statusText = exec.status;
+            statusClass = 'status-pending';
+        }
+        
+        return `
+        <div class="schedule-exec-card">
+            <div class="schedule-exec-header">
+                <div class="schedule-exec-title">${exec.name}</div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="schedule-exec-status ${statusClass}">${statusText}</span>
+                    ${exec.status === 'passed' || exec.status === 'failed' ? `<button class="btn btn-sm btn-secondary" onclick="viewLogs('${exec.id}')">查看日志</button>` : ''}
+                    <button class="btn btn-sm btn-danger" onclick="deleteScheduleExec('${exec.id}')">删除</button>
+                </div>
+            </div>
+            <div class="schedule-exec-details">
+                <div><span>项目:</span> ${projectNames[exec.projectId] || exec.projectId}</div>
+                <div><span>场景:</span> ${exec.scenarioName || '-'}</div>
+                <div><span>计划开始时间:</span> ${formatDateTime(exec.executionDate)}</div>
+                <div><span>实际:</span> ${exec.executedAt ? formatDateTime(exec.executedAt) : '-'}</div>
+                ${exec.status === 'passed' || exec.status === 'failed' ? `
+                <div><span>通过:</span> ${exec.passedTests}</div>
+                <div><span>失败:</span> ${exec.failedTests}</div>
+                <div><span>耗时:</span> ${(exec.duration / 1000).toFixed(1)}秒</div>
+                ` : ''}
+            </div>
+        </div>
+    `}).join('');
+    
+    updatePagination(filteredData.length, totalPages);
+}
+
+function applyFiltersToData() {
+    const filterProject = localStorage.getItem('globalProjectId') || '';
+    const filterTaskName = document.getElementById('filterTaskName')?.value?.toLowerCase() || '';
+    const filterStartDate = document.getElementById('filterStartDate')?.value || '';
+    const filterEndDate = document.getElementById('filterEndDate')?.value || '';
+    const filterStatus = document.getElementById('filterStatus')?.value || '';
+    
+    return allScheduleExecutions.filter(exec => {
+        if (filterProject && exec.projectId !== filterProject) return false;
+        
+        if (filterTaskName) {
+            const taskName = (exec.name || '').toLowerCase();
+            if (!taskName.includes(filterTaskName)) return false;
+        }
+        
+        // 日期过滤：优先使用executionDate，如果没有则使用executedAt
+        const dateToFilter = exec.executionDate || exec.executedAt;
+        if (!dateToFilter) return false;
+        
+        const execDate = new Date(dateToFilter).toISOString().split('T')[0];
+        
+        if (filterStartDate) {
+            if (execDate < filterStartDate) return false;
+        }
+        
+        if (filterEndDate) {
+            if (execDate > filterEndDate) return false;
+        }
+        
+        if (filterStatus) {
+            if (exec.status !== filterStatus) return false;
+        }
+        
+        return true;
+    });
+}
+
+function applyFilters() {
+    currentPage = 1;
+    renderScheduleExecutions();
+}
+
+function clearFilters() {
+    document.getElementById('filterTaskName').value = '';
+    document.getElementById('filterStartDate').value = '';
+    document.getElementById('filterEndDate').value = '';
+    document.getElementById('filterStatus').value = '';
+    currentPage = 1;
+    renderScheduleExecutions();
+}
+
+function refreshData() {
+    loadData();
+}
+
+async function deleteScheduleExec(scheduleId) {
+    if (!confirm('确定要删除这个定时任务吗？')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/schedules/${scheduleId}`, {
+            method: 'DELETE'
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('删除成功！');
+            loadData();
+        } else {
+            alert('删除失败: ' + (result.error || '未知错误'));
+        }
+    } catch (error) {
+        alert('删除失败: ' + error.message);
+    }
+}
+
+function updatePagination(total, totalPages) {
+    document.getElementById('paginationInfo').textContent = `第 ${currentPage} 页 / 共 ${totalPages || 1} 页`;
+    document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+    document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderScheduleExecutions();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil(applyFiltersToData().length / pageSize);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderScheduleExecutions();
+    }
+}
+
+function formatDateTime(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleString('zh-CN');
+}
+
+function viewLogs(scheduleId) {
+    // 跳转到定时任务日志页面，显示所有测试用例的日志
+    window.location.href = `/schedule-logs?id=${scheduleId}`;
+}
+</script>

@@ -1,0 +1,375 @@
+<div class="page">
+    <div class="page-header">
+    </div>
+
+     <div id="testCasesContainer" style="display: none;">
+         <div class="test-cases-header">
+             <h2 id="projectName"></h2>
+             <div class="filter-controls">
+                 <input type="text" id="searchInput" placeholder="搜索用例名称..." class="search-input" oninput="filterTestCases()">
+                 <input type="date" id="startDate" class="date-input" placeholder="创建开始日期" onchange="filterTestCases()">
+                 <span>至</span>
+                 <input type="date" id="endDate" class="date-input" placeholder="创建结束日期" onchange="filterTestCases()">
+                 <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">清除</button>
+             </div>
+             <div class="action-buttons">
+                 <button class="btn btn-primary" onclick="createTestCase()">+ 创建测试用例</button>
+                 <button class="btn btn-secondary" onclick="showImportModal()">导入用例</button>
+             </div>
+         </div>
+
+          <div id="testCasesList"></div>
+          <div class="pagination">
+              <button type="button" class="btn btn-sm" id="prevPageBtn" onclick="prevPage()" disabled>上一页</button>
+              <span id="paginationInfo">第 1 页 / 共 1 页</span>
+              <button type="button" class="btn btn-sm" id="nextPageBtn" onclick="nextPage()" disabled>下一页</button>
+          </div>
+     </div>
+</div>
+
+<!-- 导入用例模态框 -->
+<div id="importModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>导入测试用例</h2>
+            <button class="modal-close" onclick="closeImportModal()">&times;</button>
+        </div>
+        <div class="form-group">
+            <label>选择JSON文件</label>
+            <input type="file" id="importFile" accept=".json">
+        </div>
+        <div class="form-group">
+            <label>或粘贴JSON数据</label>
+            <textarea id="importData" rows="10" placeholder="粘贴测试用例的JSON数据"></textarea>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" onclick="importTestCase()">导入</button>
+            <button class="btn btn-secondary" onclick="closeImportModal()">取消</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentProjectId = '';
+let allTestCases = [];
+ 
+ async function loadProjectTestCases() {
+    currentProjectId = localStorage.getItem('globalProjectId');
+    
+    if (!currentProjectId) {
+        document.getElementById('testCasesContainer').style.display = 'none';
+        document.getElementById('projectName').textContent = '请先在导航栏选择项目';
+        document.getElementById('testCasesContainer').style.display = 'block';
+        return;
+    }
+    
+    try {
+        // 获取项目信息
+        const projectResponse = await fetch(`/api/projects/${currentProjectId}`);
+        const project = await projectResponse.json();
+        document.getElementById('projectName').textContent = project.name + ' - 测试用例';
+        
+        // 获取测试用例
+        const response = await fetch(`/api/test-cases?projectId=${currentProjectId}`);
+        allTestCases = await response.json();
+        
+        renderTestCases(allTestCases);
+        document.getElementById('testCasesContainer').style.display = 'block';
+    } catch (error) {
+        alert('加载失败: ' + error.message);
+    }
+}
+
+ function renderTestCases(testCases, allTestCases = null) {
+    const container = document.getElementById('testCasesList');
+    const testCasesToRender = allTestCases || testCases;
+    
+    if (testCasesToRender.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <p>该项目暂无测试用例</p>
+                <button class="btn btn-primary" onclick="createTestCase()">创建第一个测试用例</button>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = `
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>描述</th>
+                    <th>URL</th>
+                    <th>标签</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    testCasesToRender.forEach(tc => {
+        const tags = tc.tags ? tc.tags.map(t => `<span class="tag">${t}</span>`).join('') : '';
+        const url = tc.useRelativeUrl ? tc.url : (tc.url.startsWith('http') ? tc.url : '相对: ' + tc.url);
+        
+        html += `
+            <tr>
+                <td><strong>${tc.name}</strong></td>
+                <td>${tc.description || '-'}</td>
+                <td><code>${url}</code></td>
+                <td>${tags}</td>
+                <td>${new Date(tc.createdAt).toLocaleString('zh-CN')}</td>
+                <td class="actions">
+                    <button class="btn btn-sm" onclick="executeTest('${tc.id}')">执行</button>
+                    <button class="btn btn-sm btn-secondary" onclick="editTestCase('${tc.projectId}', '${tc.id}')">编辑</button>
+                    <button class="btn btn-sm" onclick="exportTestCase('${tc.id}')">导出</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteTestCase('${tc.id}')">删除</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function createTestCase() {
+    if (!currentProjectId) {
+        alert('请先选择项目');
+        return;
+    }
+    window.location.href = `/test-cases/${currentProjectId}/create`;
+}
+
+function editTestCase(projectId, testCaseId) {
+    window.location.href = `/test-cases/${projectId}/${testCaseId}/edit`;
+}
+
+async function executeTest(testCaseId) {
+    if (!confirm('确定要执行这个测试用例吗？')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/execute/${testCaseId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            alert(`测试执行完成！状态: ${result.execution.status}`);
+            loadProjectTestCases();
+        } else {
+            alert('执行失败: ' + result.error);
+        }
+    } catch (error) {
+        alert('请求失败: ' + error.message);
+    }
+}
+
+async function exportTestCase(testCaseId) {
+    try {
+        const response = await fetch(`/api/test-cases/${testCaseId}/export`);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `test-case-${testCaseId}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        alert('导出失败: ' + error.message);
+    }
+}
+
+async function deleteTestCase(testCaseId) {
+    if (!confirm('确定要删除这个测试用例吗？此操作不可恢复！')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/test-cases/${testCaseId}`, {
+            method: 'DELETE'
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            alert('删除成功！');
+            loadProjectTestCases();
+        } else {
+            alert('删除失败');
+        }
+    } catch (error) {
+        alert('请求失败: ' + error.message);
+    }
+}
+
+function showImportModal() {
+    document.getElementById('importModal').style.display = 'flex';
+}
+
+function closeImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+    document.getElementById('importFile').value = '';
+    document.getElementById('importData').value = '';
+}
+
+async function importTestCase() {
+    const fileInput = document.getElementById('importFile');
+    const textData = document.getElementById('importData').value;
+
+    let jsonData = '';
+
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        jsonData = await file.text();
+    } else if (textData) {
+        jsonData = textData;
+    } else {
+        alert('请选择文件或粘贴JSON数据');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/test-cases/import', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                projectId: currentProjectId,
+                testCaseData: jsonData
+            })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            alert('导入成功！');
+            closeImportModal();
+            loadProjectTestCases();
+        } else {
+            alert('导入失败: ' + result.error);
+        }
+    } catch (error) {
+        alert('请求失败: ' + error.message);
+    }
+}
+
+function filterTestCases() {
+    const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    const filtered = allTestCases.filter(tc => {
+        let matchSearch = true;
+        let matchDate = true;
+        
+        if (searchText) {
+            matchSearch = tc.name.toLowerCase().includes(searchText) ||
+                      (tc.description && tc.description.toLowerCase().includes(searchText)) ||
+                      (tc.tags && tc.tags.some(tag => tag.toLowerCase().includes(searchText)));
+        }
+        
+        if (startDate || endDate) {
+            const createdDate = new Date(tc.createdAt);
+            matchDate = filterByDateRange(createdDate, startDate, endDate);
+        }
+        
+        return matchSearch && matchDate;
+    });
+    
+    renderTestCases(filtered, allTestCases);
+}
+
+function filterByDateRange(date, startDate, endDate) {
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+    
+    if (start && end) {
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        return date >= start && date <= end;
+    } else if (start) {
+        start.setHours(0, 0, 0, 0);
+        return date >= start;
+    } else if (end) {
+        end.setHours(23, 59, 59, 999);
+        return date <= end;
+    }
+    
+    return true;
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    renderTestCases(allTestCases, allTestCases);
+}
+
+// 页面加载时检查全局项目选择
+window.onload = function() {
+    loadProjectTestCases();
+    
+    window.addEventListener('globalProjectChanged', function(e) {
+        loadProjectTestCases();
+    });
+};
+</script>
+
+<style>
+.test-cases-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.test-cases-header h2 {
+    margin: 0;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-controls .search-input {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 200px;
+    flex: 1;
+}
+
+.filter-controls .date-input {
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 140px;
+}
+
+.filter-controls span {
+    color: #666;
+    font-size: 14px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.table code {
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+</style>

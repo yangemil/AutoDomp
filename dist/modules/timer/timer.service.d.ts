@@ -1,0 +1,31 @@
+import { OnModuleInit } from '@nestjs/common';
+import { DataService } from '../data';
+import { TestEngineService } from '../test-engine';
+import { NotificationService } from '../notification/notification.service';
+import { ReportService } from '../report/report.service';
+import { OneTimeSchedule } from '../../common/interfaces';
+export declare class TimerService implements OnModuleInit {
+    private readonly dataService;
+    private readonly testEngineService;
+    private readonly notificationService;
+    private readonly reportService;
+    private readonly logger;
+    private isRunning;
+    private executionQueue;
+    constructor(dataService: DataService, testEngineService: TestEngineService, notificationService: NotificationService, reportService: ReportService);
+    onModuleInit(): void;
+    startScheduler(): void;
+    private recoverPendingTasks;
+    private checkAndExecute;
+    private isCronMatch;
+    private matchCronPart;
+    private executeQueue;
+    private executeTask;
+    createSchedule(schedule: Partial<OneTimeSchedule>): Promise<OneTimeSchedule>;
+    getSchedules(): Promise<OneTimeSchedule[]>;
+    getSchedule(id: string): Promise<OneTimeSchedule | null>;
+    updateSchedule(id: string, updates: Partial<OneTimeSchedule>): Promise<OneTimeSchedule | null>;
+    deleteSchedule(id: string): Promise<boolean>;
+    cancelSchedule(id: string): Promise<OneTimeSchedule | null>;
+    runNow(id: string): Promise<OneTimeSchedule | null>;
+}

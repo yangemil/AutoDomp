@@ -1,0 +1,20 @@
+{
+  "id": "a45d80f8-2c32-444d-bf8b-357e31dbaf7f",
+  "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+  "name": "登录",
+  "description": "登录",
+  "steps": [
+    {
+      "id": "f9831d55-a432-4ac5-936d-2a1b488dad14",
+      "order": 1,
+      "action": "click",
+      "selector": ".el-button",
+      "value": "登录",
+      "description": "",
+      "screenshot": false
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-02-24T01:12:11.884Z",
+  "updatedAt": "2026-02-24T01:12:11.884Z"
+}

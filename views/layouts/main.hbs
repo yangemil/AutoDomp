@@ -70,9 +70,9 @@
     </footer>
 
     <script src="/js/app.js"></script>
+    <script src="/js/common.js"></script>
     <script>
         let globalProjects = [];
-        let userMenuPermissions = null;
         
         async function loadGlobalProjects() {
             try {
@@ -114,164 +114,7 @@
             return localStorage.getItem('globalProjectId');
         }
 
-        async function loadUserMenuPermissions() {
-            try {
-                const response = await fetch('/api/user/menu-permissions');
-                if (response.ok) {
-                    userMenuPermissions = await response.json();
-                    renderDynamicMenu();
-                } else {
-                    renderDefaultMenu();
-                }
-            } catch (error) {
-                console.error('加载菜单权限失败:', error);
-                renderDefaultMenu();
-            }
-        }
-
-        function renderDynamicMenu() {
-            if (!userMenuPermissions || !userMenuPermissions.menus) {
-                renderDefaultMenu();
-                return;
-            }
-
-            const menuContainer = document.getElementById('dynamicMenu');
-            if (!menuContainer) return;
-
-            let menuHTML = '';
-
-            userMenuPermissions.menus.forEach(menu => {
-                if (menu.items && menu.items.length > 0) {
-                    menuHTML += `
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle">${menu.name}</a>
-                            <div class="dropdown-menu">
-                                ${menu.items.map(item => `
-                                    <a href="${item.path}" class="dropdown-link">${item.name}</a>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                } else if (menu.path) {
-                    menuHTML += `
-                        <div class="nav-item">
-                            <a href="${menu.path}" class="nav-link">${menu.name}</a>
-                        </div>
-                    `;
-                }
-            });
-
-            menuHTML += `
-                <div class="global-project-selector">
-                    <select id="globalProjectSelect" onchange="handleGlobalProjectChange()">
-                        <option value="">-- 全局项目 --</option>
-                    </select>
-                </div>
-            `;
-
-            menuContainer.innerHTML = menuHTML;
-            loadGlobalProjects();
-        }
-
-        function renderDefaultMenu() {
-            const menuContainer = document.getElementById('dynamicMenu');
-            if (!menuContainer) return;
-
-            menuContainer.innerHTML = `
-                <div class="nav-item">
-                    <a href="/" class="nav-link">首页</a>
-                </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle">测试管理</a>
-                    <div class="dropdown-menu">
-                        <a href="/test-cases" class="dropdown-link">测试用例</a>
-                        <a href="/scenarios" class="dropdown-link">测试场景</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle">定时</a>
-                    <div class="dropdown-menu">
-                        <a href="/schedules" class="dropdown-link">待执行</a>
-                        <a href="/schedule-executions" class="dropdown-link">已执行</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle">执行</a>
-                    <div class="dropdown-menu">
-                        <a href="/executions" class="dropdown-link">执行记录</a>
-                        <a href="/reports" class="dropdown-link">测试报告</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle">日志</a>
-                    <div class="dropdown-menu">
-                        <a href="/log-explorer" class="dropdown-link">日志查询</a>
-                        <a href="/log-management" class="dropdown-link">日志管理</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle">资源</a>
-                    <div class="dropdown-menu">
-                        <a href="/templates" class="dropdown-link">步骤模板</a>
-                        <a href="/selector-tool" class="dropdown-link">选择器工具</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle">项目</a>
-                    <div class="dropdown-menu">
-                        <a href="/projects" class="dropdown-link">项目管理</a>
-                        <a href="/project-members" class="dropdown-link">项目成员</a>
-                    </div>
-                </div>
-                <div class="nav-item">
-                    <a href="/settings" class="nav-link">设置</a>
-                </div>
-                <div class="global-project-selector">
-                    <select id="globalProjectSelect" onchange="handleGlobalProjectChange()">
-                        <option value="">-- 全局项目 --</option>
-                    </select>
-                </div>
-            `;
-
-            loadGlobalProjects();
-        }
-
-        function checkPagePermission() {
-            const currentPath = window.location.pathname;
-
-            if (currentPath === '/login') {
-                return true;
-            }
-
-            if (!userMenuPermissions || !userMenuPermissions.menus) {
-                return true;
-            }
-
-            function hasPathInMenus(menus, path) {
-                for (const menu of menus) {
-                    if (menu.path && menu.path === path) {
-                        return true;
-                    }
-                    if (menu.items && hasPathInMenus(menu.items, path)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            if (!hasPathInMenus(userMenuPermissions.menus, currentPath)) {
-                alert('您没有权限访问该页面');
-                window.location.href = '/';
-                return false;
-            }
-
-            return true;
-        }
-        
-      
-        
-        // 用户认证相关
-        function checkAuth() {
+        function handleGlobalProjectChange() {
             // 如果是登录页面，不需要检查认证
             if (window.location.pathname === '/login') {
                 return true;
@@ -304,43 +147,17 @@
             }
         }
         
-        // 添加 token 到所有 fetch 请求
-        const originalFetch = window.fetch;
-        window.fetch = function(...args) {
-            const token = localStorage.getItem('token');
-            
-            // 给 API 请求添加 token 前缀（支持 /api/ 和 /auth/ 路径）
-            let url = args[0];
-            if (typeof url === 'string' && (url.startsWith('/api/') || url.startsWith('/auth/')) && token) {
-                if (args[1] && args[1].headers) {
-                    args[1].headers['Authorization'] = `Bearer ${token}`;
-                } else if (args[1]) {
-                    args[1].headers = {
-                        ...args[1].headers,
-                        'Authorization': `Bearer ${token}`
-                    };
-                } else {
-                    args[1] = {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    };
-                }
-            }
-            return originalFetch.apply(this, args);
-        };
-
         window.addEventListener('load', function() {
             checkAuth();
-            loadUserMenuPermissions();
-            setTimeout(checkPagePermission, 500);
+            window.loadUserMenuPermissions();
+            setTimeout(window.checkPagePermission, 500);
         });
 
         window.addEventListener('menuPermissionsUpdated', function() {
-            loadUserMenuPermissions();
+            window.loadUserMenuPermissions();
         });
 
-  loadGlobalProjects();
+        loadGlobalProjects();
     </script>
 </body>
 </html>

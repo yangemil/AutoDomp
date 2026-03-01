@@ -1,0 +1,20 @@
+{
+  "id": "5e08266a-8bdd-48cb-af49-67659bf1e269",
+  "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+  "type": "scenario",
+  "name": "场景报告 - 通用问题",
+  "description": "场景: 通用问题 的测试报告",
+  "executionIds": [
+    "492bb50c-967e-4c39-a58d-6e84dff49ab6",
+    "1e05dd5d-7817-48b2-9c35-3fe483a8ba2e"
+  ],
+  "scenarioExecutionId": "e0cb2e4f-12dd-437b-8884-339210ee23c4",
+  "scenarioName": "通用问题",
+  "totalTests": 2,
+  "passedTests": 2,
+  "failedTests": 0,
+  "errorTests": 0,
+  "duration": 16866,
+  "createdAt": "2026-02-28T09:06:38.901Z",
+  "htmlPath": "scenario_report_5e08266a-8bdd-48cb-af49-67659bf1e269.html"
+}

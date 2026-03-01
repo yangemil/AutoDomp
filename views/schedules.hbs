@@ -1,0 +1,754 @@
+<div class="page">
+    <div class="page-header">
+        <h1>待执行</h1>
+    </div>
+
+    <div class="filter-section" style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+            <div>
+                <label>场景名称：</label>
+                <input type="text" id="filterScenarioName" oninput="applyFilters()" placeholder="请输入场景名称" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
+            </div>
+            <div>
+                <label>计划执行时间：</label>
+                <input type="date" id="filterStartDate" onchange="applyFilters()" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+                <span>至</span>
+                <input type="date" id="filterEndDate" onchange="applyFilters()" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">清除筛选</button>
+            <button class="btn btn-primary" onclick="showCreateScheduleModal()">+ 创建定时任务</button>
+            <button class="btn btn-danger" onclick="batchDeleteSchedules()" id="batchDeleteBtn" style="display:none;">批量删除</button>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <label>
+            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"> 全选
+        </label>
+    </div>
+
+    <div id="schedulesList"></div>
+    
+    <div class="pagination" style="margin-top: 20px;">
+        <button type="button" class="btn btn-sm" id="prevPageBtn" onclick="prevPage()" disabled>上一页</button>
+        <span id="paginationInfo">第 1 页 / 共 1 页</span>
+        <button type="button" class="btn btn-sm" id="nextPageBtn" onclick="nextPage()" disabled>下一页</button>
+    </div>
+</div>
+
+<div id="scheduleModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+            <h2 id="modalTitle">创建定时任务</h2>
+            <button type="button" class="btn-close" onclick="closeScheduleModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="scheduleForm">
+                <input type="hidden" id="scheduleId" />
+                <div class="form-group">
+                    <label>任务名称 *</label>
+                    <input type="text" id="scheduleName" class="form-control" required placeholder="请输入任务名称" />
+                </div>
+                <div class="form-group">
+                    <label>项目 *</label>
+                    <select id="scheduleProject" class="form-control" required onchange="loadProjectScenarios()">
+                        <option value="">-- 请选择项目 --</option>
+                        {{#each projects}}
+                        <option value="{{this.id}}">{{this.name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>测试场景 *（可多选，按住 Ctrl 或 Command 选择多个）</label>
+                    <select id="scheduleScenario" class="form-control" multiple size="6" required style="height: auto;" onchange="updateSelectedScenarioCount()">
+                        <option value="">-- 请先选择项目 --</option>
+                    </select>
+                    <small class="help-text">已选择: <span id="selectedScenarioCount">0</span> 个场景</small>
+                </div>
+                <div class="form-group">
+                    <label>执行时间 *</label>
+                    <div class="cron-input-group">
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" id="scheduleExecutionDate" class="form-control" placeholder="选择日期时间" style="flex: 1;" />
+                            <button type="button" class="btn btn-secondary" onclick="parseScheduleTime()">智能解析</button>
+                        </div>
+                        <input type="text" id="scheduleCron" class="form-control" placeholder="或输入Cron表达式，如: 0 8 * * * (每天8点)" />
+                        <small class="help-text" style="color: #666;">支持格式：明天08:00、每天早上9点、每周一10:00、Cron表达式</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="scheduleNotifyOnSuccess" checked />
+                        执行成功后发送通知（使用项目的飞书Webhook）
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="scheduleNotifyOnFailure" checked />
+                        执行失败后发送通知（使用项目的飞书Webhook）
+                    </label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeScheduleModal()">取消</button>
+            <button type="button" class="btn btn-primary" onclick="saveSchedule()">保存</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal.show {
+        display: flex;
+    }
+    
+
+    
+    .btn-close:hover {
+        color: #333;
+    }
+    
+    .modal-body {
+        padding: 20px;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 15px 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .schedule-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+        background: #fff;
+    }
+    
+    .schedule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+    
+    .schedule-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .schedule-status {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .status-pending {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+    
+    .status-running {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+    
+    .status-completed {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+    
+    .status-failed {
+        background: #ffebee;
+        color: #d32f2f;
+    }
+    
+    .status-cancelled {
+        background: #f5f5f5;
+        color: #757575;
+    }
+    
+    .schedule-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .schedule-detail-item {
+        font-size: 14px;
+    }
+    
+    .schedule-detail-label {
+        color: #666;
+        margin-right: 8px;
+    }
+    
+    .schedule-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #eee;
+    }
+    
+    .result-summary {
+        margin-top: 12px;
+        padding: 12px;
+        background: #f9f9f9;
+        border-radius: 4px;
+    }
+    
+    .result-passed {
+        color: #4caf50;
+    }
+    
+    .result-failed {
+        color: #f44336;
+    }
+    
+    .filter-section label {
+        font-weight: normal;
+    }
+    
+    .schedule-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+let allSchedules = [];
+let currentPage = 1;
+const pageSize = 20;
+let projectScenarios = {};
+let projectNames = {};
+
+async function loadSchedules() {
+    currentPage = 1;
+    try {
+        const [schedulesRes, projectsRes] = await Promise.all([
+            fetch('/api/schedules'),
+            fetch('/api/projects')
+        ]);
+        allSchedules = await schedulesRes.json();
+        const projects = await projectsRes.json();
+        
+        projectNames = {};
+        projects.forEach(p => projectNames[p.id] = p.name);
+        
+        renderSchedules();
+    } catch (error) {
+        console.error('加载定时任务失败:', error);
+    }
+}
+
+function renderSchedules() {
+    const container = document.getElementById('schedulesList');
+    const filteredSchedules = applyFiltersToData();
+    
+    if (filteredSchedules.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无定时任务，点击上方按钮创建</p>';
+        updatePagination(0, 1);
+        return;
+    }
+    
+    const sortedSchedules = [...filteredSchedules].sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+    
+    // 分页
+    const totalPages = Math.ceil(sortedSchedules.length / pageSize);
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+    
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, sortedSchedules.length);
+    const pageData = sortedSchedules.slice(startIndex, endIndex);
+    
+    container.innerHTML = pageData.map(schedule => `
+        <div class="schedule-card">
+            <div class="schedule-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" class="schedule-checkbox" value="${schedule.id}" onchange="updateBatchDeleteButton()">
+                    <div class="schedule-title">${schedule.name}</div>
+                </div>
+                <span class="schedule-status status-${schedule.status}">${getStatusText(schedule.status)}</span>
+            </div>
+            <div class="schedule-details" style="display: flex; flex-wrap: wrap; gap: 20px 30px; font-size: 14px; justify-content: space-between;">
+                <div><span style="color: #666;">项目:</span> ${projectNames[schedule.projectId] || schedule.projectId}</div>
+                <div><span style="color: #666;">场景:</span> ${schedule.scenarioName || schedule.scenarioId}</div>
+                <div><span style="color: #666;">计划开始时间:</span> ${formatDateTime(schedule.executionDate)}</div>
+                ${schedule.executedAt ? `
+                <div><span style="color: #666;">实际:</span> ${formatDateTime(schedule.executedAt)}</div>
+                ` : ''}
+                ${schedule.feishuWebhook ? `
+                <div><span style="color: #666;">飞书:</span> 已配置</div>
+                ` : ''}
+            </div>
+            ${schedule.error ? `
+            <div class="result-summary" style="background: #ffebee;">
+                <strong>错误信息:</strong> ${schedule.error}
+            </div>
+            ` : ''}
+            <div class="schedule-actions">
+                ${schedule.status === 'pending' ? `
+                <button class="btn btn-sm btn-primary" onclick="runScheduleNow('${schedule.id}')">立即执行</button>
+                <button class="btn btn-sm btn-secondary" onclick="editSchedule('${schedule.id}')">编辑</button>
+                ` : ''}
+                <button class="btn btn-sm btn-danger" onclick="deleteSchedule('${schedule.id}')">删除</button>
+                ${schedule.status === 'pending' ? `
+                <button class="btn btn-sm btn-warning" onclick="cancelSchedule('${schedule.id}')">取消</button>
+                ` : ''}
+            </div>
+        </div>
+    `).join('');
+    
+    updatePagination(sortedSchedules.length, totalPages);
+}
+
+function updatePagination(total, totalPages) {
+    document.getElementById('paginationInfo').textContent = `第 ${currentPage} 页 / 共 ${totalPages || 1} 页`;
+    document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+    document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderSchedules();
+    }
+}
+
+function nextPage() {
+    const filteredSchedules = applyFiltersToData();
+    const totalPages = Math.ceil(filteredSchedules.length / pageSize);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderSchedules();
+    }
+}
+
+function applyFiltersToData() {
+    const filterProject = localStorage.getItem('globalProjectId') || '';
+    const filterScenarioName = document.getElementById('filterScenarioName')?.value?.toLowerCase() || '';
+    const filterStartDate = document.getElementById('filterStartDate')?.value || '';
+    const filterEndDate = document.getElementById('filterEndDate')?.value || '';
+    
+    return allSchedules.filter(schedule => {
+        // 只显示配置的定时任务（不显示执行历史记录）
+        if (schedule.isExecutionHistory) {
+            return false;
+        }
+
+          // 只显示待执行的定时任务
+          if (schedule.status !== 'pending') {
+              return false;
+          }
+        
+        if (filterProject && schedule.projectId !== filterProject) return false;
+        
+        if (filterScenarioName) {
+            const scenarioName = (schedule.scenarioName || '').toLowerCase();
+            if (!scenarioName.includes(filterScenarioName)) return false;
+        }
+        
+        if (filterStartDate) {
+            const execDate = new Date(schedule.executionDate).toISOString().split('T')[0];
+            if (execDate < filterStartDate) return false;
+        }
+        
+        if (filterEndDate) {
+            const execDate = new Date(schedule.executionDate).toISOString().split('T')[0];
+            if (execDate > filterEndDate) return false;
+        }
+        
+        // schedules页面只显示配置任务，不显示状态筛选
+        return true;
+    });
+}
+
+function applyFilters() {
+    renderSchedules();
+}
+
+function clearFilters() {
+    document.getElementById('filterScenarioName').value = '';
+    document.getElementById('filterStartDate').value = '';
+    document.getElementById('filterEndDate').value = '';
+    currentPage = 1;
+    renderSchedules();
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.schedule-checkbox');
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    updateBatchDeleteButton();
+}
+
+function updateBatchDeleteButton() {
+    const checkboxes = document.querySelectorAll('.schedule-checkbox:checked');
+    const batchDeleteBtn = document.getElementById('batchDeleteBtn');
+    if (checkboxes.length > 0) {
+        batchDeleteBtn.style.display = 'inline-block';
+    } else {
+        batchDeleteBtn.style.display = 'none';
+    }
+}
+
+async function batchDeleteSchedules() {
+    const checkboxes = document.querySelectorAll('.schedule-checkbox:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (ids.length === 0) return;
+    
+    if (!confirm(`确定要删除选中的 ${ids.length} 个定时任务吗？`)) return;
+    
+    try {
+        let successCount = 0;
+        for (const id of ids) {
+            const response = await fetch(`/api/schedules/${id}`, { method: 'DELETE' });
+            const result = await response.json();
+            if (result.success) successCount++;
+        }
+        
+        alert(`成功删除 ${successCount} 个定时任务`);
+        loadSchedules();
+    } catch (error) {
+        alert('删除失败: ' + error.message);
+    }
+}
+
+function getStatusText(status) {
+    const statusMap = {
+        'pending': '待执行',
+        'running': '执行中',
+        'completed': '已完成',
+        'failed': '执行失败',
+        'cancelled': '已取消'
+    };
+    return statusMap[status] || status;
+}
+
+function formatDateTime(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleString('zh-CN');
+}
+
+async function showCreateScheduleModal() {
+    document.getElementById('scheduleId').value = '';
+    document.getElementById('modalTitle').textContent = '创建定时任务';
+    document.getElementById('scheduleForm').reset();
+    
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('scheduleExecutionDate').value = now.toISOString().slice(0, 16);
+    
+    document.getElementById('scheduleModal').style.display = 'flex';
+}
+
+function closeScheduleModal() {
+    document.getElementById('scheduleModal').style.display = 'none';
+}
+
+async function loadProjectScenarios() {
+    const projectId = document.getElementById('scheduleProject').value;
+    const scenarioSelect = document.getElementById('scheduleScenario');
+    
+    if (!projectId) {
+        scenarioSelect.innerHTML = '<option value="">-- 请先选择项目 --</option>';
+        document.getElementById('selectedScenarioCount').textContent = '0';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/scenarios?projectId=${projectId}`);
+        const scenarios = await response.json();
+        
+        projectScenarios[projectId] = scenarios;
+        
+        scenarioSelect.innerHTML = '';
+        if (scenarios.length === 0) {
+            scenarioSelect.innerHTML = '<option value="">-- 该项目下暂无场景 --</option>';
+        } else {
+            scenarios.forEach(scenario => {
+                const option = document.createElement('option');
+                option.value = scenario.id;
+                option.textContent = scenario.name;
+                scenarioSelect.appendChild(option);
+          });
+        }
+        updateSelectedScenarioCount();
+    } catch (error) {
+        console.error('加载场景失败:', error);
+    }
+}
+
+function updateSelectedScenarioCount() {
+    const scenarioSelect = document.getElementById('scheduleScenario');
+    const selectedOptions = scenarioSelect.selectedOptions;
+    document.getElementById('selectedScenarioCount').textContent = selectedOptions.length;
+}
+
+async function parseScheduleTime() {
+    const dateInput = document.getElementById('scheduleExecutionDate');
+    const cronInput = document.getElementById('scheduleCron');
+    const input = dateInput.value || cronInput.value;
+    
+    if (!input.trim()) {
+        alert('请输入时间描述，如：明天08:00、每天早上9点');
+        return;
+    }
+    
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = '解析中...';
+    
+    try {
+        const response = await fetch('/api/ai/parse-schedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ input })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            if (result.cronExpression) {
+                cronInput.value = result.cronExpression;
+                dateInput.value = '';
+                alert(`已识别为Cron表达式: ${result.cronExpression}\n描述: ${result.description}`);
+          } else if (result.executionDate) {
+                dateInput.value = result.executionDate;
+                cronInput.value = '';
+                alert(`已识别执行时间: ${result.executionDate}`);
+          }
+        } else {
+            alert('解析失败: ' + result.error);
+        }
+    } catch (error) {
+        alert('请求失败: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '智能解析';
+    }
+}
+
+async function saveSchedule() {
+    const scheduleId = document.getElementById('scheduleId').value;
+    const projectId = document.getElementById('scheduleProject').value;
+    const scenarioSelect = document.getElementById('scheduleScenario');
+    const selectedScenarios = Array.from(scenarioSelect.selectedOptions).map(opt => opt.value).filter(v => v);
+    const executionDate = document.getElementById('scheduleExecutionDate').value;
+    const cronExpression = document.getElementById('scheduleCron').value;
+    
+    if (!projectId || selectedScenarios.length === 0) {
+        alert('请填写所有必填项（至少选择一个场景）');
+        return;
+    }
+    
+    if (!executionDate && !cronExpression) {
+        alert('请输入执行时间或Cron表达式');
+        return;
+    }
+    
+    let projectFeishuWebhook = '';
+    try {
+        const projectRes = await fetch(`/api/projects/${projectId}`);
+        const projectData = await projectRes.json();
+        projectFeishuWebhook = projectData.feishuWebhook || '';
+    } catch (e) {
+        console.error('获取项目飞书Webhook失败:', e);
+    }
+    
+    const scenarios = projectScenarios[projectId] || [];
+    const selectedScenarioNames = selectedScenarios.map(id => {
+        const scenario = scenarios.find(s => s.id === id);
+        return scenario ? scenario.name : id;
+    });
+    
+    const baseScheduleData = {
+        name: document.getElementById('scheduleName').value,
+        projectId,
+        executionDate: executionDate ? new Date(executionDate).toISOString() : undefined,
+        cronExpression: cronExpression || undefined,
+        feishuWebhook: projectFeishuWebhook || undefined,
+        notifyOnSuccess: document.getElementById('scheduleNotifyOnSuccess').checked,
+        notifyOnFailure: document.getElementById('scheduleNotifyOnFailure').checked
+    };
+    
+    try {
+        let successCount = 0;
+        for (let i = 0; i < selectedScenarios.length; i++) {
+            const scenarioId = selectedScenarios[i];
+            const scenarioName = selectedScenarioNames[i];
+            
+            const scheduleData = {
+                ...baseScheduleData,
+                scenarioId,
+                scenarioName
+          };
+            
+            let response;
+            if (scheduleId) {
+                response = await fetch(`/api/schedules/${scheduleId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(scheduleData)
+              });
+          } else {
+                response = await fetch('/api/schedules', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(scheduleData)
+              });
+          }
+            
+            const result = await response.json();
+            if (result.success) successCount++;
+            else console.error('保存失败:', result.error);
+        }
+        
+        if (successCount > 0) {
+            closeScheduleModal();
+            loadSchedules();
+        } else {
+            alert('保存失败');
+        }
+    } catch (error) {
+        alert('保存失败: ' + error.message);
+    }
+}
+
+async function editSchedule(id) {
+    const schedule = allSchedules.find(s => s.id === id);
+    if (!schedule) return;
+    
+    document.getElementById('scheduleId').value = id;
+    document.getElementById('modalTitle').textContent = '编辑定时任务';
+    document.getElementById('scheduleName').value = schedule.name;
+    document.getElementById('scheduleProject').value = schedule.projectId;
+    
+    await loadProjectScenarios();
+    
+    document.getElementById('scheduleScenario').value = schedule.scenarioId;
+    
+    if (schedule.executionDate) {
+        const execDate = new Date(schedule.executionDate);
+        if (!isNaN(execDate.getTime())) {
+            execDate.setMinutes(execDate.getMinutes() - execDate.getTimezoneOffset());
+            document.getElementById('scheduleExecutionDate').value = execDate.toISOString().slice(0, 16);
+        }
+    } else {
+        document.getElementById('scheduleExecutionDate').value = '';
+    }
+    
+    document.getElementById('scheduleCron').value = schedule.cronExpression || '';
+    
+    document.getElementById('scheduleNotifyOnSuccess').checked = schedule.notifyOnSuccess !== false;
+    document.getElementById('scheduleNotifyOnFailure').checked = schedule.notifyOnFailure !== false;
+    
+    document.getElementById('scheduleModal').style.display = 'flex';
+}
+
+async function deleteSchedule(id) {
+    if (!confirm('确定要删除这个定时任务吗？')) return;
+    
+    try {
+        const response = await fetch(`/api/schedules/${id}`, { method: 'DELETE' });
+        const result = await response.json();
+        
+        if (result.success) {
+            loadSchedules();
+        } else {
+            alert(result.error || '删除失败');
+        }
+    } catch (error) {
+        alert('删除失败: ' + error.message);
+    }
+}
+
+async function cancelSchedule(id) {
+    if (!confirm('确定要取消这个定时任务吗？')) return;
+    
+    try {
+        const response = await fetch(`/api/schedules/${id}/cancel`, { method: 'POST' });
+        const result = await response.json();
+        
+        if (result.success) {
+            loadSchedules();
+        } else {
+            alert(result.error || '取消失败');
+        }
+    } catch (error) {
+        alert('取消失败: ' + error.message);
+    }
+}
+
+async function runScheduleNow(id) {
+    if (!confirm('确定要立即执行这个任务吗？')) return;
+    
+    try {
+        const response = await fetch(`/api/schedules/${id}/run-now`, { method: 'POST' });
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('任务已添加到执行队列');
+            loadSchedules();
+        } else {
+            alert(result.error || '执行失败');
+        }
+    } catch (error) {
+        alert('执行失败: ' + error.message);
+    }
+}
+
+function viewExecution(executionId) {
+    // 先检查是测试用例执行还是场景执行
+    fetch(`/api/executions/${executionId}`).then(r => r.json()).then(data => {
+        if (data.error) {
+            // 尝试场景执行
+            fetch(`/api/scenario-executions/${executionId}`).then(r2 => r2.json()).then(data2 => {
+                if (data2.error) {
+                    alert('执行记录不存在，可能已被删除');
+              } else {
+                    window.location.href = `/executions/${executionId}`;
+              }
+          });
+        } else {
+            window.location.href = `/executions/${executionId}`;
+        }
+    }).catch(() => {
+        alert('执行记录不存在，可能已被删除');
+    });
+}
+
+loadSchedules();
+
+window.addEventListener('globalProjectChanged', function(e) {
+    loadSchedules();
+});
+</script>

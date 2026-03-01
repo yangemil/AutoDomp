@@ -1,0 +1,933 @@
+<div class="page">
+    <div class="page-header">
+        <h1>{{title}}</h1>
+        <a href="/test-cases?projectId={{project.id}}" class="btn btn-secondary">返回列表</a>
+    </div>
+
+    <div class="project-context">
+        <strong>当前项目：</strong>{{project.name}}
+        <span class="project-url">Base URL: <code>{{project.baseUrl}}</code></span>
+    </div>
+
+    <div class="form-container">
+        <form id="testCaseForm">
+            <div class="form-row">
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label>测试用例名称 *</label>
+                    <input type="text" id="name" name="name" value="{{testCase.name}}" required>
+                </div>
+
+                <div class="form-group" style="flex: 2; min-width: 300px;">
+                    <label>URL路径</label>
+                    <div class="url-input-group">
+                        <div class="url-base">{{project.baseUrl}}</div>
+                        <input type="text" id="url" name="url" value="{{testCase.url}}" placeholder="/login">
+                    </div>
+                </div>
+
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label>描述</label>
+                    <input type="text" id="description" name="description" value="{{testCase.description}}">
+                </div>
+            </div>
+
+            <div class="form-group checkbox">
+                <label>
+                    <input type="checkbox" id="useRelativeUrl" name="useRelativeUrl" {{#if testCase.useRelativeUrl}}checked{{else}}checked{{/if}}>
+                    使用相对路径（自动拼接Base URL）
+                </label>
+            </div>
+
+            <h3>数据驱动配置</h3>
+            <div class="form-group checkbox">
+                <label>
+                    <input type="checkbox" id="dataDrivenEnabled" name="dataDriven[enabled]" {{#if testCase.dataDriven.enabled}}checked{{/if}}>
+                    启用数据驱动测试
+                </label>
+            </div>
+            <div id="dataDrivenOptions" class="data-driven-options" style="display: {{#if testCase.dataDriven.enabled}}block{{else}}none{{/if}};">
+                <div class="form-row data-driven-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label>CSV数据文件</label>
+                        <div class="csv-file-selector">
+                            <select id="dataFile" name="dataDriven[dataFile]" onchange="handleDataFileChange()">
+                                <option value="">-- 请选择CSV文件 --</option>
+                            </select>
+                            <button type="button" class="btn btn-sm" onclick="document.getElementById('csvFileUpload').click()">上传</button>
+                            <input type="file" id="csvFileUpload" accept=".csv" style="display: none;" onchange="handleCsvFileUpload(this)">
+                        </div>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>数据行范围（可选）</label>
+                        <input type="text" id="dataRange" name="dataDriven[dataRange]" value="{{testCase.dataDriven.dataRange}}" placeholder="例如：1-3">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>每条数据执行次数</label>
+                        <input type="number" id="executionCount" name="dataDriven[executionCount]" value="{{testCase.dataDriven.executionCount}}" min="1">
+                    </div>
+                </div>
+            </div>
+
+            <h3>测试步骤</h3>
+    <div class="step-actions">
+        <button type="button" class="btn btn-secondary" onclick="addStep()">+ 添加步骤</button>
+        <button type="button" class="btn btn-primary" onclick="showTemplateModal()">使用步骤模板</button>
+        <span class="drag-hint">💡 拖拽步骤可调整顺序</span>
+    </div>
+            <div id="stepsContainer">
+                {{#each testCase.steps}}
+                <div class="step-item" draggable="true" data-step-id="{{this.id}}">
+                    <div class="step-header">
+                        <span class="drag-handle">⋮⋮</span>
+                        <span class="step-number">步骤 {{addOne @index}}</span>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeStep(this)">删除</button>
+                    </div>
+                    <div class="form-row step-fields-row">
+                        <div class="form-group" style="width: 16%;">
+                            <label>动作类型</label>
+                            <select name="steps[{{@index}}][action]">
+                                <option value="navigate" {{#eq this.action 'navigate'}}selected{{/eq}}>导航</option>
+                                <option value="click" {{#eq this.action 'click'}}selected{{/eq}}>点击</option>
+                                <option value="fill" {{#eq this.action 'fill'}}selected{{/eq}}>填充</option>
+                                <option value="select" {{#eq this.action 'select'}}selected{{/eq}}>选择</option>
+                                <option value="wait" {{#eq this.action 'wait'}}selected{{/eq}}>等待</option>
+                                <option value="screenshot" {{#eq this.action 'screenshot'}}selected{{/eq}}>截图</option>
+                                <option value="verify" {{#eq this.action 'verify'}}selected{{/eq}}>验证</option>
+                                <option value="saveToContext" {{#eq this.action 'saveToContext'}}selected{{/eq}}>保存到上下文</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="width: 16%;">
+                            <label>选择器</label>
+                            <input type="text" name="steps[{{@index}}][selector]" value="{{this.selector}}">
+                        </div>
+                        <div class="form-group" style="width: 16%;">
+                            <label>值</label>
+                            <input type="text" name="steps[{{@index}}][value]" value="{{this.value}}">
+                        </div>
+                        <div class="form-group" style="width: 20%;">
+                            <label>描述</label>
+                            <input type="text" name="steps[{{@index}}][description]" value="{{this.description}}">
+                        </div>
+                        <div class="form-group" style="width: 16%;">
+                            <label>步骤间隔(ms)</label>
+                            <input type="number" name="steps[{{@index}}][waitAfter]" value="{{this.waitAfter}}" placeholder="完成后等待" min="0">
+                        </div>
+                        <div class="form-group checkbox" style="width: 16%; display: flex; align-items: flex-end;">
+                            <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px;">
+                                <input type="checkbox" name="steps[{{@index}}][screenshot]" {{#if this.screenshot}}checked{{/if}}>
+                                此步骤截图
+                            </label>
+                        </div>
+                    </div>
+         <div class="assertion-section">
+             <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; cursor: pointer;" onclick="toggleAssertion({{@index}})">
+                 <input type="checkbox" name="steps[{{@index}}][assertion][enabled]" {{#if this.assertion.enabled}}checked{{/if}}>
+                 <strong>添加断言</strong>
+             </label>
+             <div class="assertion-config" id="assertionConfig-{{@index}}" style="display: {{#if this.assertion.enabled}}block{{else}}none{{/if}};">
+                 <div class="form-group">
+                     <label>断言类型</label>
+                     <select name="steps[{{@index}}][assertion][type]">
+                         <option value="text_contains"{{isSelected this.assertion.type 'text_contains'}}>文本包含</option>
+                         <option value="text_equals"{{isSelected this.assertion.type 'text_equals'}}>文本等于</option>
+                         <option value="element_exists"{{isSelected this.assertion.type 'element_exists'}}>元素存在</option>
+                         <option value="element_visible"{{isSelected this.assertion.type 'element_visible'}}>元素可见</option>
+                         <option value="element_hidden"{{isSelected this.assertion.type 'element_hidden'}}>元素隐藏</option>
+                         <option value="attribute_equals"{{isSelected this.assertion.type 'attribute_equals'}}>属性等于</option>
+                         <option value="element_enabled"{{isSelected this.assertion.type 'element_enabled'}}>元素可用</option>
+                         <option value="element_disabled"{{isSelected this.assertion.type 'element_disabled'}}>元素不可用</option>
+                         <option value="url_contains"{{isSelected this.assertion.type 'url_contains'}}>URL包含</option>
+                         <option value="title_equals"{{isSelected this.assertion.type 'title_equals'}}>标题等于</option>
+                     </select>
+                 </div>
+                 <div class="form-group" id="assertionSelectorGroup-{{@index}}" style="display: {{needsSelector this.assertion}};">
+                     <label>元素选择器</label>
+                     <input type="text" name="steps[{{@index}}][assertion][selector]" value="{{this.assertion.selector}}">
+                 </div>
+                 <div class="form-group" id="assertionValueGroup-{{@index}}" style="display: {{needsValue this.assertion}};">
+                     <label>期望值</label>
+                     <input type="text" name="steps[{{@index}}][assertion][value]" value="{{this.assertion.value}}">
+                 </div>
+                 <div class="form-group" id="assertionAttributeGroup-{{@index}}" style="display: {{needsAttribute this.assertion}};">
+                     <label>属性名</label>
+                     <input type="text" name="steps[{{@index}}][assertion][attribute]" value="{{this.assertion.attribute}}" placeholder="例如: href, class, value">
+                 </div>
+                 <div class="form-group">
+                     <label>超时时间（毫秒）</label>
+                     <input type="number" name="steps[{{@index}}][assertion][timeout]" value="{{this.assertion.timeout}}" min="1000" step="1000" placeholder="默认使用全局超时">
+                 </div>
+             </div>
+         </div>
+                </div>
+                {{/each}}
+            </div>
+
+            <div class="form-group">
+                <label>标签（用逗号分隔）</label>
+                <input type="text" id="tags" name="tags" value="{{join testCase.tags ','}}">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <a href="/test-cases?projectId={{project.id}}" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="templateModal" class="modal" style="display: none;">
+    <div class="modal-content" style="width: 90%; max-width: 500px;">
+        <div class="modal-header">
+            <h2>选择步骤模板</h2>
+            <button class="modal-close" onclick="closeTemplateModal()">&times;</button>
+        </div>
+        <div id="templatesList">
+            <p style="color: #666; text-align: center; padding: 20px;">加载中...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const projectId = '{{project.id}}';
+let stepCounter = {{#if testCase.steps.length}}{{testCase.steps.length}}{{else}}0{{/if}};
+let templatesCache = null;
+
+async function loadTemplates() {
+    if (templatesCache) return templatesCache;
+    try {
+        const response = await fetch(`/api/step-templates/${projectId}`);
+        templatesCache = await response.json();
+        return templatesCache;
+    } catch (error) {
+        console.error('加载模板失败:', error);
+        return [];
+    }
+}
+
+async function showTemplateModal() {
+    const templates = await loadTemplates();
+    const container = document.getElementById('templatesList');
+    
+    if (!templates || templates.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 30px; color: #666;">
+                <p>暂无步骤模板</p>
+                <p style="font-size: 12px;">请先在项目管理中创建步骤模板</p>
+            </div>
+        `;
+    } else {
+        container.innerHTML = templates.map(t => `
+            <div class="template-item" onclick="useTemplate('${t.id}', '${t.name}', ${t.steps.length})">
+                <div class="template-info">
+                    <strong>${t.name}</strong>
+                    <span class="template-desc">${t.description || '无描述'}</span>
+                </div>
+                <span class="template-steps">${t.steps.length} 个步骤</span>
+            </div>
+        `).join('');
+    }
+    
+    document.getElementById('templateModal').style.display = 'flex';
+}
+
+function closeTemplateModal() {
+    document.getElementById('templateModal').style.display = 'none';
+}
+
+async function useTemplate(templateId, templateName, stepCount) {
+    closeTemplateModal();
+    
+    stepCounter++;
+    const container = document.getElementById('stepsContainer');
+    const stepHtml = `
+    <div class="step-item template-step" draggable="true" data-step-id="${generateUUID()}">
+        <div class="step-header">
+            <span class="drag-handle">⋮⋮</span>
+            <span class="step-number">步骤 ${stepCounter} - 模板: ${templateName}</span>
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeStep(this)">删除</button>
+        </div>
+        <div class="template-badge">
+            <input type="hidden" name="steps[${stepCounter}][action]" value="template">
+            <input type="hidden" name="steps[${stepCounter}][templateId]" value="${templateId}">
+            <input type="hidden" name="steps[${stepCounter}][selector]" value="">
+            <input type="hidden" name="steps[${stepCounter}][value]" value="">
+            <span class="badge-icon">📦</span>
+            <span class="badge-text">引用模板: ${templateName} (${stepCount}个子步骤)</span>
+        </div>
+        <div class="form-group">
+            <label>描述</label>
+            <input type="text" name="steps[${stepCounter}][description]" value="使用模板: ${templateName}">
+        </div>
+    </div>`;
+    container.insertAdjacentHTML('beforeend', stepHtml);
+}
+
+function addStep() {
+    stepCounter++;
+    const container = document.getElementById('stepsContainer');
+    const stepHtml = `
+    <div class="step-item" draggable="true" data-step-id="${generateUUID()}">
+        <div class="step-header">
+            <span class="drag-handle">⋮⋮</span>
+            <span class="step-number">步骤 ${stepCounter}</span>
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeStep(this)">删除</button>
+        </div>
+        <div class="form-row step-fields-row">
+            <div class="form-group" style="width: 16%;">
+                <label>动作类型</label>
+                <select name="steps[${stepCounter}][action]">
+                    <option value="navigate">导航</option>
+                    <option value="click">点击</option>
+                    <option value="fill">填充</option>
+                    <option value="select">选择</option>
+                    <option value="wait">等待</option>
+                    <option value="screenshot">截图</option>
+                    <option value="verify">验证</option>
+                    <option value="saveToContext">保存到上下文</option>
+                </select>
+            </div>
+            <div class="form-group" style="width: 16%;">
+                <label>选择器</label>
+                <input type="text" name="steps[${stepCounter}][selector]">
+            </div>
+            <div class="form-group" style="width: 16%;">
+                <label>值</label>
+                <input type="text" name="steps[${stepCounter}][value]">
+            </div>
+            <div class="form-group" style="width: 20%;">
+                <label>描述</label>
+                <input type="text" name="steps[${stepCounter}][description]">
+            </div>
+            <div class="form-group" style="width: 16%;">
+                <label>步骤间隔(ms)</label>
+                <input type="number" name="steps[${stepCounter}][waitAfter]" placeholder="完成后等待" min="0">
+            </div>
+            <div class="form-group checkbox" style="width: 16%; display: flex; align-items: flex-end;">
+                <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px;">
+                    <input type="checkbox" name="steps[${stepCounter}][screenshot]">
+                    此步骤截图
+                </label>
+            </div>
+        </div>
+         <div class="assertion-section">
+             <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; cursor: pointer;" onclick="toggleAssertion(${stepCounter})">
+                 <input type="checkbox" name="steps[${stepCounter}][assertion][enabled]">
+                 <strong>添加断言</strong>
+             </label>
+             <div class="assertion-config" id="assertionConfig-${stepCounter}" style="display: none;">
+                 <div class="form-group">
+                     <label>断言类型</label>
+                     <select name="steps[${stepCounter}][assertion][type]" onchange="updateAssertionUI(${stepCounter})">
+                         <option value="text_contains">文本包含</option>
+                         <option value="text_equals">文本等于</option>
+                         <option value="element_exists">元素存在</option>
+                         <option value="element_visible">元素可见</option>
+                         <option value="element_hidden">元素隐藏</option>
+                         <option value="attribute_equals">属性等于</option>
+                         <option value="element_enabled">元素可用</option>
+                         <option value="element_disabled">元素不可用</option>
+                         <option value="url_contains">URL包含</option>
+                         <option value="title_equals">标题等于</option>
+                     </select>
+                 </div>
+                 <div class="form-group" id="assertionSelectorGroup-${stepCounter}" style="display: none;">
+                     <label>元素选择器</label>
+                     <input type="text" name="steps[${stepCounter}][assertion][selector]" placeholder="例如：.class-name">
+                 </div>
+                 <div class="form-group" id="assertionValueGroup-${stepCounter}" style="display: none;">
+                     <label>期望值</label>
+                     <input type="text" name="steps[${stepCounter}][assertion][value]" placeholder="例如：登录成功">
+                 </div>
+                 <div class="form-group" id="assertionAttributeGroup-${stepCounter}" style="display: none;">
+                     <label>属性名</label>
+                     <input type="text" name="steps[${stepCounter}][assertion][attribute]" placeholder="例如：href, class, value">
+                 </div>
+                 <div class="form-group">
+                     <label>超时时间（毫秒）</label>
+                     <input type="number" name="steps[${stepCounter}][assertion][timeout]" min="1000" step="1000" placeholder="默认使用全局超时">
+                 </div>
+             </div>
+         </div>
+    </div>`;
+    container.insertAdjacentHTML('beforeend', stepHtml);
+}
+
+function removeStep(btn) {
+    btn.closest('.step-item').remove();
+    updateStepNumbers();
+}
+
+function updateStepNumbers() {
+    const stepItems = document.querySelectorAll('#stepsContainer .step-item');
+    stepItems.forEach((item, index) => {
+        const numberSpan = item.querySelector('.step-number');
+        if (numberSpan) {
+            const currentText = numberSpan.textContent;
+            const stepPart = currentText.split(' - ')[0].replace('步骤 ', '');
+            const templatePart = currentText.includes(' - ') ? ' - ' + currentText.split(' - ')[1] : '';
+            numberSpan.textContent = `步骤 ${index + 1}${templatePart}`;
+        }
+    });
+}
+
+function initDragAndDrop() {
+    const container = document.getElementById('stepsContainer');
+    if (!container) return;
+    
+    container.addEventListener('dragstart', handleDragStart);
+    container.addEventListener('dragover', handleDragOver);
+    container.addEventListener('drop', handleDrop);
+    container.addEventListener('dragend', handleDragEnd);
+}
+
+let draggedItem = null;
+
+function handleDragStart(e) {
+    draggedItem = e.target.closest('.step-item');
+    if (!draggedItem) return;
+    
+    e.dataTransfer.effectAllowed = 'move';
+    draggedItem.classList.add('dragging');
+    
+    setTimeout(() => {
+        draggedItem.style.opacity = '0.5';
+    }, 0);
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    
+    const container = document.getElementById('stepsContainer');
+    const afterElement = getDragAfterElement(container, e.clientY);
+    
+    if (draggedItem) {
+        if (afterElement == null) {
+            container.appendChild(draggedItem);
+        } else {
+            container.insertBefore(draggedItem, afterElement);
+        }
+    }
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    if (draggedItem) {
+        draggedItem.style.opacity = '1';
+        updateStepNumbers();
+    }
+}
+
+function handleDragEnd(e) {
+    if (draggedItem) {
+        draggedItem.classList.remove('dragging');
+        draggedItem.style.opacity = '1';
+        draggedItem = null;
+    }
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.step-item:not(.dragging)')];
+    
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+async function generateWithAI() {
+    const description = document.getElementById('aiDescription').value;
+    if (!description) {
+        alert('请输入测试场景描述');
+        return;
+    }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = '生成中...';
+
+    try {
+        const response = await fetch('/api/ai/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                description,
+                projectId 
+            })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            alert('AI生成成功！');
+            window.location.href = `/test-cases/${projectId}/${data.testCase.id}/edit`;
+        } else {
+            alert('生成失败: ' + data.error);
+        }
+    } catch (error) {
+        alert('请求失败: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'AI生成测试用例';
+    }
+}
+
+document.getElementById('testCaseForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const urlValue = document.getElementById('url').value;
+    const useRelative = document.getElementById('useRelativeUrl').checked;
+    
+    const data = {
+        projectId,
+        name: document.getElementById('name').value,
+        description: document.getElementById('description').value,
+        url: urlValue,
+        useRelativeUrl: useRelative,
+        tags: document.getElementById('tags').value ? document.getElementById('tags').value.split(',').map(t => t.trim()) : [],
+        dataDriven: {
+            enabled: document.getElementById('dataDrivenEnabled').checked,
+            dataFile: document.getElementById('dataFile').value || undefined,
+            dataRange: document.getElementById('dataRange').value || undefined,
+            executionCount: parseInt(document.getElementById('executionCount').value) || 1
+        },
+        steps: []
+    };
+
+    const stepsContainer = document.getElementById('stepsContainer');
+    const stepItems = stepsContainer.querySelectorAll('.step-item');
+    
+    stepItems.forEach((item, index) => {
+        const stepId = item.dataset.stepId || generateUUID();
+        const actionSelector = item.querySelector(`select[name*="[action]"]`) || item.querySelector(`input[name*="[action]"]`);
+        const assertionEnabled = item.querySelector(`input[name*="[assertion][enabled]"]`);
+        
+        const step = {
+            id: stepId,
+            order: index + 1,
+            action: actionSelector ? actionSelector.value : '',
+            selector: item.querySelector(`input[name*="[selector]"]`)?.value || '',
+            value: item.querySelector(`input[name*="[value]"]`)?.value || '',
+            description: item.querySelector(`input[name*="[description]"]`)?.value || '',
+            screenshot: item.querySelector(`input[name*="[screenshot]"]`)?.checked || false,
+            assertion: assertionEnabled && assertionEnabled.checked ? {
+                enabled: true,
+                type: item.querySelector(`select[name*="[assertion][type]"]`)?.value || 'element_exists',
+                selector: item.querySelector(`input[name*="[assertion][selector]"]`)?.value || '',
+                value: item.querySelector(`input[name*="[assertion][value]"]`)?.value || '',
+                attribute: item.querySelector(`input[name*="[assertion][attribute]"]`)?.value || '',
+                timeout: item.querySelector(`input[name*="[assertion][timeout]"]`)?.value ? parseInt(item.querySelector(`input[name*="[assertion][timeout]"]`).value) : undefined
+            } : undefined
+        };
+        data.steps.push(step);
+    });
+
+    {{#if testCase.id}}
+    const url = '/api/test-cases/{{testCase.id}}';
+    const method = 'PUT';
+    {{else}}
+    const url = '/api/test-cases';
+    const method = 'POST';
+    {{/if}}
+
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (!result.error) {
+            alert('保存成功！');
+            window.location.href = `/test-cases?projectId=${projectId}`;
+        } else {
+            alert('保存失败: ' + result.error);
+        }
+    } catch (error) {
+        alert('请求失败: ' + error.message);
+    }
+});
+
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    function toggleAssertion(index) {
+        const checkbox = document.querySelector(`input[name="steps[${index}][assertion][enabled]"]`);
+        const config = document.getElementById(`assertionConfig-${index}`);
+        if (checkbox && config) {
+            config.style.display = checkbox.checked ? 'block' : 'none';
+        }
+    }
+
+    function updateAssertionUI(index) {
+        const typeSelect = document.querySelector(`select[name="steps[${index}][assertion][type]"]`);
+        const selectorGroup = document.getElementById(`assertionSelectorGroup-${index}`);
+        const valueGroup = document.getElementById(`assertionValueGroup-${index}`);
+        const attributeGroup = document.getElementById(`assertionAttributeGroup-${index}`);
+
+        const type = typeSelect.value;
+
+        if (type === 'text_contains' || type === 'text_equals') {
+            selectorGroup.style.display = 'block';
+            valueGroup.style.display = 'block';
+            attributeGroup.style.display = 'none';
+        } else if (type === 'element_exists' || type === 'element_visible' || type === 'element_hidden' || type === 'element_enabled' || type === 'element_disabled') {
+            selectorGroup.style.display = 'block';
+            valueGroup.style.display = 'none';
+            attributeGroup.style.display = 'none';
+        } else if (type === 'attribute_equals') {
+            selectorGroup.style.display = 'block';
+            valueGroup.style.display = 'block';
+            attributeGroup.style.display = 'block';
+        } else if (type === 'url_contains' || type === 'title_equals') {
+            selectorGroup.style.display = 'none';
+            valueGroup.style.display = 'block';
+            attributeGroup.style.display = 'none';
+        }
+    }
+
+    // 数据驱动配置显示/隐藏
+    const dataDrivenEnabled = document.getElementById('dataDrivenEnabled');
+    const dataDrivenOptions = document.getElementById('dataDrivenOptions');
+
+    if (dataDrivenEnabled) {
+        dataDrivenEnabled.addEventListener('change', function() {
+            dataDrivenOptions.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+
+    async function loadCsvFiles() {
+        try {
+            const response = await fetch(`/api/projects/${projectId}/csv-files`);
+            const files = await response.json();
+            const select = document.getElementById('dataFile');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">-- 请选择CSV文件 --</option>';
+            files.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file;
+                option.textContent = file;
+                select.appendChild(option);
+            });
+            if (currentValue) {
+                select.value = currentValue;
+            }
+        } catch (error) {
+            console.error('加载CSV文件列表失败:', error);
+        }
+    }
+
+    async function handleCsvFileUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('csvFile', file);
+
+        try {
+            const response = await fetch(`/api/projects/${projectId}/upload-csv`, {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                alert('上传成功！');
+                loadCsvFiles();
+                document.getElementById('dataFile').value = result.filename;
+            } else {
+                alert('上传失败: ' + result.error);
+            }
+        } catch (error) {
+            alert('上传失败: ' + error.message);
+        }
+        input.value = '';
+    }
+
+    function handleDataFileChange() {
+        const select = document.getElementById('dataFile');
+        const dataRange = document.getElementById('dataRange');
+        const executionCount = document.getElementById('executionCount');
+        if (select.value) {
+            dataRange.disabled = false;
+            executionCount.disabled = false;
+        }
+    }
+
+    window.onload = function() {
+        initDragAndDrop();
+        loadCsvFiles();
+        
+        document.querySelectorAll('.assertion-config').forEach(config => {
+            const match = config.id.match(/assertionConfig-(\d+)/);
+            if (match) {
+                const index = match[1];
+                updateAssertionUI(index);
+            }
+        });
+    };
+</script>
+
+<style>
+.project-context {
+    background: #f0f9ff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.project-context strong {
+    color: #667eea;
+}
+
+.project-url {
+    margin-left: 20px;
+    color: #666;
+}
+
+.project-url code {
+    background: white;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.csv-file-selector {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.csv-file-selector select {
+    flex: 1;
+}
+
+.data-driven-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.data-driven-row .form-group {
+    margin-bottom: 0;
+}
+
+.url-input-group {
+    display: flex;
+    gap: 0;
+    margin-bottom: 10px;
+}
+
+.url-base {
+    background: #f3f4f6;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-right: none;
+    border-radius: 5px 0 0 5px;
+    color: #666;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
+
+.url-input-group input {
+    border-radius: 0 5px 5px 0;
+}
+
+.step-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.step-fields-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+}
+
+.step-fields-row .form-group {
+    flex: 1 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+}
+
+.step-fields-row .form-group label {
+    font-size: 12px;
+}
+
+.step-fields-row input,
+.step-fields-row select {
+    width: 100%;
+    padding: 8px;
+    font-size: 13px;
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.drag-hint {
+    font-size: 12px;
+    color: #888;
+    margin-left: auto;
+}
+
+.step-item {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.step-item.dragging {
+    opacity: 0.5;
+}
+
+.step-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.assertion-section {
+    margin-top: 15px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border: 1px solid #e9ecef;
+}
+
+.assertion-section label strong {
+    color: #667eea;
+}
+
+.assertion-config {
+    margin-top: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.assertion-config .form-group {
+    margin-bottom: 10px;
+}
+
+.assertion-config .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.assertion-config label {
+    font-size: 13px;
+    color: #495057;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.assertion-config input,
+.assertion-config select {
+    width: 100%;
+    font-size: 13px;
+}
+
+.step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #999;
+    font-size: 16px;
+    user-select: none;
+    padding: 0 5px;
+    letter-spacing: -2px;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+    color: #667eea;
+}
+
+.step-number {
+    flex: 1;
+}
+
+.template-step {
+    background: #f0f9ff;
+    border: 2px dashed #667eea;
+}
+
+.template-badge {
+    background: #667eea;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.badge-icon {
+    font-size: 18px;
+}
+
+.badge-text {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.template-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-item:hover {
+    background: #f9fafb;
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.template-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.template-info strong {
+    color: #333;
+}
+
+.template-desc {
+    color: #888;
+    font-size: 12px;
+}
+
+.template-steps {
+    background: #667eea;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+</style>

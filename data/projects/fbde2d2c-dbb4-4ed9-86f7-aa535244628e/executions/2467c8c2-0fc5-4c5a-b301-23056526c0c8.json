@@ -1,0 +1,169 @@
+{
+  "id": "2467c8c2-0fc5-4c5a-b301-23056526c0c8",
+  "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+  "testCaseId": "3d420a72-93ee-4d25-bb40-549e8915e7e1",
+  "testCaseName": "添加通用问题",
+  "status": "failed",
+  "startTime": "2026-02-28T05:40:53.240Z",
+  "steps": [
+    {
+      "stepId": "89fe82de-f4b5-4b90-a546-9ac098605478",
+      "order": 1,
+      "action": "click",
+      "status": "failed",
+      "startTime": "2026-02-28T05:40:55.818Z",
+      "endTime": "2026-02-28T05:41:01.030Z",
+      "duration": 5212,
+      "error": "page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=添加')\u001b[22m\n",
+      "screenshot": "2467c8c2-0fc5-4c5a-b301-23056526c0c8_step_1_error.png"
+    },
+    {
+      "stepId": "9254efdc-f0db-4799-b0b4-23a2beb2a137",
+      "order": 2,
+      "action": "fill",
+      "status": "pending",
+      "startTime": "2026-02-28T05:40:53.240Z"
+    },
+    {
+      "stepId": "2aee6f0a-c6cc-4d52-87f5-b7f372d2f9e5",
+      "order": 3,
+      "action": "fill",
+      "status": "pending",
+      "startTime": "2026-02-28T05:40:53.240Z"
+    },
+    {
+      "stepId": "bce08b2b-bd86-40d6-8890-694548ed925a",
+      "order": 4,
+      "action": "click",
+      "status": "pending",
+      "startTime": "2026-02-28T05:40:53.240Z"
+    }
+  ],
+  "screenshots": [
+    "2467c8c2-0fc5-4c5a-b301-23056526c0c8_step_1_error.png"
+  ],
+  "logs": [
+    "[2026-02-28T05:40:53.242Z] 开始执行测试用例: 添加通用问题",
+    "[2026-02-28T05:40:53.451Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com/#/mall/issue",
+    "[2026-02-28T05:40:55.810Z] 页面加载成功",
+    "[2026-02-28T05:40:55.818Z] 执行步骤 1: 点击元素",
+    "[2026-02-28T05:40:55.820Z] 点击元素: text=添加",
+    "[2026-02-28T05:41:01.135Z] 步骤 1 执行失败: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=添加')\u001b[22m\n",
+    "[2026-02-28T05:41:01.152Z] 测试执行完成，状态: failed"
+  ],
+  "context": {},
+  "structuredLogs": [
+    {
+      "id": "4ec5994f-d4c6-4426-aa91-f2019a72c10a",
+      "timestamp": "2026-02-28T05:40:53.242Z",
+      "level": "info",
+      "message": "开始执行测试用例: 添加通用问题",
+      "executionId": "2467c8c2-0fc5-4c5a-b301-23056526c0c8"
+    },
+    {
+      "id": "27fd385e-606d-428c-bb63-e9971d639a00",
+      "timestamp": "2026-02-28T05:40:55.810Z",
+      "level": "info",
+      "message": "页面加载成功",
+      "executionId": "2467c8c2-0fc5-4c5a-b301-23056526c0c8",
+      "metadata": {
+        "duration": 2359,
+        "url": "https://litemall.hogwarts.ceshiren.com/#/mall/issue",
+        "action": "navigate"
+      }
+    },
+    {
+      "id": "31acbff3-d56f-4672-872c-e639503eb097",
+      "timestamp": "2026-02-28T05:40:55.818Z",
+      "level": "debug",
+      "message": "页面标题: litemall",
+      "executionId": "2467c8c2-0fc5-4c5a-b301-23056526c0c8",
+      "metadata": {
+        "pageTitle": "litemall"
+      }
+    },
+    {
+      "id": "df1a0af5-da82-410c-95d9-096e13a8a84e",
+      "timestamp": "2026-02-28T05:40:55.818Z",
+      "level": "debug",
+      "message": "执行步骤 1: 点击元素",
+      "executionId": "2467c8c2-0fc5-4c5a-b301-23056526c0c8",
+      "stepOrder": 1,
+      "metadata": {
+        "action": "点击元素",
+        "selector": "text=添加",
+        "value": ""
+      }
+    },
+    {
+      "id": "59bb8788-c3d7-466e-9cd1-3bbb539076cb",
+      "timestamp": "2026-02-28T05:41:01.134Z",
+      "level": "info",
+      "message": "错误截图已保存: 2467c8c2-0fc5-4c5a-b301-23056526c0c8_step_1_error.png",
+      "executionId": "2467c8c2-0fc5-4c5a-b301-23056526c0c8",
+      "metadata": {
+        "screenshot": "2467c8c2-0fc5-4c5a-b301-23056526c0c8_step_1_error.png"
+      }
+    },
+    {
+      "id": "fa794d66-160b-42c0-8a94-b03457816db5",
+      "timestamp": "2026-02-28T05:41:01.135Z",
+      "level": "error",
+      "message": "执行错误: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=添加')\u001b[22m\n",
+      "executionId": "2467c8c2-0fc5-4c5a-b301-23056526c0c8",
+      "stepOrder": 1,
+      "metadata": {
+        "action": "click",
+        "selector": "text=添加",
+        "url": "https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fmall%2Fissue",
+        "error": {
+          "message": "page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=添加')\u001b[22m\n",
+          "stack": "page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=添加')\u001b[22m\n\n    at TestEngineService.executeStep (D:\\测试小工具\\autodomp\\src\\modules\\test-engine\\test-engine.service.ts:523:20)\n    at TestEngineService.executeSingleTest (D:\\测试小工具\\autodomp\\src\\modules\\test-engine\\test-engine.service.ts:275:24)\n    at async TestEngineService.executeTestCase (D:\\测试小工具\\autodomp\\src\\modules\\test-engine\\test-engine.service.ts:499:14)\n    at async APIController.executeTest (D:\\测试小工具\\autodomp\\src\\modules\\web\\api.controller.ts:386:22)\n    at async D:\\测试小工具\\autodomp\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:46:28\n    at async D:\\测试小工具\\autodomp\\node_modules\\@nestjs\\core\\router\\router-proxy.js:9:17",
+          "type": "TimeoutError"
+        }
+      }
+    },
+    {
+      "id": "11684f5c-6422-4ede-a606-dabe617bac2b",
+      "timestamp": "2026-02-28T05:41:01.152Z",
+      "level": "info",
+      "message": "测试执行完成，状态: failed",
+      "executionId": "2467c8c2-0fc5-4c5a-b301-23056526c0c8"
+    }
+  ],
+  "performanceMetrics": {
+    "totalDuration": 7912,
+    "averageStepDuration": 1303,
+    "pageLoadTimes": [
+      2359
+    ],
+    "elementInteractions": 0,
+    "slowestStep": {
+      "order": 1,
+      "action": "click",
+      "description": "",
+      "duration": 5212
+    }
+  },
+  "environmentInfo": {
+    "os": "Windows 11 24H2",
+    "osVersion": "",
+    "nodeVersion": "v24.11.1",
+    "platform": "win32",
+    "browserVersion": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+    "resolution": "1920x1080",
+    "timezone": "Asia/Shanghai",
+    "locale": "zh-CN",
+    "memoryUsage": {
+      "used": 17255759872,
+      "total": 34132516864,
+      "percentage": 49.445574738147734
+    },
+    "cpuUsage": 0,
+    "testPlatform": "Playwright",
+    "testPlatformVersion": "1.58.2"
+  },
+  "error": "步骤 1 失败: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=添加')\u001b[22m\n",
+  "endTime": "2026-02-28T05:41:01.152Z",
+  "duration": 7912
+}

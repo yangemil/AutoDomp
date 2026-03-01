@@ -1,0 +1,307 @@
+<div class="page">
+    <div class="page-header">
+        <h1>定时任务日志</h1>
+        <button onclick="goBack()" class="btn btn-secondary">返回</button>
+    </div>
+
+    <div id="scheduleInfo" class="info-card" style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 10px;" id="taskName">加载中...</div>
+        <div style="display: flex; gap: 20px; font-size: 14px; color: #666;" id="taskDetails"></div>
+    </div>
+
+    <div class="tabs" style="margin-bottom: 15px; display: flex; gap: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
+        <button class="tab-btn active" onclick="showAllLogs()" id="tabAll">全部日志</button>
+        <button class="tab-btn" onclick="showLogsByTestCase()" id="tabByTest">按测试用例</button>
+    </div>
+
+    <div id="logsContainer"></div>
+</div>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+}
+.page-header h1 {
+    font-size: 24px;
+    color: #1f2937;
+    font-weight: 600;
+    margin: 0;
+}
+.info-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.tab-btn {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+    border-bottom: 2px solid transparent;
+}
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    font-weight: 600;
+}
+.logs-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+.test-case-section {
+    border-bottom: 1px solid #e5e7eb;
+}
+.test-case-header {
+    padding: 12px 16px;
+    background: #f9fafb;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+}
+.test-case-header:hover {
+    background: #f3f4f6;
+}
+.test-case-logs {
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+.log-entry:hover {
+    background: #f9fafb;
+}
+.log-time {
+    color: #9ca3af;
+    font-size: 12px;
+    white-space: nowrap;
+}
+.log-level-badge {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 50px;
+    text-align: center;
+}
+.log-level-badge.debug { background: #ede9fe; color: #7c3aed; }
+.log-level-badge.info { background: #dbeafe; color: #3b82f6; }
+.log-level-badge.warn { background: #fef3c7; color: #f59e0b; }
+.log-level-badge.error { background: #fee2e2; color: #dc2626; }
+.log-message {
+    flex: 1;
+    color: #1f2937;
+    word-break: break-all;
+}
+.log-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    color: #6b7280;
+}
+.log-meta-item {
+    padding: 2px 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+}
+.empty-message {
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+}
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+</style>
+
+<script>
+let scheduleData = null;
+let testCaseExecutions = [];
+
+window.onload = async function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const scheduleId = urlParams.get('id');
+    
+    if (!scheduleId) {
+        document.getElementById('logsContainer').innerHTML = '<div class="empty-message">缺少定时任务ID</div>';
+        return;
+    }
+    
+    await loadScheduleLogs(scheduleId);
+};
+
+async function loadScheduleLogs(scheduleId) {
+    try {
+        // 获取定时任务信息
+        const scheduleRes = await fetch(`/api/schedules/${scheduleId}`);
+        const schedule = await scheduleRes.json();
+        
+        if (schedule.error) {
+            document.getElementById('logsContainer').innerHTML = '<div class="empty-message">定时任务不存在</div>';
+            return;
+        }
+        
+        scheduleData = schedule;
+        
+        // 显示任务信息
+        document.getElementById('taskName').textContent = schedule.name;
+        document.getElementById('taskDetails').innerHTML = `
+            <div>场景: ${schedule.scenarioName || '-'}</div>
+            <div>计划时间: ${formatDateTime(schedule.executionDate)}</div>
+            <div>实际时间: ${schedule.executedAt ? formatDateTime(schedule.executedAt) : '-'}</div>
+            <div>状态: ${schedule.result?.status === 'passed' ? '✅ 通过' : schedule.result?.status === 'failed' ? '❌ 失败' : '-'}</div>
+        `;
+        
+        // 获取场景执行记录
+        if (schedule.result?.executionId) {
+            const scenarioExecRes = await fetch(`/api/scenario-executions/${schedule.result.executionId}`);
+            const scenarioExec = await scenarioExecRes.json();
+            
+            if (!scenarioExec.error && scenarioExec.executionIds) {
+                // 获取所有测试用例执行记录
+                testCaseExecutions = [];
+                for (const execId of scenarioExec.executionIds) {
+                    const execRes = await fetch(`/api/executions/${execId}`);
+                    const execData = await execRes.json();
+                    if (!execData.error) {
+                        testCaseExecutions.push(execData);
+                    }
+                }
+            }
+        }
+        
+        showAllLogs();
+        
+    } catch (error) {
+        console.error('加载失败:', error);
+        document.getElementById('logsContainer').innerHTML = '<div class="empty-message">加载失败</div>';
+    }
+}
+
+function showAllLogs() {
+    document.getElementById('tabAll').classList.add('active');
+    document.getElementById('tabByTest').classList.remove('active');
+    
+    const container = document.getElementById('logsContainer');
+    
+    if (testCaseExecutions.length === 0) {
+        container.innerHTML = '<div class="empty-message">暂无日志</div>';
+        return;
+    }
+    
+    // 收集所有日志并按时间排序
+    let allLogs = [];
+    testCaseExecutions.forEach(exec => {
+        const logs = exec.structuredLogs || [];
+        logs.forEach(log => {
+            allLogs.push({ ...log, testCaseName: exec.testCaseName });
+        });
+    });
+    
+    allLogs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    
+    container.innerHTML = `
+        <div class="logs-container">
+            ${allLogs.map(log => renderLogEntry(log)).join('')}
+        </div>
+    `;
+}
+
+function showLogsByTestCase() {
+    document.getElementById('tabAll').classList.remove('active');
+    document.getElementById('tabByTest').classList.add('active');
+    
+    const container = document.getElementById('logsContainer');
+    
+    if (testCaseExecutions.length === 0) {
+        container.innerHTML = '<div class="empty-message">暂无日志</div>';
+        return;
+    }
+    
+    container.innerHTML = testCaseExecutions.map((exec, index) => {
+        const logs = exec.structuredLogs || [];
+        logs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        
+        return `
+            <div class="test-case-section">
+                <div class="test-case-header" onclick="toggleTestCaseLogs(${index})">
+                    <span>${exec.testCaseName || '测试用例 ' + (index + 1)}</span>
+                    <span style="color: ${exec.status === 'passed' ? '#10b981' : '#ef4444'};">${exec.status === 'passed' ? '✅ 通过' : '❌ 失败'}</span>
+                </div>
+                <div class="test-case-logs" id="testCaseLogs${index}" style="display: none;">
+                    ${logs.map(log => renderLogEntry(log)).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleTestCaseLogs(index) {
+    const el = document.getElementById('testCaseLogs' + index);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderLogEntry(log) {
+    const time = new Date(log.timestamp).toLocaleTimeString('zh-CN');
+    const meta = log.metadata || {};
+    
+    return `
+        <div class="log-entry log-${log.level}">
+            <span class="log-time">${time}</span>
+            <span class="log-level-badge ${log.level}">${log.level}</span>
+            <span class="log-message">${escapeHtml(log.message)}</span>
+            ${log.stepOrder ? `<span class="log-meta-item">步骤 ${log.stepOrder}</span>` : ''}
+            ${meta.action ? `<span class="log-meta-item">${meta.action}</span>` : ''}
+            ${meta.duration ? `<span class="log-meta-item">${meta.duration}ms</span>` : ''}
+        </div>
+    `;
+}
+
+function formatDateTime(dateStr) {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleString('zh-CN');
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function goBack() {
+    window.history.back();
+}
+</script>

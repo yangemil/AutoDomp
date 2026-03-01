@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>场景报告 - 通用问题</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; border-radius: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 2em; margin-bottom: 10px; }
+        .scenario-badge { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.9em; margin-top: 10px; display: inline-block; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+        .stat-card h3 { font-size: 2.5em; margin-bottom: 10px; }
+        .stat-card.total h3 { color: #667eea; }
+        .stat-card.passed h3 { color: #10b981; }
+        .stat-card.failed h3 { color: #ef4444; }
+        .progress-bar { background: #e5e7eb; border-radius: 20px; height: 30px; overflow: hidden; margin-bottom: 30px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .test-case { background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
+        .test-case-header { padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+        .test-case-name { font-size: 1.2em; font-weight: 600; }
+        .test-case-status { padding: 5px 15px; border-radius: 20px; font-weight: 600; }
+        .status-passed { background: #d1fae5; color: #065f46; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+        .test-case-meta { padding: 15px 20px; background: #f9fafb; display: flex; gap: 20px; color: #666; font-size: 0.9em; }
+        .test-case-steps { padding: 20px; }
+        .step { background: #f9fafb; padding: 12px; border-radius: 5px; margin-top: 10px; font-size: 0.9em; }
+        .step-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .step-status.passed { color: #10b981; }
+        .step-status.failed { color: #ef4444; }
+        .screenshot img { max-width: 100%; border-radius: 5px; margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; }
+        .logs { background: #1f2937; color: #10b981; padding: 15px; border-radius: 5px; margin-top: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; max-height: 200px; overflow-y: auto; }
+        .logs pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+        .footer { text-align: center; padding: 30px; color: #666; font-size: 0.9em; }
+        @media print { .container { max-width: 100%; } .header { break-inside: avoid; } .test-case { break-inside: avoid; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>场景报告 - 通用问题</h1>
+            <p>场景: 通用问题 的测试报告</p>
+            <div class="scenario-badge">场景测试报告</div>
+            <p style="margin-top: 10px; font-size: 0.9em;">生成时间: 2026/2/27 13:54:25</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card total">
+                <h3>2</h3>
+                <p>总测试数</p>
+            </div>
+            <div class="stat-card passed">
+                <h3>2</h3>
+                <p>通过</p>
+            </div>
+            <div class="stat-card failed">
+                <h3>0</h3>
+                <p>失败</p>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 100.00%">
+                通过率: 100.00%
+            </div>
+        </div>
+        
+        <h2 style="margin-bottom: 20px;">测试用例执行详情</h2>
+        
+        
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">登录</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/27 13:54:08</div>
+            <div>耗时: 4.94 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.54 秒</div>
+        
+        
+        <div class="screenshot">
+            <img src="/data/screenshots/a78b9b91-e69f-4d78-a62d-22414e5b77be_step_1.png" alt="步骤 1 截图" onclick="window.open(this.src)" style="cursor: pointer;">
+        </div>
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-27T05:54:08.779Z] 开始执行测试用例: 登录
+[2026-02-27T05:54:08.780Z] 使用场景共享页面
+[2026-02-27T05:54:08.780Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard
+[2026-02-27T05:54:11.180Z] 页面加载成功
+[2026-02-27T05:54:11.180Z] 执行步骤 1: 
+[2026-02-27T05:54:11.181Z] 点击元素: .el-button
+[2026-02-27T05:54:11.449Z] 等待 2000ms
+[2026-02-27T05:54:13.719Z] 截图已保存: a78b9b91-e69f-4d78-a62d-22414e5b77be_step_1.png
+[2026-02-27T05:54:13.719Z] 步骤 1 执行成功
+[2026-02-27T05:54:13.719Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">添加通用问题</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/27 13:54:13</div>
+            <div>耗时: 11.27 秒</div>
+            <div>步骤数: 4</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 3.49 秒</div>
+        
+        
+        <div class="screenshot">
+            <img src="/data/screenshots/c2cf01bc-bb51-4bf4-943f-c460bbe1e99d_step_1.png" alt="步骤 1 截图" onclick="window.open(this.src)" style="cursor: pointer;">
+        </div>
+    </div>
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 2: fill</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.48 秒</div>
+        
+        
+        <div class="screenshot">
+            <img src="/data/screenshots/c2cf01bc-bb51-4bf4-943f-c460bbe1e99d_step_2.png" alt="步骤 2 截图" onclick="window.open(this.src)" style="cursor: pointer;">
+        </div>
+    </div>
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 3: fill</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.44 秒</div>
+        
+        
+        <div class="screenshot">
+            <img src="/data/screenshots/c2cf01bc-bb51-4bf4-943f-c460bbe1e99d_step_3.png" alt="步骤 3 截图" onclick="window.open(this.src)" style="cursor: pointer;">
+        </div>
+    </div>
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 4: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.57 秒</div>
+        
+        
+        <div class="screenshot">
+            <img src="/data/screenshots/c2cf01bc-bb51-4bf4-943f-c460bbe1e99d_step_4.png" alt="步骤 4 截图" onclick="window.open(this.src)" style="cursor: pointer;">
+        </div>
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-27T05:54:13.791Z] 开始执行测试用例: 添加通用问题
+[2026-02-27T05:54:13.792Z] 使用场景共享页面
+[2026-02-27T05:54:13.792Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com/#/mall/issue
+[2026-02-27T05:54:14.018Z] 页面加载成功
+[2026-02-27T05:54:14.018Z] 执行步骤 1: 
+[2026-02-27T05:54:14.023Z] 点击元素: text=添加
+[2026-02-27T05:54:15.218Z] 等待 2000ms
+[2026-02-27T05:54:17.504Z] 截图已保存: c2cf01bc-bb51-4bf4-943f-c460bbe1e99d_step_1.png
+[2026-02-27T05:54:17.504Z] 步骤 1 执行成功
+[2026-02-27T05:54:17.506Z] 执行步骤 2: 
+[2026-02-27T05:54:17.507Z] 填充输入框 div.el-form-item:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1): 问题001
+[2026-02-27T05:54:17.758Z] 等待 2000ms
+[2026-02-27T05:54:19.982Z] 截图已保存: c2cf01bc-bb51-4bf4-943f-c460bbe1e99d_step_2.png
+[2026-02-27T05:54:19.982Z] 步骤 2 执行成功
+[2026-02-27T05:54:19.983Z] 执行步骤 3: 
+[2026-02-27T05:54:19.983Z] 填充输入框 .el-textarea__inner: 回复001
+[2026-02-27T05:54:20.203Z] 等待 2000ms
+[2026-02-27T05:54:22.420Z] 截图已保存: c2cf01bc-bb51-4bf4-943f-c460bbe1e99d_step_3.png
+[2026-02-27T05:54:22.421Z] 步骤 3 执行成功
+[2026-02-27T05:54:22.422Z] 执行步骤 4: 
+[2026-02-27T05:54:22.422Z] 点击元素: .dialog-footer > button:nth-child(2) > span:nth-child(1)
+[2026-02-27T05:54:22.682Z] 等待 2000ms
+[2026-02-27T05:54:24.988Z] 截图已保存: c2cf01bc-bb51-4bf4-943f-c460bbe1e99d_step_4.png
+[2026-02-27T05:54:24.988Z] 步骤 4 执行成功
+[2026-02-27T05:54:24.989Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+        
+        <div class="footer">
+            <p>AutoDOMP - AI驱动的Web自动化测试平台</p>
+            <p>总耗时: 16.24 秒</p>
+        </div>
+    </div>
+</body>
+</html>

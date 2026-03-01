@@ -1,0 +1,11 @@
+[
+  {
+    "id": "8eb51abf-901b-42c2-9804-bc80e5238a5b",
+    "username": "admin",
+    "email": "admin@autodomp.com",
+    "passwordHash": "$2b$10$Yv7nLCtXRU3idKDmOMv.Neo.m5h3DJG2SB6wr63e.yRS/gOEyKyjO",
+    "role": "admin",
+    "createdAt": "2026-02-28T14:59:14.347Z",
+    "updatedAt": "2026-02-28T14:59:14.347Z"
+  }
+]

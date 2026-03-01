@@ -1,0 +1,525 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>场景报告 - 删除</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; border-radius: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 2em; margin-bottom: 10px; }
+        .scenario-badge { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.9em; margin-top: 10px; display: inline-block; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+        .stat-card h3 { font-size: 2.5em; margin-bottom: 10px; }
+        .stat-card.total h3 { color: #667eea; }
+        .stat-card.passed h3 { color: #10b981; }
+        .stat-card.failed h3 { color: #ef4444; }
+        .progress-bar { background: #e5e7eb; border-radius: 20px; height: 30px; overflow: hidden; margin-bottom: 30px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .test-case { background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
+        .test-case-header { padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+        .test-case-name { font-size: 1.2em; font-weight: 600; }
+        .test-case-status { padding: 5px 15px; border-radius: 20px; font-weight: 600; }
+        .status-passed { background: #d1fae5; color: #065f46; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+        .test-case-meta { padding: 15px 20px; background: #f9fafb; display: flex; gap: 20px; color: #666; font-size: 0.9em; }
+        .test-case-steps { padding: 20px; }
+        .step { background: #f9fafb; padding: 12px; border-radius: 5px; margin-top: 10px; font-size: 0.9em; }
+        .step-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .step-status.passed { color: #10b981; }
+        .step-status.failed { color: #ef4444; }
+        .screenshot img { max-width: 100%; border-radius: 5px; margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; }
+        .logs { background: #1f2937; color: #10b981; padding: 15px; border-radius: 5px; margin-top: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; max-height: 200px; overflow-y: auto; }
+        .logs pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+        .footer { text-align: center; padding: 30px; color: #666; font-size: 0.9em; }
+        @media print { .container { max-width: 100%; } .header { break-inside: avoid; } .test-case { break-inside: avoid; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>场景报告 - 删除</h1>
+            <p>场景: 删除 的测试报告</p>
+            <div class="scenario-badge">场景测试报告</div>
+            <p style="margin-top: 10px; font-size: 0.9em;">生成时间: 2026/2/28 10:49:31</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card total">
+                <h3>11</h3>
+                <p>总测试数</p>
+            </div>
+            <div class="stat-card passed">
+                <h3>11</h3>
+                <p>通过</p>
+            </div>
+            <div class="stat-card failed">
+                <h3>0</h3>
+                <p>失败</p>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 100.00%">
+                通过率: 100.00%
+            </div>
+        </div>
+        
+        <h2 style="margin-bottom: 20px;">测试用例执行详情</h2>
+        
+        
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">登录</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:00</div>
+            <div>耗时: 5.00 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.54 秒</div>
+        
+        
+        <div class="screenshot">
+            <img src="/data/screenshots/487a398a-53a8-497b-8a5e-75b4f2d21d72_step_1.png" alt="步骤 1 截图" onclick="window.open(this.src)" style="cursor: pointer;">
+        </div>
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:00.234Z] 开始执行测试用例: 登录
+[2026-02-28T02:49:00.236Z] 使用场景共享页面
+[2026-02-28T02:49:00.236Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard
+[2026-02-28T02:49:02.687Z] 页面加载成功
+[2026-02-28T02:49:02.694Z] 执行步骤 1: 
+[2026-02-28T02:49:02.696Z] 点击元素: .el-button
+[2026-02-28T02:49:02.983Z] 等待 2000ms
+[2026-02-28T02:49:05.233Z] 截图已保存: 487a398a-53a8-497b-8a5e-75b4f2d21d72_step_1.png
+[2026-02-28T02:49:05.234Z] 步骤 1 执行成功
+[2026-02-28T02:49:05.235Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">删除关键词</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:05</div>
+            <div>耗时: 3.47 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 3.25 秒</div>
+        
+        
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:05.239Z] 开始执行测试用例: 删除关键词
+[2026-02-28T02:49:05.240Z] 使用场景共享页面
+[2026-02-28T02:49:05.240Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com#/goods/list
+[2026-02-28T02:49:05.463Z] 页面加载成功
+[2026-02-28T02:49:05.466Z] 执行步骤 1: 
+[2026-02-28T02:49:05.467Z] 点击元素: button.el-button--danger.el-button--mini
+[2026-02-28T02:49:06.698Z] 等待 2000ms
+[2026-02-28T02:49:08.711Z] 步骤 1 执行成功
+[2026-02-28T02:49:08.712Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">删除关键词</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:08</div>
+            <div>耗时: 2.50 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.28 秒</div>
+        
+        
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:08.716Z] 开始执行测试用例: 删除关键词
+[2026-02-28T02:49:08.717Z] 使用场景共享页面
+[2026-02-28T02:49:08.717Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com#/goods/list
+[2026-02-28T02:49:08.931Z] 页面加载成功
+[2026-02-28T02:49:08.934Z] 执行步骤 1: 
+[2026-02-28T02:49:08.935Z] 点击元素: button.el-button--danger.el-button--mini
+[2026-02-28T02:49:09.202Z] 等待 2000ms
+[2026-02-28T02:49:11.213Z] 步骤 1 执行成功
+[2026-02-28T02:49:11.214Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">删除关键词</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:11</div>
+            <div>耗时: 2.56 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.29 秒</div>
+        
+        
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:11.256Z] 开始执行测试用例: 删除关键词
+[2026-02-28T02:49:11.259Z] 使用场景共享页面
+[2026-02-28T02:49:11.259Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com#/goods/list
+[2026-02-28T02:49:11.480Z] 页面加载成功
+[2026-02-28T02:49:11.483Z] 执行步骤 1: 
+[2026-02-28T02:49:11.485Z] 点击元素: button.el-button--danger.el-button--mini
+[2026-02-28T02:49:11.764Z] 等待 2000ms
+[2026-02-28T02:49:13.776Z] 步骤 1 执行成功
+[2026-02-28T02:49:13.777Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">删除关键词</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:13</div>
+            <div>耗时: 2.51 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.29 秒</div>
+        
+        
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:13.783Z] 开始执行测试用例: 删除关键词
+[2026-02-28T02:49:13.785Z] 使用场景共享页面
+[2026-02-28T02:49:13.785Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com#/goods/list
+[2026-02-28T02:49:13.998Z] 页面加载成功
+[2026-02-28T02:49:14.002Z] 执行步骤 1: 
+[2026-02-28T02:49:14.003Z] 点击元素: button.el-button--danger.el-button--mini
+[2026-02-28T02:49:14.286Z] 等待 2000ms
+[2026-02-28T02:49:16.293Z] 步骤 1 执行成功
+[2026-02-28T02:49:16.294Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">删除关键词</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:16</div>
+            <div>耗时: 2.51 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.28 秒</div>
+        
+        
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:16.297Z] 开始执行测试用例: 删除关键词
+[2026-02-28T02:49:16.297Z] 使用场景共享页面
+[2026-02-28T02:49:16.297Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com#/goods/list
+[2026-02-28T02:49:16.514Z] 页面加载成功
+[2026-02-28T02:49:16.518Z] 执行步骤 1: 
+[2026-02-28T02:49:16.518Z] 点击元素: button.el-button--danger.el-button--mini
+[2026-02-28T02:49:16.793Z] 等待 2000ms
+[2026-02-28T02:49:18.801Z] 步骤 1 执行成功
+[2026-02-28T02:49:18.802Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">删除关键词</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:18</div>
+            <div>耗时: 2.51 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.29 秒</div>
+        
+        
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:18.807Z] 开始执行测试用例: 删除关键词
+[2026-02-28T02:49:18.808Z] 使用场景共享页面
+[2026-02-28T02:49:18.808Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com#/goods/list
+[2026-02-28T02:49:19.024Z] 页面加载成功
+[2026-02-28T02:49:19.029Z] 执行步骤 1: 
+[2026-02-28T02:49:19.031Z] 点击元素: button.el-button--danger.el-button--mini
+[2026-02-28T02:49:19.312Z] 等待 2000ms
+[2026-02-28T02:49:21.319Z] 步骤 1 执行成功
+[2026-02-28T02:49:21.320Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">删除关键词</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:21</div>
+            <div>耗时: 2.51 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.29 秒</div>
+        
+        
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:21.326Z] 开始执行测试用例: 删除关键词
+[2026-02-28T02:49:21.327Z] 使用场景共享页面
+[2026-02-28T02:49:21.327Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com#/goods/list
+[2026-02-28T02:49:21.542Z] 页面加载成功
+[2026-02-28T02:49:21.548Z] 执行步骤 1: 
+[2026-02-28T02:49:21.549Z] 点击元素: button.el-button--danger.el-button--mini
+[2026-02-28T02:49:21.825Z] 等待 2000ms
+[2026-02-28T02:49:23.836Z] 步骤 1 执行成功
+[2026-02-28T02:49:23.837Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">删除关键词</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:23</div>
+            <div>耗时: 2.52 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.31 秒</div>
+        
+        
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:23.844Z] 开始执行测试用例: 删除关键词
+[2026-02-28T02:49:23.846Z] 使用场景共享页面
+[2026-02-28T02:49:23.846Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com#/goods/list
+[2026-02-28T02:49:24.057Z] 页面加载成功
+[2026-02-28T02:49:24.061Z] 执行步骤 1: 
+[2026-02-28T02:49:24.063Z] 点击元素: button.el-button--danger.el-button--mini
+[2026-02-28T02:49:24.357Z] 等待 2000ms
+[2026-02-28T02:49:26.366Z] 步骤 1 执行成功
+[2026-02-28T02:49:26.367Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">删除关键词</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:26</div>
+            <div>耗时: 2.51 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.28 秒</div>
+        
+        
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:26.373Z] 开始执行测试用例: 删除关键词
+[2026-02-28T02:49:26.374Z] 使用场景共享页面
+[2026-02-28T02:49:26.374Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com#/goods/list
+[2026-02-28T02:49:26.594Z] 页面加载成功
+[2026-02-28T02:49:26.601Z] 执行步骤 1: 
+[2026-02-28T02:49:26.603Z] 点击元素: button.el-button--danger.el-button--mini
+[2026-02-28T02:49:26.876Z] 等待 2000ms
+[2026-02-28T02:49:28.878Z] 步骤 1 执行成功
+[2026-02-28T02:49:28.878Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+    <div class="test-case">
+        <div class="test-case-header">
+            <div class="test-case-name">删除关键词</div>
+            <span class="test-case-status status-passed">通过</span>
+        </div>
+        <div class="test-case-meta">
+            <div>开始时间: 2026/2/28 10:49:28</div>
+            <div>耗时: 2.52 秒</div>
+            <div>步骤数: 1</div>
+        </div>
+        
+        <div class="test-case-steps">
+            <h4>执行步骤</h4>
+            
+    <div class="step">
+        <div class="step-header">
+            <span>步骤 1: click</span>
+            <span class="step-status passed">通过</span>
+        </div>
+        <div>耗时: 2.29 秒</div>
+        
+        
+    </div>
+        </div>
+        
+        
+        
+        <div class="logs" style="margin: 20px;">
+            <pre>[2026-02-28T02:49:28.882Z] 开始执行测试用例: 删除关键词
+[2026-02-28T02:49:28.882Z] 使用场景共享页面
+[2026-02-28T02:49:28.882Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com#/goods/list
+[2026-02-28T02:49:29.097Z] 页面加载成功
+[2026-02-28T02:49:29.102Z] 执行步骤 1: 
+[2026-02-28T02:49:29.103Z] 点击元素: button.el-button--danger.el-button--mini
+[2026-02-28T02:49:29.384Z] 等待 2000ms
+[2026-02-28T02:49:31.394Z] 步骤 1 执行成功
+[2026-02-28T02:49:31.396Z] 测试执行完成，状态: passed</pre>
+        </div>
+        
+    </div>
+        
+        <div class="footer">
+            <p>AutoDOMP - AI驱动的Web自动化测试平台</p>
+            <p>总耗时: 31.22 秒</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+{
+  "id": "6d7c6a74-710b-43a8-84e9-5e7da87b343f",
+  "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+  "testCaseId": "17afc4e8-353c-4ed6-b74c-942dd843668c",
+  "testCaseName": "登录",
+  "status": "passed",
+  "startTime": "2026-02-28T07:08:25.706Z",
+  "steps": [
+    {
+      "stepId": "749f987f-3b6c-4ffc-b015-ee8edb8f6dc5",
+      "order": 1,
+      "action": "click",
+      "status": "passed",
+      "startTime": "2026-02-28T07:08:28.151Z",
+      "screenshot": "6d7c6a74-710b-43a8-84e9-5e7da87b343f_step_1.png",
+      "endTime": "2026-02-28T07:08:30.727Z",
+      "duration": 2576
+    }
+  ],
+  "screenshots": [
+    "6d7c6a74-710b-43a8-84e9-5e7da87b343f_step_1.png"
+  ],
+  "logs": [
+    "[2026-02-28T07:08:25.707Z] 开始执行测试用例: 登录",
+    "[2026-02-28T07:08:25.708Z] 使用场景共享页面",
+    "[2026-02-28T07:08:25.721Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard",
+    "[2026-02-28T07:08:28.142Z] 页面加载成功",
+    "[2026-02-28T07:08:28.151Z] 执行步骤 1: 点击元素",
+    "[2026-02-28T07:08:28.155Z] 点击元素: .el-button",
+    "[2026-02-28T07:08:28.457Z] 等待 2000ms",
+    "[2026-02-28T07:08:30.727Z] 截图已保存: 6d7c6a74-710b-43a8-84e9-5e7da87b343f_step_1.png",
+    "[2026-02-28T07:08:30.727Z] 步骤 1 执行成功",
+    "[2026-02-28T07:08:30.727Z] 测试执行完成，状态: passed"
+  ],
+  "context": {},
+  "structuredLogs": [
+    {
+      "id": "25ae8195-89c2-433b-8f18-e60e246c7810",
+      "timestamp": "2026-02-28T07:08:25.707Z",
+      "level": "info",
+      "message": "开始执行测试用例: 登录",
+      "executionId": "6d7c6a74-710b-43a8-84e9-5e7da87b343f"
+    },
+    {
+      "id": "75dfae80-0429-4b8f-b09d-30ed3900d55f",
+      "timestamp": "2026-02-28T07:08:28.142Z",
+      "level": "info",
+      "message": "页面加载成功",
+      "executionId": "6d7c6a74-710b-43a8-84e9-5e7da87b343f",
+      "metadata": {
+        "duration": 2421,
+        "url": "https://litemall.hogwarts.ceshiren.com/#/login?redirect=%2Fdashboard",
+        "action": "navigate"
+      }
+    },
+    {
+      "id": "4147fd77-d3b1-4b22-b614-ba8e9216070f",
+      "timestamp": "2026-02-28T07:08:28.151Z",
+      "level": "debug",
+      "message": "页面标题: litemall",
+      "executionId": "6d7c6a74-710b-43a8-84e9-5e7da87b343f",
+      "metadata": {
+        "pageTitle": "litemall"
+      }
+    },
+    {
+      "id": "cdef2edf-5241-4b52-9255-bdd0e6df2062",
+      "timestamp": "2026-02-28T07:08:28.152Z",
+      "level": "debug",
+      "message": "执行步骤 1: 点击元素",
+      "executionId": "6d7c6a74-710b-43a8-84e9-5e7da87b343f",
+      "stepOrder": 1,
+      "metadata": {
+        "action": "点击元素",
+        "selector": ".el-button",
+        "value": "登录"
+      }
+    },
+    {
+      "id": "21fa6759-7e65-4fae-9a7f-c0ee8f061bc8",
+      "timestamp": "2026-02-28T07:08:30.727Z",
+      "level": "info",
+      "message": "测试执行完成，状态: passed",
+      "executionId": "6d7c6a74-710b-43a8-84e9-5e7da87b343f"
+    }
+  ],
+  "performanceMetrics": {
+    "totalDuration": 5021,
+    "averageStepDuration": 2576,
+    "pageLoadTimes": [
+      2421
+    ],
+    "elementInteractions": 0,
+    "slowestStep": {
+      "order": 1,
+      "action": "click",
+      "description": "",
+      "duration": 2576
+    }
+  },
+  "environmentInfo": {
+    "os": "Windows 11 24H2",
+    "osVersion": "",
+    "nodeVersion": "v24.11.1",
+    "platform": "win32",
+    "browserVersion": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+    "resolution": "1280x720",
+    "timezone": "Asia/Shanghai",
+    "locale": "zh-CN",
+    "memoryUsage": {
+      "used": 17434525696,
+      "total": 34132516864,
+      "percentage": 48.921066191903314
+    },
+    "cpuUsage": 0,
+    "testPlatform": "Playwright",
+    "testPlatformVersion": "1.58.2"
+  },
+  "endTime": "2026-02-28T07:08:30.727Z",
+  "duration": 5021
+}

@@ -1,0 +1,18 @@
+{
+  "id": "default-project",
+  "name": "默认项目",
+  "description": "系统默认项目",
+  "baseUrl": "",
+  "settings": {
+    "headless": false,
+    "slowMo": 200,
+    "screenshot": {
+      "enabled": true,
+      "onStep": false,
+      "onFailure": true
+    },
+    "timeout": 30000
+  },
+  "createdAt": "2026-02-23T14:03:04.911Z",
+  "updatedAt": "2026-02-23T14:03:04.911Z"
+}

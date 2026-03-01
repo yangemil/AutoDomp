@@ -1,0 +1,20 @@
+{
+  "id": "3529d542-61f1-4a66-b6e4-06a443532e45",
+  "name": "测试项目",
+  "description": "",
+  "baseUrl": "https://litemall.hogwarts.ceshiren.com",
+  "settings": {
+    "headless": false,
+    "slowMo": 200,
+    "screenshot": {
+      "enabled": true,
+      "onStep": false,
+      "onFailure": true
+    },
+    "timeout": 30000,
+    "waitAfter": 0
+  },
+  "createdAt": "2026-02-27T06:14:31.844Z",
+  "updatedAt": "2026-02-27T06:27:49.116Z",
+  "deleted": true
+}

@@ -1,0 +1,409 @@
+<div class="page">
+    <div class="page-header">
+        <h1>测试报告</h1>
+    </div>
+
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <button onclick="selectAll()" class="btn btn-sm btn-secondary">全选</button>
+            <button onclick="deselectAll()" class="btn btn-sm btn-secondary">取消选择</button>
+            <button onclick="batchDelete()" class="btn btn-sm btn-danger">批量删除</button>
+        </div>
+        <div class="toolbar-right">
+            <span id="selectedCount" class="selected-count">已选择 0 项</span>
+            <button onclick="loadProjectReports()" class="btn btn-sm btn-primary">刷新</button>
+        </div>
+    </div>
+
+    <div id="reportsContainer" style="display: none;">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="checkbox-col">
+                            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                        </th>
+                        <th>类型</th>
+                        <th>报告名称</th>
+                        <th>测试数</th>
+                        <th>通过</th>
+                        <th>失败</th>
+                        <th>通过率</th>
+                        <th>生成时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="reportsTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+        <p>暂无测试报告</p>
+        <p style="font-size: 12px; color: #666;">执行测试用例或场景后将自动生成报告</p>
+    </div>
+</div>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+}
+.page-header h1 {
+    font-size: 24px;
+    color: #1f2937;
+    font-weight: 600;
+    margin: 0;
+}
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.toolbar-left, .toolbar-right {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.selected-count {
+    color: #6b7280;
+    font-size: 14px;
+    margin-right: 16px;
+}
+.table-container {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table-container thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+.table-container th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+}
+.table-container th.checkbox-col {
+    width: 50px;
+    text-align: center;
+}
+.table-container td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+.table-container td.checkbox-col {
+    text-align: center;
+}
+.table-container tbody tr:hover {
+    background: #f9fafb;
+}
+.table-container tbody tr.selected {
+    background: #dbeafe;
+}
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge-scenario {
+    background: #667eea;
+    color: white;
+}
+.badge-testcase {
+    background: #10b981;
+    color: white;
+}
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+.btn-primary:hover {
+    opacity: 0.9;
+}
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+.btn-danger {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+}
+.btn-danger:hover {
+    background: #fecaca;
+}
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+</style>
+
+<script>
+let reports = [];
+let selectedReports = new Set();
+let currentProjectId = '';
+
+window.onload = function() {
+    loadProjectReports();
+    
+    window.addEventListener('globalProjectChanged', function(e) {
+        loadProjectReports();
+    });
+};
+
+async function loadProjectReports() {
+    currentProjectId = localStorage.getItem('globalProjectId');
+    selectedReports.clear();
+    updateSelectedCount();
+    
+    if (!currentProjectId) {
+        document.getElementById('reportsContainer').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'block';
+        document.getElementById('emptyState').innerHTML = '<p>请先在导航栏选择项目</p>';
+        return;
+    }
+
+    try {
+        const projectResponse = await fetch(`/api/projects/${currentProjectId}`);
+        const project = await projectResponse.json();
+
+        const response = await fetch(`/api/reports?projectId=${currentProjectId}`);
+        reports = await response.json();
+
+        renderReports();
+        
+        if (reports.length === 0) {
+            document.getElementById('reportsContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        } else {
+            document.getElementById('reportsContainer').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+    } catch (error) {
+        alert('加载失败: ' + error.message);
+    }
+}
+
+function renderReports() {
+    const tbody = document.getElementById('reportsTableBody');
+    
+    if (reports.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #9ca3af;">暂无测试报告</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = reports.map(report => {
+        const passRate = report.totalTests > 0 
+            ? ((report.passedTests / report.totalTests) * 100).toFixed(2) 
+            : '0.00';
+        
+        const typeBadge = report.type === 'scenario' 
+            ? '<span class="badge badge-scenario">场景</span>'
+            : '<span class="badge badge-testcase">用例</span>';
+        
+        return `
+            <tr class="${selectedReports.has(report.id) ? 'selected' : ''}" data-id="${report.id}">
+                <td class="checkbox-col">
+                    <input type="checkbox" class="report-checkbox" 
+                           value="${report.id}" 
+                           onchange="toggleSelect('${report.id}')"
+                           ${selectedReports.has(report.id) ? 'checked' : ''}>
+                </td>
+                <td>${typeBadge}</td>
+                <td><strong>${escapeHtml(report.name)}</strong></td>
+                <td>${report.totalTests}</td>
+                <td style="color: #10b981;">${report.passedTests}</td>
+                <td style="color: #ef4444;">${report.failedTests}</td>
+                <td>${passRate}%</td>
+                <td>${new Date(report.createdAt).toLocaleString('zh-CN')}</td>
+                <td>
+                    <button class="btn-action btn-view" onclick="viewReport('${report.projectId}', '${report.htmlPath}')">查看</button>
+                    <button class="btn-action btn-delete" onclick="deleteReport('${report.id}', '${escapeHtml(report.name)}')">删除</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    
+    updateSelectAllCheckbox();
+}
+
+function selectAll() {
+    reports.forEach(report => selectedReports.add(report.id));
+    renderReports();
+    updateSelectedCount();
+}
+
+function deselectAll() {
+    selectedReports.clear();
+    renderReports();
+    updateSelectedCount();
+}
+
+function toggleSelectAll() {
+    const checkbox = document.getElementById('selectAllCheckbox');
+    if (checkbox.checked) {
+        selectAll();
+    } else {
+        deselectAll();
+    }
+}
+
+function toggleSelect(reportId) {
+    if (selectedReports.has(reportId)) {
+        selectedReports.delete(reportId);
+    } else {
+        selectedReports.add(reportId);
+    }
+    renderReports();
+    updateSelectedCount();
+}
+
+function updateSelectAllCheckbox() {
+    const checkbox = document.getElementById('selectAllCheckbox');
+    checkbox.checked = reports.length > 0 && selectedReports.size === reports.length;
+}
+
+function updateSelectedCount() {
+    document.getElementById('selectedCount').textContent = `已选择 ${selectedReports.size} 项`;
+    updateSelectAllCheckbox();
+}
+
+function viewReport(projectId, htmlPath) {
+    window.open(`/api/reports/html/${projectId}/${htmlPath}`, '_blank');
+}
+
+async function deleteReport(reportId, name) {
+    if (!confirm(`确定要删除报告 "${name}" 吗？`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/reports/${reportId}`, {
+            method: 'DELETE'
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            alert('删除成功！');
+            selectedReports.delete(reportId);
+            updateSelectedCount();
+            loadProjectReports();
+        } else {
+            alert('删除失败');
+        }
+    } catch (error) {
+        alert('请求失败: ' + error.message);
+    }
+}
+
+async function batchDelete() {
+    if (selectedReports.size === 0) {
+        alert('请先选择要删除的报告');
+        return;
+    }
+    
+    if (!confirm(`确定要删除选中的 ${selectedReports.size} 个报告吗？此操作不可恢复！`)) {
+        return;
+    }
+    
+    const ids = Array.from(selectedReports);
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const id of ids) {
+        try {
+            const response = await fetch(`/api/reports/${id}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                successCount++;
+            } else {
+                failCount++;
+            }
+        } catch (error) {
+            failCount++;
+        }
+    }
+    
+    alert(`批量删除完成！成功：${successCount} 个，失败：${failCount} 个`);
+    selectedReports.clear();
+    updateSelectedCount();
+    loadProjectReports();
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+
+<style>
+.btn-action {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-right: 6px;
+}
+.btn-view {
+    background: #dbeafe;
+    color: #2563eb;
+}
+.btn-view:hover {
+    background: #bfdbfe;
+}
+.btn-delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+.btn-delete:hover {
+    background: #fecaca;
+}
+</style>

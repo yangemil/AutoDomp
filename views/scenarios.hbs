@@ -1,0 +1,687 @@
+<div class="page">
+    <div class="page-header">
+    </div>
+
+    <div id="scenariosContainer" style="display: none;">
+        <div class="scenarios-header">
+            <h2 id="projectName"></h2>
+            <div class="filter-controls">
+                <input type="text" id="searchInput" placeholder="搜索场景名称..." class="search-input" oninput="filterScenarios()">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">清除</button>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="showCreateScenarioModal()">+ 创建场景</button>
+            </div>
+        </div>
+
+        <div id="scenariosList"></div>
+        
+        <div class="pagination">
+            <button type="button" class="btn btn-sm" id="prevPageBtn" onclick="prevPage()" disabled>上一页</button>
+            <span id="paginationInfo">第 1 页 / 共 1 页</span>
+            <button type="button" class="btn btn-sm" id="nextPageBtn" onclick="nextPage()" disabled>下一页</button>
+        </div>
+    </div>
+</div>
+
+<div id="scenarioModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">创建场景</h2>
+            <button type="button" class="btn-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="scenarioForm">
+                <input type="hidden" id="scenarioId" />
+                <div class="form-group">
+                    <label>项目</label>
+                    <select id="scenarioProject" class="form-control" required onchange="loadProjectTestCases()">
+                        {{#each projects}}
+                        <option value="{{this.id}}">{{this.name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>场景名称 *</label>
+                    <input type="text" id="scenarioName" class="form-control" required placeholder="请输入场景名称" />
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <textarea id="scenarioDescription" class="form-control" placeholder="请输入场景描述" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>选择测试用例</label>
+                    <div class="testcase-selector">
+                        <div class="available-testcases">
+                            <h4>可用测试用例</h4>
+                            <div id="availableTestCases" class="testcase-list">
+                            </div>
+                        </div>
+                        <div class="selection-actions">
+                            <button type="button" class="btn btn-sm" onclick="addAllTestCases()">全部添加 →</button>
+                            <button type="button" class="btn btn-sm" onclick="removeAllTestCases()">← 全部移除</button>
+                        </div>
+                        <div class="selected-testcases">
+                            <h4>已选择的测试用例 <span class="help-text">(可设置执行次数)</span></h4>
+                            <div id="selectedTestCases" class="testcase-list">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button type="button" class="btn btn-primary" onclick="saveScenario()">保存</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .testcase-selector {
+        display: flex;
+        gap: 20px;
+        min-height: 450px;
+    }
+
+    .testcase-selector > div {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .testcase-selector h4 {
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #374151;
+        font-weight: 600;
+    }
+
+    .testcase-list {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+        min-height: 350px;
+        max-height: 500px;
+        overflow-y: auto;
+        background: #f9fafb;
+    }
+
+    .testcase-item {
+        padding: 10px;
+        margin-bottom: 8px;
+        background: #f5f5f5;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .testcase-item:hover {
+        background: #e8e8e8;
+    }
+
+    .testcase-item .btn {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    .testcase-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .testcase-name {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .testcase-loop {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .testcase-loop label {
+        font-size: 12px;
+        color: #666;
+        margin: 0;
+    }
+
+    .testcase-loop input {
+        width: 60px;
+        padding: 4px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .testcase-loop input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .help-text {
+        font-size: 12px;
+        font-weight: normal;
+        color: #888;
+    }
+
+    .selected-testcases h4 .help-text {
+        font-weight: normal;
+    }
+
+    .selection-actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        width: 95%;
+        max-width: 1400px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 20px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .btn-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .scenarios-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .scenarios-header h2 {
+        margin: 0;
+    }
+
+    .filter-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-controls .search-input {
+        padding: 6px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        font-size: 14px;
+        min-width: 200px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+</style>
+
+<script>
+    let currentProjectId = '';
+    let allScenarios = [];
+    let currentPage = 1;
+    const pageSize = 20;
+    let selectedTestCases = [];
+
+    async function loadProjectScenarios() {
+        currentProjectId = localStorage.getItem('globalProjectId');
+        currentPage = 1;
+        
+        if (!currentProjectId) {
+            document.getElementById('scenariosContainer').style.display = 'none';
+            document.getElementById('projectName').textContent = '请先在导航栏选择项目';
+            document.getElementById('scenariosContainer').style.display = 'block';
+            return;
+        }
+        
+        try {
+            const projectResponse = await fetch(`/api/projects/${currentProjectId}`);
+            const project = await projectResponse.json();
+            document.getElementById('projectName').textContent = project.name + ' - 测试场景';
+            
+            const response = await fetch(`/api/scenarios?projectId=${currentProjectId}`);
+            allScenarios = await response.json();
+            
+            renderScenarios(allScenarios);
+            document.getElementById('scenariosContainer').style.display = 'block';
+        } catch (error) {
+            alert('加载失败: ' + error.message);
+        }
+    }
+
+    function renderScenarios(scenarios, allScenarios = null) {
+        const container = document.getElementById('scenariosList');
+        const scenariosToRender = allScenarios || scenarios;
+        
+        if (scenariosToRender.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <p>该项目暂无测试场景</p>
+                    <button class="btn btn-primary" onclick="showCreateScenarioModal()">创建第一个测试场景</button>
+                </div>
+            `;
+            updatePagination(0);
+            return;
+        }
+        
+        // 分页
+        const totalPages = Math.ceil(scenariosToRender.length / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+        
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, scenariosToRender.length);
+        const pageData = scenariosToRender.slice(startIndex, endIndex);
+        
+        let html = `
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>描述</th>
+                        <th>测试用例数</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        pageData.forEach(scenario => {
+            const testCases = scenario.testCases || [];
+            const totalLoops = testCases.reduce((sum, tc) => sum + (tc.loopCount || 1), 0);
+            html += `
+                <tr>
+                    <td><strong>${scenario.name}</strong></td>
+                    <td>${scenario.description || '-'}</td>
+                    <td>${testCases.length} 个用例 / 共 ${totalLoops} 次执行</td>
+                    <td>${new Date(scenario.createdAt).toLocaleString('zh-CN')}</td>
+                    <td class="actions">
+                        <button class="btn btn-sm" onclick="executeScenario('${scenario.id}')">执行</button>
+                        <button class="btn btn-sm btn-secondary" onclick="editScenario('${scenario.id}')">编辑</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteScenario('${scenario.id}')">删除</button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table>';
+        container.innerHTML = html;
+        updatePagination(scenariosToRender.length, totalPages);
+    }
+
+    function updatePagination(total, totalPages) {
+        document.getElementById('paginationInfo').textContent = `第 ${currentPage} 页 / 共 ${totalPages || 1} 页`;
+        document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+        document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderScenarios(allScenarios, allScenarios);
+        }
+    }
+
+    function nextPage() {
+        const totalPages = Math.ceil(allScenarios.length / pageSize);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderScenarios(allScenarios, allScenarios);
+        }
+    }
+
+    function filterScenarios() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+        currentPage = 1;
+        
+        const filtered = allScenarios.filter(scenario => {
+            let matchSearch = true;
+            
+            if (searchText) {
+                matchSearch = scenario.name.toLowerCase().includes(searchText) ||
+                          (scenario.description && scenario.description.toLowerCase().includes(searchText));
+            }
+            
+            return matchSearch;
+        });
+        
+        renderScenarios(filtered, allScenarios);
+    }
+
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        currentPage = 1;
+        renderScenarios(allScenarios, allScenarios);
+    }
+
+    async function loadProjectTestCases() {
+        const projectId = document.getElementById('scenarioProject').value;
+        if (!projectId) return;
+
+        const response = await fetch(`/api/test-cases?projectId=${projectId}`);
+        const testCases = await response.json();
+        const testCasesArray = Array.isArray(testCases) ? testCases : testCases.data;
+
+        const container = document.getElementById('availableTestCases');
+        container.innerHTML = testCasesArray.map(tc => `
+            <div class="testcase-item">
+                <span>${tc.name}</span>
+                <button type="button" class="btn btn-sm" onclick="addTestCase('${tc.id}')">添加</button>
+            </div>
+        `).join('');
+    }
+
+    function addTestCase(testCaseId) {
+        if (selectedTestCases.some(tc => tc.id === testCaseId)) return;
+
+        const projectId = document.getElementById('scenarioProject').value;
+        fetch(`/api/test-cases?projectId=${projectId}`)
+            .then(res => res.json())
+            .then(testCases => {
+                const testCasesArray = Array.isArray(testCases) ? testCases : testCases.data;
+                const testCase = testCasesArray.find(tc => tc.id === testCaseId);
+                if (testCase) {
+                    selectedTestCases.push({ id: testCase.id, loopCount: 1 });
+                    updateSelectedTestCases();
+                }
+            });
+    }
+
+    function removeTestCase(testCaseId) {
+        selectedTestCases = selectedTestCases.filter(tc => tc.id !== testCaseId);
+        updateSelectedTestCases();
+    }
+
+    function addAllTestCases() {
+        const projectId = document.getElementById('scenarioProject').value;
+        fetch(`/api/test-cases?projectId=${projectId}`)
+            .then(res => res.json())
+            .then(testCases => {
+                const testCasesArray = Array.isArray(testCases) ? testCases : testCases.data;
+                const container = document.getElementById('availableTestCases');
+                const items = container.querySelectorAll('.testcase-item');
+                
+                items.forEach(item => {
+                    const btn = item.querySelector('button');
+                    if (btn && !btn.disabled) {
+                        const onclick = btn.getAttribute('onclick');
+                        const idMatch = onclick.match(/'([^']+)'/);
+                        if (idMatch) {
+                            const id = idMatch[1];
+                            if (!selectedTestCases.some(tc => tc.id === id)) {
+                                selectedTestCases.push({ id, loopCount: 1 });
+                            }
+                        }
+                    }
+                });
+                updateSelectedTestCases();
+            });
+    }
+
+    function removeAllTestCases() {
+        selectedTestCases = [];
+        updateSelectedTestCases();
+    }
+
+    async function updateSelectedTestCases() {
+        const container = document.getElementById('selectedTestCases');
+        const projectId = document.getElementById('scenarioProject').value;
+
+        if (selectedTestCases.length === 0) {
+            container.innerHTML = '<p class="text-muted">尚未选择测试用例</p>';
+            return;
+        }
+
+        const response = await fetch(`/api/test-cases?projectId=${projectId}`);
+        const testCases = await response.json();
+        const testCasesArray = Array.isArray(testCases) ? testCases : testCases.data;
+
+        container.innerHTML = selectedTestCases.map(tc => {
+            const testCase = testCasesArray.find(t => t.id === tc.id);
+            if (!testCase) return '';
+            return `
+                <div class="testcase-item">
+                    <div class="testcase-info">
+                        <span class="testcase-name">${testCase.name}</span>
+                    </div>
+                    <div class="testcase-loop">
+                        <label>执行次数:</label>
+                        <input type="number" min="1" value="${tc.loopCount || 1}" 
+                            onchange="updateLoopCount('${tc.id}', this.value)" 
+                            onclick="event.stopPropagation()">
+                    </div>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeTestCase('${tc.id}')">移除</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function updateLoopCount(testCaseId, value) {
+        const count = parseInt(value);
+        if (isNaN(count) || count < 1) return;
+        
+        const tc = selectedTestCases.find(t => t.id === testCaseId);
+        if (tc) {
+            tc.loopCount = count;
+        }
+    }
+
+    function showCreateScenarioModal() {
+        if (!currentProjectId) {
+            alert('请先选择项目');
+            return;
+        }
+        document.getElementById('modalTitle').textContent = '创建场景';
+        document.getElementById('scenarioId').value = '';
+        document.getElementById('scenarioProject').value = currentProjectId;
+        document.getElementById('scenarioName').value = '';
+        document.getElementById('scenarioDescription').value = '';
+        selectedTestCases = [];
+        updateSelectedTestCases();
+        loadProjectTestCases();
+        document.getElementById('scenarioModal').style.display = 'flex';
+    }
+
+    async function editScenario(scenarioId) {
+        const response = await fetch(`/api/scenarios/${scenarioId}`);
+        const scenario = await response.json();
+
+        if (scenario.error) {
+            alert('场景不存在');
+            return;
+        }
+
+        document.getElementById('modalTitle').textContent = '编辑场景';
+        document.getElementById('scenarioId').value = scenario.id;
+        document.getElementById('scenarioProject').value = scenario.projectId;
+        document.getElementById('scenarioName').value = scenario.name;
+        document.getElementById('scenarioDescription').value = scenario.description;
+        selectedTestCases = scenario.testCases ? scenario.testCases.map(tc => ({ id: tc.id, loopCount: tc.loopCount || 1 })) : [];
+        loadProjectTestCases();
+        updateSelectedTestCases();
+        document.getElementById('scenarioModal').style.display = 'flex';
+    }
+
+    async function saveScenario() {
+        const id = document.getElementById('scenarioId').value;
+        const projectId = document.getElementById('scenarioProject').value;
+        const name = document.getElementById('scenarioName').value;
+        const description = document.getElementById('scenarioDescription').value;
+
+        if (!name) {
+            alert('请输入场景名称');
+            return;
+        }
+
+        if (!projectId) {
+            alert('请选择项目');
+            return;
+        }
+
+        if (selectedTestCases.length === 0) {
+            alert('请至少选择一个测试用例');
+            return;
+        }
+
+        const data = {
+            projectId,
+            name,
+            description,
+            testCases: selectedTestCases.map(tc => ({ id: tc.id, loopCount: tc.loopCount || 1 }))
+        };
+
+        const url = id ? `/api/scenarios/${id}` : '/api/scenarios';
+        const method = id ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (result.error) {
+                alert('保存失败: ' + result.error);
+            } else {
+                alert('保存成功！');
+                closeModal();
+                loadProjectScenarios();
+            }
+        } catch (error) {
+            alert('请求失败: ' + error.message);
+        }
+    }
+
+    async function executeScenario(scenarioId) {
+        const loopCount = prompt('请输入执行次数（默认1次）:', '1');
+        if (loopCount === null) return;
+        
+        const count = parseInt(loopCount);
+        if (isNaN(count) || count < 1) {
+            alert('请输入有效的数字');
+            return;
+        }
+        
+        if (count > 1 && !confirm(`确定要执行 ${count} 次吗？`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/scenarios/${scenarioId}/execute`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ loopCount: count })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                alert(`场景执行完成！\n执行次数: ${count}\n状态: ${result.execution.status}\n通过: ${result.execution.passedTests}/${result.execution.totalTests}`);
+                loadProjectScenarios();
+            } else {
+                alert('执行失败: ' + result.error);
+            }
+        } catch (error) {
+            alert('请求失败: ' + error.message);
+        }
+    }
+
+    async function deleteScenario(scenarioId) {
+        if (!confirm('确定要删除这个场景吗？此操作不可恢复！')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/scenarios/${scenarioId}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                alert('删除成功！');
+                loadProjectScenarios();
+            } else {
+                alert('删除失败');
+            }
+        } catch (error) {
+            alert('请求失败: ' + error.message);
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('scenarioModal').style.display = 'none';
+    }
+
+    window.onload = function() {
+        loadProjectScenarios();
+        
+        window.addEventListener('globalProjectChanged', function(e) {
+            loadProjectScenarios();
+        });
+    };
+</script>

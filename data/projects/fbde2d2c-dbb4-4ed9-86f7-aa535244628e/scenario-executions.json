@@ -1,0 +1,436 @@
+[
+  {
+    "id": "ee0f08d4-9ea5-465f-93b2-ff1ef7803c0f",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T05:42:26.517Z",
+    "executionIds": [
+      "b3029db2-1e3e-477d-b5c5-897c40461627",
+      "8d0ed7ac-eedc-4cad-8939-d63e09729b28"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "全局循环: 1",
+      "使用共享浏览器会话",
+      "[1/2] 开始执行: 登录",
+      "[1/2] 当前上下文: {}",
+      "[1/2] 登录: 通过",
+      "[2/2] 开始执行: 添加通用问题",
+      "[2/2] 当前上下文: {}",
+      "[2/2] 添加通用问题: 通过",
+      "\n场景执行完成，共执行 1 轮，总计 2 个测试用例，通过 2 个，失败 0 个",
+      "场景最终上下文: {}"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T05:42:42.438Z",
+    "duration": 15921
+  },
+  {
+    "id": "8396e195-aacf-4fbd-ac39-40472e8af0ce",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T05:55:25.944Z",
+    "executionIds": [
+      "ffd546fa-f045-4b4b-b267-ab0330478ada",
+      "66dfc0a6-41c1-4d35-8ebf-ae9e8be2bff9"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "全局循环: 1",
+      "使用共享浏览器会话",
+      "[1/2] 开始执行: 登录",
+      "[1/2] 当前上下文: {}",
+      "[1/2] 登录: 通过",
+      "[2/2] 开始执行: 添加通用问题",
+      "[2/2] 当前上下文: {}",
+      "[2/2] 添加通用问题: 通过",
+      "\n场景执行完成，共执行 1 轮，总计 2 个测试用例，通过 2 个，失败 0 个",
+      "场景最终上下文: {}"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T05:55:41.851Z",
+    "duration": 15907
+  },
+  {
+    "id": "b39a46f3-0fb9-42f1-abd4-c09ddd3d54e7",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T06:05:31.250Z",
+    "executionIds": [
+      "b764a221-70dd-4daa-bbe1-2b0a260aaeeb",
+      "3768111e-5dc5-445a-be55-b44100f79cfb"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "全局循环: 1",
+      "使用共享浏览器会话",
+      "[1/2] 开始执行: 登录",
+      "[1/2] 当前上下文: {}",
+      "[1/2] 登录: 通过",
+      "[2/2] 开始执行: 添加通用问题",
+      "[2/2] 当前上下文: {}",
+      "[2/2] 添加通用问题: 通过",
+      "\n场景执行完成，共执行 1 轮，总计 2 个测试用例，通过 2 个，失败 0 个",
+      "场景最终上下文: {}"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T06:05:47.369Z",
+    "duration": 16119
+  },
+  {
+    "id": "5dc7397b-7e48-4819-9251-64752524b950",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T06:51:37.599Z",
+    "executionIds": [
+      "58aebc1b-997e-461f-b9bf-cd77b1010b37",
+      "cdcfd1d7-a65e-46cd-b9e0-255fba637cf8"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "开始执行: 登录",
+      "登录: 通过",
+      "开始执行: 添加通用问题",
+      "添加通用问题: 通过",
+      "场景执行完成，通过 2 个，失败 0 个"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T06:51:53.604Z",
+    "duration": 16005
+  },
+  {
+    "id": "01aa2a7d-d34b-4830-95e4-f1a1bbfb2f21",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T07:01:56.918Z",
+    "executionIds": [
+      "7eb836c3-c65c-4b1e-8414-075676d9b7a7",
+      "ccbb8044-2a73-4fbe-a68b-3c0d9c75463d"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "开始执行: 登录",
+      "登录: 通过",
+      "开始执行: 添加通用问题",
+      "添加通用问题: 通过",
+      "场景执行完成，通过 2 个，失败 0 个"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T07:02:12.897Z",
+    "duration": 15979
+  },
+  {
+    "id": "721160d8-d36f-4766-bc7f-8fd92d7b9aa7",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T07:02:39.928Z",
+    "executionIds": [
+      "c85c7b8b-b4d6-42e3-a60b-77f2725e754e",
+      "ce301017-377f-49b4-aa88-f9b03b1e8a94"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "开始执行: 登录",
+      "登录: 通过",
+      "开始执行: 添加通用问题",
+      "添加通用问题: 通过",
+      "场景执行完成，通过 2 个，失败 0 个"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T07:02:56.314Z",
+    "duration": 16386
+  },
+  {
+    "id": "6fcdd325-a3c4-4a41-ac76-4758eb18c2a4",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T07:08:25.701Z",
+    "executionIds": [
+      "6d7c6a74-710b-43a8-84e9-5e7da87b343f",
+      "8a1a93c6-8562-4b12-aa07-ae3a95917f59"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "开始执行: 登录",
+      "登录: 通过",
+      "开始执行: 添加通用问题",
+      "添加通用问题: 通过",
+      "场景执行完成，通过 2 个，失败 0 个"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T07:08:41.870Z",
+    "duration": 16169
+  },
+  {
+    "id": "3f0d1b5d-e550-4ad8-9ada-880bc8bd5739",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "de42b2db-bc28-474f-a801-9d551f6249f2",
+    "scenarioName": "删除",
+    "status": "passed",
+    "startTime": "2026-02-28T07:48:48.984Z",
+    "executionIds": [
+      "737c7e55-339b-4192-b615-5d9f07e2dab7",
+      "f3e8194e-52ba-4d89-9144-91620db2639a",
+      "c95740b9-ed2f-48a2-839c-8def11d793da",
+      "bc776113-9ab3-4066-8fc5-821314940cb3",
+      "f0452974-8a8f-4665-974b-3ce3353be32f",
+      "f15cef8a-8483-4961-9931-0de60ea55838",
+      "2670ebac-e887-486e-ba80-b38531b2353b",
+      "ee850cbc-5fcb-4261-b57c-21d3b93536ef",
+      "eb4969e6-6ac2-447d-902b-2ba9ade2975a",
+      "e524722e-d6bb-4cd1-b649-e8cc4d180543",
+      "2a04cce0-4757-4ee9-93f8-f7f5168fdf29"
+    ],
+    "totalTests": 11,
+    "passedTests": 11,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 删除",
+      "包含 2 个测试用例",
+      "全局循环: 1",
+      "使用共享浏览器会话",
+      "[1/11] 开始执行: 登录",
+      "[1/11] 当前上下文: {}",
+      "[1/11] 登录: 通过",
+      "[删除关键词 第1次] [2/11] 开始执行: 删除关键词",
+      "[删除关键词 第1次] [2/11] 当前上下文: {}",
+      "[删除关键词 第1次] [2/11] 删除关键词: 通过",
+      "[删除关键词 第2次] [3/11] 开始执行: 删除关键词",
+      "[删除关键词 第2次] [3/11] 当前上下文: {}",
+      "[删除关键词 第2次] [3/11] 删除关键词: 通过",
+      "[删除关键词 第3次] [4/11] 开始执行: 删除关键词",
+      "[删除关键词 第3次] [4/11] 当前上下文: {}",
+      "[删除关键词 第3次] [4/11] 删除关键词: 通过",
+      "[删除关键词 第4次] [5/11] 开始执行: 删除关键词",
+      "[删除关键词 第4次] [5/11] 当前上下文: {}",
+      "[删除关键词 第4次] [5/11] 删除关键词: 通过",
+      "[删除关键词 第5次] [6/11] 开始执行: 删除关键词",
+      "[删除关键词 第5次] [6/11] 当前上下文: {}",
+      "[删除关键词 第5次] [6/11] 删除关键词: 通过",
+      "[删除关键词 第6次] [7/11] 开始执行: 删除关键词",
+      "[删除关键词 第6次] [7/11] 当前上下文: {}",
+      "[删除关键词 第6次] [7/11] 删除关键词: 通过",
+      "[删除关键词 第7次] [8/11] 开始执行: 删除关键词",
+      "[删除关键词 第7次] [8/11] 当前上下文: {}",
+      "[删除关键词 第7次] [8/11] 删除关键词: 通过",
+      "[删除关键词 第8次] [9/11] 开始执行: 删除关键词",
+      "[删除关键词 第8次] [9/11] 当前上下文: {}",
+      "[删除关键词 第8次] [9/11] 删除关键词: 通过",
+      "[删除关键词 第9次] [10/11] 开始执行: 删除关键词",
+      "[删除关键词 第9次] [10/11] 当前上下文: {}",
+      "[删除关键词 第9次] [10/11] 删除关键词: 通过",
+      "[删除关键词 第10次] [11/11] 开始执行: 删除关键词",
+      "[删除关键词 第10次] [11/11] 当前上下文: {}",
+      "[删除关键词 第10次] [11/11] 删除关键词: 通过",
+      "\n场景执行完成，共执行 1 轮，总计 11 个测试用例，通过 11 个，失败 0 个",
+      "场景最终上下文: {}"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T07:49:19.875Z",
+    "duration": 30891
+  },
+  {
+    "id": "e222f0e5-da05-460e-a130-386245887c37",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "failed",
+    "startTime": "2026-02-28T08:44:48.691Z",
+    "executionIds": [
+      "91026559-45a4-4ae1-8b8f-3a2f68033e56",
+      "3afa3e49-87de-45d4-be2f-14880d176ad0"
+    ],
+    "totalTests": 2,
+    "passedTests": 0,
+    "failedTests": 2,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "开始执行: 登录",
+      "登录: 失败 - 步骤 1 失败: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.el-button')\u001b[22m\n",
+      "开始执行: 添加通用问题",
+      "添加通用问题: 失败 - 步骤 1 失败: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=添加')\u001b[22m\n",
+      "场景执行完成，通过 0 个，失败 2 个"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T08:45:08.862Z",
+    "duration": 20171
+  },
+  {
+    "id": "2a7b8868-ecfa-45b6-86b9-e04072f6667f",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T08:48:50.044Z",
+    "executionIds": [
+      "e7657326-025f-4041-a0d0-7223098c51b1",
+      "f1a3925c-d80e-4e3e-8ebe-24f835b6a90e"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "开始执行: 登录",
+      "登录: 通过",
+      "开始执行: 添加通用问题",
+      "添加通用问题: 通过",
+      "场景执行完成，通过 2 个，失败 0 个"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T08:49:06.030Z",
+    "duration": 15986
+  },
+  {
+    "id": "e0cb2e4f-12dd-437b-8884-339210ee23c4",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T09:06:21.470Z",
+    "executionIds": [
+      "492bb50c-967e-4c39-a58d-6e84dff49ab6",
+      "1e05dd5d-7817-48b2-9c35-3fe483a8ba2e"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "开始执行: 登录",
+      "登录: 通过",
+      "开始执行: 添加通用问题",
+      "添加通用问题: 通过",
+      "场景执行完成，通过 2 个，失败 0 个"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T09:06:38.336Z",
+    "duration": 16866
+  },
+  {
+    "id": "42fe4a33-4dd7-4206-b796-931c02f22db1",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T09:18:18.014Z",
+    "executionIds": [
+      "b02cca7a-2286-40a1-8fb2-b1e48c40539d",
+      "30357883-072b-4fa8-b415-fda609682a8b"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "开始执行: 登录",
+      "登录: 通过",
+      "开始执行: 添加通用问题",
+      "添加通用问题: 通过",
+      "场景执行完成，通过 2 个，失败 0 个"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T09:18:33.865Z",
+    "duration": 15851
+  },
+  {
+    "id": "9e65ff6c-6eaf-471f-bb6d-e88db19911d3",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T11:47:14.047Z",
+    "executionIds": [
+      "37d290fb-55db-4d76-aeaf-ed565e13a8a0",
+      "b09284ef-58a8-4b16-9c75-e4537a83d1e5"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "开始执行: 登录",
+      "登录: 通过",
+      "开始执行: 添加通用问题",
+      "添加通用问题: 通过",
+      "场景执行完成，通过 2 个，失败 0 个"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T11:47:29.424Z",
+    "duration": 15377
+  },
+  {
+    "id": "b66e6dd2-5267-4a45-9eb7-fff8a0ee12e1",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "scenarioId": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "scenarioName": "通用问题",
+    "status": "passed",
+    "startTime": "2026-02-28T11:49:27.407Z",
+    "executionIds": [
+      "741dd547-df2a-460a-aaf7-3d9e9b026da4",
+      "54ed7036-5e08-4d60-b932-f688e7da9c44"
+    ],
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "logs": [
+      "开始执行场景: 通用问题",
+      "包含 2 个测试用例",
+      "开始执行: 登录",
+      "登录: 通过",
+      "开始执行: 添加通用问题",
+      "添加通用问题: 通过",
+      "场景执行完成，通过 2 个，失败 0 个"
+    ],
+    "context": {},
+    "endTime": "2026-02-28T11:49:42.391Z",
+    "duration": 14984
+  }
+]

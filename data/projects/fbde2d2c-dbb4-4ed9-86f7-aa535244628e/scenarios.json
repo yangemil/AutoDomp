@@ -1,0 +1,56 @@
+[
+  {
+    "id": "de42b2db-bc28-474f-a801-9d551f6249f2",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "name": "删除",
+    "description": "",
+    "testCases": [
+      {
+        "id": "17afc4e8-353c-4ed6-b74c-942dd843668c",
+        "loopCount": 1
+      },
+      {
+        "id": "80d3b50f-9aa8-4bc6-a1b0-fb8c9484626d",
+        "loopCount": 10
+      }
+    ],
+    "createdAt": "2026-02-25T03:53:19.732Z",
+    "updatedAt": "2026-02-25T03:53:19.732Z"
+  },
+  {
+    "id": "d9fea52d-5dd9-4657-aefd-f748e6337ef2",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "name": "商品上架",
+    "description": "",
+    "testCases": [
+      {
+        "id": "17afc4e8-353c-4ed6-b74c-942dd843668c",
+        "loopCount": 1
+      },
+      {
+        "id": "0386b5a4-8ffd-4c21-a346-af75f3171ee4",
+        "loopCount": 1
+      }
+    ],
+    "createdAt": "2026-02-25T11:04:49.818Z",
+    "updatedAt": "2026-02-25T11:04:49.818Z"
+  },
+  {
+    "id": "afd1bc74-26c5-42bf-852e-dd2b1b64a896",
+    "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+    "name": "通用问题",
+    "description": "",
+    "testCases": [
+      {
+        "id": "17afc4e8-353c-4ed6-b74c-942dd843668c",
+        "loopCount": 1
+      },
+      {
+        "id": "3d420a72-93ee-4d25-bb40-549e8915e7e1",
+        "loopCount": 1
+      }
+    ],
+    "createdAt": "2026-02-27T05:15:01.519Z",
+    "updatedAt": "2026-02-27T05:40:09.869Z"
+  }
+]

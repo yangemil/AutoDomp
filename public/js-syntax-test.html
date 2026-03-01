@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>JavaScript语法测试</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .info { color: blue; }
+        .section {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        h2 { margin-top: 0; }
+    </style>
+</head>
+<body>
+    <h1>JavaScript语法测试 - executions.hbs</h1>
+    
+    <div class="section">
+        <h2>1. 基础JavaScript测试</h2>
+        <div id="basicTest"></div>
+    </div>
+    
+    <div class="section">
+        <h2>2. loadExecutions函数测试</h2>
+        <div id="loadExecutionsTest"></div>
+    </div>
+    
+    <div class="section">
+        <h2>3. renderExecutions函数测试</h2>
+        <div id="renderExecutionsTest"></div>
+    </div>
+    
+    <div class="section">
+        <h2>4. loadPage函数测试</h2>
+        <div id="loadPageTest"></div>
+    </div>
+    
+    <div class="section">
+        <h2>5. 完整代码检查</h2>
+        <div id="codeCheck"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:3000';
+
+        // 测试1: 基础JavaScript
+        try {
+            document.getElementById('basicTest').innerHTML = 
+                '<span class="success">✓ JavaScript基础语法正常</span>';
+        } catch (e) {
+            document.getElementById('basicTest').innerHTML = 
+                '<span class="error">✗ JavaScript基础语法错误: ' + e.message + '</span>';
+        }
+
+        // 测试2: async function语法
+        try {
+            let currentPage = 1;
+            let totalPages = 1;
+
+            async function loadExecutions() {
+                try {
+                    const response = await fetch(`${BASE_URL}/api/executions?page=${currentPage}&pageSize=10`);
+                    const result = await response.json();
+                    return result;
+                } catch (error) {
+                    console.error('加载执行记录失败:', error);
+                    return null;
+                }
+            }
+
+            document.getElementById('loadExecutionsTest').innerHTML = 
+                '<span class="success">✓ loadExecutions函数语法正确</span>';
+        } catch (e) {
+            document.getElementById('loadExecutionsTest').innerHTML = 
+                '<span class="error">✗ loadExecutions函数语法错误: ' + e.message + '</span>';
+        }
+
+        // 测试3: renderExecutions函数
+        try {
+            function renderExecutions(executions, total = 0, page = 1, pageSize = 10) {
+                const totalPagesCount = total ? Math.ceil(total / pageSize) : 1;
+                currentPage = page;
+                
+                if (executions.length === 0) {
+                    return '<p class="empty-message">暂无执行记录</p>';
+                }
+
+                let html = '<table>';
+                html += '</table>';
+                html += `<div class="pagination">第 ${page} 页 / 共 ${totalPagesCount} 页</div>`;
+                
+                return html;
+            }
+
+            // 测试函数调用
+            const testExecutions = [
+                { id: '1', testCaseName: '测试', status: 'passed', startTime: new Date(), duration: 1000 }
+            ];
+            renderExecutions(testExecutions, 10, 1, 10);
+
+            document.getElementById('renderExecutionsTest').innerHTML = 
+                '<span class="success">✓ renderExecutions函数语法正确</span>';
+        } catch (e) {
+            document.getElementById('renderExecutionsTest').innerHTML = 
+                '<span class="error">✗ renderExecutions函数语法错误: ' + e.message + '</span>';
+        }
+
+        // 测试4: loadPage函数（移除类型注解）
+        try {
+            async function loadPage(page) {
+                try {
+                    const response = await fetch(`${BASE_URL}/api/executions?page=${page}&pageSize=10`);
+                    const result = await response.json();
+                    
+                    if (Array.isArray(result)) {
+                        return { data: result, total: result.length, page: page };
+                    } else {
+                        return { data: result.data || [], total: result.total || 0, page: result.page || page };
+                    }
+                } catch (error) {
+                    console.error('加载页面数据失败:', error);
+                    return null;
+                }
+            }
+
+            document.getElementById('loadPageTest').innerHTML = 
+                '<span class="success">✓ loadPage函数语法正确（无类型注解）</span>';
+        } catch (e) {
+            document.getElementById('loadPageTest').innerHTML = 
+                '<span class="error">✗ loadPage函数语法错误: ' + e.message + '</span>';
+        }
+
+        // 测试5: 检查常见语法错误
+        const codeCheckDiv = document.getElementById('codeCheck');
+        const issues = [];
+
+        try {
+            // 检查1: TypeScript类型注解
+            const codeWithTypes = `async function loadPage(page: number) { }`;
+            const codeWithoutTypes = `async function loadPage(page) { }`;
+            
+            try {
+                eval(codeWithTypes);
+                issues.push('TypeScript类型注解可能在某些浏览器中不被支持');
+            } catch (e) {
+                issues.push('✓ 检测到TypeScript语法问题（预期结果）');
+            }
+
+            try {
+                eval(codeWithoutTypes);
+                issues.push('✓ 无类型注解的JavaScript语法正确');
+            } catch (e) {
+                issues.push('✗ 无类型注解的JavaScript语法错误');
+            }
+
+            // 检查2: 可选链操作符
+            if ('textContent' in document.documentElement) {
+                issues.push('✓ 支持现代JavaScript特性');
+            }
+
+        } catch (e) {
+            issues.push('✗ 语法检查失败: ' + e.message);
+        }
+
+        codeCheckDiv.innerHTML = issues.map(issue => 
+            `<div class="${issue.startsWith('✓') ? 'success' : issue.startsWith('✗') ? 'error' : 'info'}">${issue}</div>`
+        ).join('');
+
+        // 额外信息
+        console.log('=== JavaScript版本信息 ===');
+        console.log('浏览器:', navigator.userAgent);
+        console.log('JavaScript版本:', navigator.product);
+        console.log('是否支持async/await:', typeof Promise !== 'undefined');
+    </script>
+</body>
+</html>

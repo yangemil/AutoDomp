@@ -1,0 +1,32 @@
+import { Response } from 'express';
+import { AIService } from '../ai';
+import { DataService } from '../data';
+export declare class ViewController {
+    private readonly dataService;
+    private readonly aiService;
+    constructor(dataService: DataService, aiService: AIService);
+    index(res: Response, page?: number, pageSize?: number): Promise<void>;
+    projects(res: Response): Promise<void>;
+    projectDetail(id: string, res: Response): Promise<Response<any, Record<string, any>>>;
+    testCases(res: Response): Promise<void>;
+    createTestCase(projectId: string, res: Response): Promise<Response<any, Record<string, any>>>;
+    editTestCaseLegacy(id: string, res: Response): Promise<void | Response<any, Record<string, any>>>;
+    editTestCase(projectId: string, id: string, res: Response): Promise<Response<any, Record<string, any>>>;
+    executions(res: Response): Promise<void>;
+    executionDetail(id: string, res: Response): Promise<Response<any, Record<string, any>>>;
+    reports(res: Response): Promise<void>;
+    settings(res: Response): Promise<void>;
+    templates(res: Response): Promise<void>;
+    scenarios(res: Response): Promise<void>;
+    selectorTool(res: Response): Promise<void>;
+    schedules(res: Response): Promise<void>;
+    scheduleExecutions(res: Response): Promise<void>;
+    scheduleLogs(res: Response): Promise<void>;
+    logExplorer(res: Response): Promise<void>;
+    logManagement(res: Response): Promise<void>;
+    login(res: Response): Promise<void>;
+    logout(res: Response): Promise<void>;
+    projectMembers(res: Response): Promise<void>;
+    userManagement(res: Response): Promise<void>;
+    roleMenuPermissions(res: Response): Promise<void>;
+}

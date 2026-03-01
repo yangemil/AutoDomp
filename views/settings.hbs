@@ -1,0 +1,244 @@
+<div class="page">
+    <div class="page-header">
+        <h1>系统设置</h1>
+    </div>
+
+    <div class="settings-container">
+        <form id="settingsForm">
+            <div class="settings-columns">
+                <div class="settings-section">
+                    <h2>🤖 AI配置</h2>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" id="aiEnabled" name="ai[enabled]">
+                            启用AI功能
+                        </label>
+                    </div>
+
+                    <div id="aiConfigSection" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>AI服务商</label>
+                                <select id="aiProvider" name="ai[provider]">
+                                    <option value="openai">OpenAI</option>
+                                    <option value="claude">Claude</option>
+                                    <option value="custom">自定义</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>模型</label>
+                                <input type="text" id="aiModel" name="ai[model]" value="gpt-3.5-turbo">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>API地址</label>
+                            <input type="text" id="aiApiUrl" name="ai[apiUrl]" value="https://api.openai.com/v1">
+                        </div>
+
+                        <div class="form-group">
+                            <label>API密钥</label>
+                            <input type="password" id="aiApiKey" name="ai[apiKey]" placeholder="sk-...">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>温度 (Temperature)</label>
+                                <input type="number" id="aiTemperature" name="ai[temperature]" value="0.7" min="0" max="2" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>最大令牌数</label>
+                                <input type="number" id="aiMaxTokens" name="ai[maxTokens]" value="2000" min="100" max="4000">
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary" onclick="testAIConnection()">测试连接</button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2>⚙️ 测试配置</h2>
+                    
+                    <div class="form-group">
+                        <label>基础URL</label>
+                        <input type="text" id="baseUrl" name="test[baseUrl]" placeholder="https://example.com">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="checkbox">
+                                <input type="checkbox" id="headless" name="test[headless]">
+                                无界面模式
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>慢速模式 (ms)</label>
+                            <input type="number" id="slowMo" name="test[slowMo]" value="200" min="0" max="5000">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>超时时间 (ms)</label>
+                        <input type="number" id="timeout" name="test[timeout]" value="30000" min="5000" max="120000">
+                    </div>
+
+                    <h3>截图设置</h3>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" id="screenshotEnabled" name="test[screenshot][enabled]" checked>
+                            启用截图
+                        </label>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="checkbox">
+                                <input type="checkbox" id="screenshotOnStep" name="test[screenshot][onStep]">
+                                每步截图
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox">
+                                <input type="checkbox" id="screenshotOnFailure" name="test[screenshot][onFailure]" checked>
+                                失败时截图
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">保存设置</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+async function loadSettings() {
+    try {
+        const response = await fetch('/api/config');
+        const config = await response.json();
+
+        // AI配置
+        document.getElementById('aiEnabled').checked = config.ai.enabled;
+        document.getElementById('aiProvider').value = config.ai.provider;
+        document.getElementById('aiModel').value = config.ai.model;
+        document.getElementById('aiApiUrl').value = config.ai.apiUrl;
+        document.getElementById('aiApiKey').value = config.ai.apiKey;
+        document.getElementById('aiTemperature').value = config.ai.temperature;
+        document.getElementById('aiMaxTokens').value = config.ai.maxTokens;
+
+        // 测试配置
+        document.getElementById('baseUrl').value = config.test.baseUrl;
+        document.getElementById('headless').checked = config.test.headless;
+        document.getElementById('slowMo').value = config.test.slowMo;
+        document.getElementById('timeout').value = config.test.timeout;
+        document.getElementById('screenshotEnabled').checked = config.test.screenshot.enabled;
+        document.getElementById('screenshotOnStep').checked = config.test.screenshot.onStep;
+        document.getElementById('screenshotOnFailure').checked = config.test.screenshot.onFailure;
+
+        toggleAISection();
+    } catch (error) {
+        console.error('加载配置失败:', error);
+    }
+}
+
+function toggleAISection() {
+    const aiEnabled = document.getElementById('aiEnabled').checked;
+    document.getElementById('aiConfigSection').style.display = aiEnabled ? 'block' : 'none';
+}
+
+document.getElementById('aiEnabled').addEventListener('change', toggleAISection);
+
+async function testAIConnection() {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = '测试中...';
+
+    try {
+        const config = {
+            enabled: true,
+            provider: document.getElementById('aiProvider').value,
+            model: document.getElementById('aiModel').value,
+            apiUrl: document.getElementById('aiApiUrl').value,
+            apiKey: document.getElementById('aiApiKey').value,
+            temperature: parseFloat(document.getElementById('aiTemperature').value),
+            maxTokens: parseInt(document.getElementById('aiMaxTokens').value)
+        };
+
+        const response = await fetch('/api/ai/test-connection', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+        const result = await response.json();
+
+        alert(result.success ? '✓ ' + result.message : '✗ ' + result.message);
+    } catch (error) {
+        alert('测试失败: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '测试连接';
+    }
+}
+
+document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const config = {
+        ai: {
+            enabled: document.getElementById('aiEnabled').checked,
+            provider: document.getElementById('aiProvider').value,
+            model: document.getElementById('aiModel').value,
+            apiUrl: document.getElementById('aiApiUrl').value,
+            apiKey: document.getElementById('aiApiKey').value,
+            temperature: parseFloat(document.getElementById('aiTemperature').value),
+            maxTokens: parseInt(document.getElementById('aiMaxTokens').value)
+        },
+        test: {
+            baseUrl: document.getElementById('baseUrl').value,
+            headless: document.getElementById('headless').checked,
+            slowMo: parseInt(document.getElementById('slowMo').value),
+            screenshot: {
+                enabled: document.getElementById('screenshotEnabled').checked,
+                onStep: document.getElementById('screenshotOnStep').checked,
+                onFailure: document.getElementById('screenshotOnFailure').checked
+            },
+            timeout: parseInt(document.getElementById('timeout').value)
+        }
+    };
+
+    try {
+        const response = await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            alert('设置已保存！');
+        } else {
+            alert('保存失败');
+        }
+    } catch (error) {
+        alert('请求失败: ' + error.message);
+    }
+});
+
+loadSettings();
+</script>
+
+<style>
+.settings-columns {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.settings-columns .settings-section {
+    width: 50%;
+    box-sizing: border-box;
+}
+</style>

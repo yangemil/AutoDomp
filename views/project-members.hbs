@@ -1,0 +1,381 @@
+<div class="page">
+    <div class="page-header">
+        <h1>项目成员管理</h1>
+    </div>
+
+    <div class="filter-section" style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <label>选择项目:</label>
+            <select id="projectSelect" class="form-control" style="width: 300px;" onchange="loadMembers()">
+                <option value="">-- 请选择项目 --</option>
+            </select>
+            <button class="btn btn-primary" onclick="showAddMemberModal()">+ 添加成员</button>
+        </div>
+    </div>
+
+    <div id="membersList"></div>
+</div>
+
+<div id="addMemberModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h2>添加项目成员</h2>
+            <button type="button" class="btn-close" onclick="closeAddMemberModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="addMemberForm">
+                <div class="form-group">
+                    <label>用户名 *</label>
+                    <input type="text" id="memberUsername" class="form-control" required placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>角色 *</label>
+                    <select id="memberRole" class="form-control" required>
+                        <option value="member">普通成员</option>
+                        <option value="admin">管理员</option>
+                        <option value="guest">访客</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>权限 *</label>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <label>
+                            <input type="checkbox" id="permRead" checked>
+                            查看 (read)
+                        </label>
+                        <label>
+                            <input type="checkbox" id="permWrite">
+                            编辑 (write)
+                        </label>
+                        <label>
+                            <input type="checkbox" id="permExecute">
+                            执行 (execute)
+                        </label>
+                        <label>
+                            <input type="checkbox" id="permManage">
+                            管理 (manage)
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeAddMemberModal()">取消</button>
+            <button type="button" class="btn btn-primary" onclick="addMember()">添加</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .member-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+        background: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .member-info h3 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        color: #333;
+    }
+
+    .member-info p {
+        margin: 4px 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .member-role {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-right: 8px;
+    }
+
+    .role-owner {
+        background: #f3e5f5;
+        color: #9c27b0;
+    }
+
+    .role-admin {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .role-member {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .role-guest {
+        background: #f5f5f5;
+        color: #757575;
+    }
+
+    .permissions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .permission-tag {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    .member-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .btn-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+    }
+
+    .btn-close:hover {
+        color: #333;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+</style>
+
+<script>
+    let currentProjectId = null;
+    let allProjects = [];
+
+    async function loadProjects() {
+        try {
+            const response = await fetch('/api/user/projects');
+            allProjects = await response.json();
+            
+            const select = document.getElementById('projectSelect');
+            select.innerHTML = '<option value="">-- 请选择项目 --</option>';
+            
+            allProjects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.name;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('加载项目失败:', error);
+            alert('加载项目失败');
+        }
+    }
+
+    async function loadMembers() {
+        currentProjectId = document.getElementById('projectSelect').value;
+        const container = document.getElementById('membersList');
+        
+        if (!currentProjectId) {
+            container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">请先选择项目</p>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/projects/${currentProjectId}/members`);
+            const members = await response.json();
+            
+            if (members.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">该项目暂无成员</p>';
+                return;
+            }
+
+            container.innerHTML = members.map(member => `
+                <div class="member-card">
+                    <div class="member-info">
+                        <h3>${member.username}</h3>
+                        <p>角色: <span class="member-role role-${member.role}">${getRoleText(member.role)}</span></p>
+                        <div class="permissions">
+                            ${member.permissions.map(perm => `<span class="permission-tag">${perm}</span>`).join('')}
+                        </div>
+                        <p style="margin-top: 8px; font-size: 12px; color: #999;">加入时间: ${new Date(member.joinedAt).toLocaleString('zh-CN')}</p>
+                    </div>
+                    <div class="member-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="editMember('${member.userId}')">编辑</button>
+                        <button class="btn btn-sm btn-danger" onclick="removeMember('${member.userId}')">移除</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('加载成员失败:', error);
+            alert('加载成员失败');
+        }
+    }
+
+    function getRoleText(role) {
+        const roleMap = {
+            'owner': '所有者',
+            'admin': '管理员',
+            'member': '成员',
+            'guest': '访客'
+        };
+        return roleMap[role] || role;
+    }
+
+    function showAddMemberModal() {
+        if (!currentProjectId) {
+            alert('请先选择项目');
+            return;
+        }
+        document.getElementById('addMemberModal').style.display = 'flex';
+        document.getElementById('addMemberForm').reset();
+    }
+
+    function closeAddMemberModal() {
+        document.getElementById('addMemberModal').style.display = 'none';
+    }
+
+    async function addMember() {
+        const username = document.getElementById('memberUsername').value.trim();
+        const role = document.getElementById('memberRole').value;
+        
+        const permissions = [];
+        if (document.getElementById('permRead').checked) permissions.push('read');
+        if (document.getElementById('permWrite').checked) permissions.push('write');
+        if (document.getElementById('permExecute').checked) permissions.push('execute');
+        if (document.getElementById('permManage').checked) permissions.push('manage');
+
+        if (!username) {
+            alert('请输入用户名');
+            return;
+        }
+
+        if (permissions.length === 0) {
+            alert('请至少选择一个权限');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/projects/${currentProjectId}/members`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: username, // 简化处理,实际应该根据用户名查找userId
+                    username,
+                    role,
+                    permissions
+                })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert('添加成员成功');
+                closeAddMemberModal();
+                loadMembers();
+            } else {
+                alert(result.error || '添加成员失败');
+            }
+        } catch (error) {
+            alert('添加成员失败: ' + error.message);
+        }
+    }
+
+    async function removeMember(userId) {
+        if (!confirm('确定要移除该成员吗?')) return;
+
+        try {
+            const response = await fetch(`/api/projects/${currentProjectId}/members/${userId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert('移除成员成功');
+                loadMembers();
+            } else {
+                const result = await response.json();
+                alert(result.error || '移除成员失败');
+            }
+        } catch (error) {
+            alert('移除成员失败: ' + error.message);
+        }
+    }
+
+    function editMember(userId) {
+        alert('编辑功能待实现');
+    }
+
+    loadProjects();
+</script>

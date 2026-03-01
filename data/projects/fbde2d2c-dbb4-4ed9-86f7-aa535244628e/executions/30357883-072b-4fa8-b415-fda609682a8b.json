@@ -1,0 +1,210 @@
+{
+  "id": "30357883-072b-4fa8-b415-fda609682a8b",
+  "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+  "testCaseId": "3d420a72-93ee-4d25-bb40-549e8915e7e1",
+  "testCaseName": "添加通用问题",
+  "status": "passed",
+  "startTime": "2026-02-28T09:18:22.883Z",
+  "steps": [
+    {
+      "stepId": "89fe82de-f4b5-4b90-a546-9ac098605478",
+      "order": 1,
+      "action": "click",
+      "status": "passed",
+      "startTime": "2026-02-28T09:18:23.100Z",
+      "screenshot": "30357883-072b-4fa8-b415-fda609682a8b_step_1.png",
+      "endTime": "2026-02-28T09:18:26.501Z",
+      "duration": 3401
+    },
+    {
+      "stepId": "9254efdc-f0db-4799-b0b4-23a2beb2a137",
+      "order": 2,
+      "action": "fill",
+      "status": "passed",
+      "startTime": "2026-02-28T09:18:26.502Z",
+      "screenshot": "30357883-072b-4fa8-b415-fda609682a8b_step_2.png",
+      "endTime": "2026-02-28T09:18:28.939Z",
+      "duration": 2437
+    },
+    {
+      "stepId": "2aee6f0a-c6cc-4d52-87f5-b7f372d2f9e5",
+      "order": 3,
+      "action": "fill",
+      "status": "passed",
+      "startTime": "2026-02-28T09:18:28.939Z",
+      "screenshot": "30357883-072b-4fa8-b415-fda609682a8b_step_3.png",
+      "endTime": "2026-02-28T09:18:31.359Z",
+      "duration": 2420
+    },
+    {
+      "stepId": "bce08b2b-bd86-40d6-8890-694548ed925a",
+      "order": 4,
+      "action": "click",
+      "status": "passed",
+      "startTime": "2026-02-28T09:18:31.360Z",
+      "screenshot": "30357883-072b-4fa8-b415-fda609682a8b_step_4.png",
+      "endTime": "2026-02-28T09:18:33.844Z",
+      "duration": 2484
+    }
+  ],
+  "screenshots": [
+    "30357883-072b-4fa8-b415-fda609682a8b_step_1.png",
+    "30357883-072b-4fa8-b415-fda609682a8b_step_2.png",
+    "30357883-072b-4fa8-b415-fda609682a8b_step_3.png",
+    "30357883-072b-4fa8-b415-fda609682a8b_step_4.png"
+  ],
+  "logs": [
+    "[2026-02-28T09:18:22.884Z] 开始执行测试用例: 添加通用问题",
+    "[2026-02-28T09:18:22.885Z] 使用场景共享页面",
+    "[2026-02-28T09:18:22.889Z] 导航到测试页面: https://litemall.hogwarts.ceshiren.com/#/mall/issue",
+    "[2026-02-28T09:18:23.098Z] 页面加载成功",
+    "[2026-02-28T09:18:23.100Z] 执行步骤 1: 点击元素",
+    "[2026-02-28T09:18:23.101Z] 点击元素: text=添加",
+    "[2026-02-28T09:18:24.295Z] 断言: 元素 .el-dialog__title 的文本包含 \"创建\"",
+    "[2026-02-28T09:18:24.301Z] 断言成功: 文本包含 \"创建\"",
+    "[2026-02-28T09:18:24.301Z] 等待 2000ms",
+    "[2026-02-28T09:18:26.501Z] 截图已保存: 30357883-072b-4fa8-b415-fda609682a8b_step_1.png",
+    "[2026-02-28T09:18:26.501Z] 步骤 1 执行成功",
+    "[2026-02-28T09:18:26.502Z] 执行步骤 2: 填充输入框",
+    "[2026-02-28T09:18:26.503Z] 填充输入框 div.el-form-item:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1): 问题001",
+    "[2026-02-28T09:18:26.732Z] 等待 2000ms",
+    "[2026-02-28T09:18:28.939Z] 截图已保存: 30357883-072b-4fa8-b415-fda609682a8b_step_2.png",
+    "[2026-02-28T09:18:28.939Z] 步骤 2 执行成功",
+    "[2026-02-28T09:18:28.939Z] 执行步骤 3: 填充输入框",
+    "[2026-02-28T09:18:28.940Z] 填充输入框 .el-textarea__inner: 回复001",
+    "[2026-02-28T09:18:29.163Z] 等待 2000ms",
+    "[2026-02-28T09:18:31.359Z] 截图已保存: 30357883-072b-4fa8-b415-fda609682a8b_step_3.png",
+    "[2026-02-28T09:18:31.359Z] 步骤 3 执行成功",
+    "[2026-02-28T09:18:31.360Z] 执行步骤 4: 点击元素",
+    "[2026-02-28T09:18:31.361Z] 点击元素: .dialog-footer > button:nth-child(2) > span:nth-child(1)",
+    "[2026-02-28T09:18:31.623Z] 等待 2000ms",
+    "[2026-02-28T09:18:33.844Z] 截图已保存: 30357883-072b-4fa8-b415-fda609682a8b_step_4.png",
+    "[2026-02-28T09:18:33.844Z] 步骤 4 执行成功",
+    "[2026-02-28T09:18:33.845Z] 测试执行完成，状态: passed"
+  ],
+  "context": {},
+  "structuredLogs": [
+    {
+      "id": "fff44356-f46d-45df-a76e-3d1c384bae2d",
+      "timestamp": "2026-02-28T09:18:22.884Z",
+      "level": "info",
+      "message": "开始执行测试用例: 添加通用问题",
+      "executionId": "30357883-072b-4fa8-b415-fda609682a8b"
+    },
+    {
+      "id": "16882e90-e2ce-4b79-bbdc-669b7e1217a8",
+      "timestamp": "2026-02-28T09:18:23.098Z",
+      "level": "info",
+      "message": "页面加载成功",
+      "executionId": "30357883-072b-4fa8-b415-fda609682a8b",
+      "metadata": {
+        "duration": 209,
+        "url": "https://litemall.hogwarts.ceshiren.com/#/mall/issue",
+        "action": "navigate"
+      }
+    },
+    {
+      "id": "da381b1f-e3f5-4b6a-959d-2b52efe95b6f",
+      "timestamp": "2026-02-28T09:18:23.100Z",
+      "level": "debug",
+      "message": "页面标题: litemall",
+      "executionId": "30357883-072b-4fa8-b415-fda609682a8b",
+      "metadata": {
+        "pageTitle": "litemall"
+      }
+    },
+    {
+      "id": "4e8219fa-c437-4697-89ef-2257fe7e835e",
+      "timestamp": "2026-02-28T09:18:23.100Z",
+      "level": "debug",
+      "message": "执行步骤 1: 点击元素",
+      "executionId": "30357883-072b-4fa8-b415-fda609682a8b",
+      "stepOrder": 1,
+      "metadata": {
+        "action": "点击元素",
+        "selector": "text=添加",
+        "value": ""
+      }
+    },
+    {
+      "id": "e21c3eeb-7f51-4eea-ab5c-af397ae236b8",
+      "timestamp": "2026-02-28T09:18:26.502Z",
+      "level": "debug",
+      "message": "执行步骤 2: 填充输入框",
+      "executionId": "30357883-072b-4fa8-b415-fda609682a8b",
+      "stepOrder": 2,
+      "metadata": {
+        "action": "填充输入框",
+        "selector": "div.el-form-item:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1)",
+        "value": "问题001"
+      }
+    },
+    {
+      "id": "aa21ffb1-0df5-409d-96b1-b875fa85faa2",
+      "timestamp": "2026-02-28T09:18:28.939Z",
+      "level": "debug",
+      "message": "执行步骤 3: 填充输入框",
+      "executionId": "30357883-072b-4fa8-b415-fda609682a8b",
+      "stepOrder": 3,
+      "metadata": {
+        "action": "填充输入框",
+        "selector": ".el-textarea__inner",
+        "value": "回复001"
+      }
+    },
+    {
+      "id": "d41547b7-4805-48e8-ad72-49b4586a8d66",
+      "timestamp": "2026-02-28T09:18:31.360Z",
+      "level": "debug",
+      "message": "执行步骤 4: 点击元素",
+      "executionId": "30357883-072b-4fa8-b415-fda609682a8b",
+      "stepOrder": 4,
+      "metadata": {
+        "action": "点击元素",
+        "selector": ".dialog-footer > button:nth-child(2) > span:nth-child(1)",
+        "value": "确定"
+      }
+    },
+    {
+      "id": "1c28c931-1c10-4736-91e2-1d15e593d0a6",
+      "timestamp": "2026-02-28T09:18:33.845Z",
+      "level": "info",
+      "message": "测试执行完成，状态: passed",
+      "executionId": "30357883-072b-4fa8-b415-fda609682a8b"
+    }
+  ],
+  "performanceMetrics": {
+    "totalDuration": 10962,
+    "averageStepDuration": 2685.5,
+    "pageLoadTimes": [
+      209
+    ],
+    "elementInteractions": 0,
+    "slowestStep": {
+      "order": 1,
+      "action": "click",
+      "description": "",
+      "duration": 3401
+    }
+  },
+  "environmentInfo": {
+    "os": "Windows 11 24H2",
+    "osVersion": "",
+    "nodeVersion": "v24.11.1",
+    "platform": "win32",
+    "browserVersion": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+    "resolution": "1280x720",
+    "timezone": "Asia/Shanghai",
+    "locale": "zh-CN",
+    "memoryUsage": {
+      "used": 17871007744,
+      "total": 34132516864,
+      "percentage": 47.64227960332811
+    },
+    "cpuUsage": 0,
+    "testPlatform": "Playwright",
+    "testPlatformVersion": "1.58.2"
+  },
+  "endTime": "2026-02-28T09:18:33.845Z",
+  "duration": 10962
+}

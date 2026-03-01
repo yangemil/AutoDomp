@@ -1,0 +1,10 @@
+declare const fs: any;
+declare const path: any;
+declare const DATA_DIR: any;
+declare const SCENARIO_DIR: any;
+declare function ensureDirectory(): void;
+declare function getScenarioContextPath(projectId: any, scenarioId: any): any;
+declare function saveScenarioContext(projectId: any, scenarioId: any, context: any): void;
+declare function loadScenarioContext(projectId: any, scenarioId: any): Record<string, any>;
+declare function deleteScenarioContext(projectId: any, scenarioId: any): boolean;
+declare function clearAllScenarioContexts(): void;

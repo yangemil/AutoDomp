@@ -1,0 +1,20 @@
+{
+  "id": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+  "name": "litemall",
+  "description": "测试网站",
+  "baseUrl": "https://litemall.hogwarts.ceshiren.com",
+  "settings": {
+    "headless": false,
+    "slowMo": 200,
+    "screenshot": {
+      "enabled": true,
+      "onStep": false,
+      "onFailure": true
+    },
+    "timeout": 5000,
+    "waitAfter": 2000
+  },
+  "createdAt": "2026-02-23T14:31:57.264Z",
+  "updatedAt": "2026-02-28T07:02:28.439Z",
+  "feishuWebhook": "https://open.feishu.cn/open-apis/bot/v2/hook/aa0781d8-70c2-4cc9-8c9a-2867c73275c7"
+}

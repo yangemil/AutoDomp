@@ -1,0 +1,18 @@
+{
+  "id": "281ede80-71ee-4da0-81e4-8469714efe3f",
+  "name": "山西机动车管理平台",
+  "description": "",
+  "baseUrl": "http://10.104.2.204:9999/#",
+  "settings": {
+    "headless": false,
+    "slowMo": 200,
+    "screenshot": {
+      "enabled": true,
+      "onStep": false,
+      "onFailure": true
+    },
+    "timeout": 30000
+  },
+  "createdAt": "2026-02-25T05:59:52.348Z",
+  "updatedAt": "2026-02-25T06:03:52.623Z"
+}

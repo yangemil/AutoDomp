@@ -1,0 +1,468 @@
+<div class="page">
+    <div class="page-header">
+        <h1>日志管理</h1>
+    </div>
+
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <button onclick="selectAll()" class="btn btn-sm btn-secondary">全选</button>
+            <button onclick="deselectAll()" class="btn btn-sm btn-secondary">取消选择</button>
+            <button onclick="batchDelete()" class="btn btn-sm btn-danger">批量删除</button>
+        </div>
+        <div class="toolbar-right">
+            <span id="selectedCount" class="selected-count">已选择 0 项</span>
+            <button onclick="loadExecutions()" class="btn btn-sm btn-primary">刷新</button>
+        </div>
+    </div>
+
+    <div class="logs-table">
+        <table>
+            <thead>
+                <tr>
+                    <th class="checkbox-col">
+                        <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                    </th>
+                    <th>执行ID</th>
+                    <th>测试用例/场景</th>
+                    <th>状态</th>
+                    <th>开始时间</th>
+                    <th>日志数量</th>
+                    <th>文件大小</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="executionsTableBody">
+                <tr>
+                    <td colspan="8" class="loading-row">加载中...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="pagination" class="pagination"></div>
+</div>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+}
+.page-header h1 {
+    font-size: 24px;
+    color: #1f2937;
+    font-weight: 600;
+    margin: 0;
+}
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.toolbar-left, .toolbar-right {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.selected-count {
+    color: #6b7280;
+    font-size: 14px;
+    margin-right: 16px;
+}
+.logs-table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.logs-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.logs-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+.logs-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+}
+.logs-table th.checkbox-col {
+    width: 50px;
+    text-align: center;
+}
+.logs-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+.logs-table tbody tr:hover {
+    background: #f9fafb;
+}
+.logs-table tbody tr.selected {
+    background: #dbeafe;
+}
+.logs-table tbody td.checkbox-col {
+    text-align: center;
+}
+.loading-row {
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+    font-style: italic;
+}
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.status-passed {
+    background: #d1fae5;
+    color: #059669;
+}
+.status-failed {
+    background: #fee2e2;
+    color: #dc2626;
+}
+.status-running {
+    background: #dbeafe;
+    color: #2563eb;
+}
+.btn-action {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-view {
+    background: #dbeafe;
+    color: #2563eb;
+    margin-right: 6px;
+}
+.btn-view:hover {
+    background: #bfdbfe;
+}
+.btn-delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+.btn-delete:hover {
+    background: #fecaca;
+}
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+.btn-primary:hover {
+    opacity: 0.9;
+}
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+.btn-danger {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+}
+.btn-danger:hover {
+    background: #fecaca;
+}
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+.pagination button {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.pagination button:hover {
+    background: #f3f4f6;
+}
+.pagination button.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+</style>
+
+<script>
+let executions = [];
+let selectedExecutions = new Set();
+let currentPage = 1;
+let pageSize = 20;
+let totalPages = 1;
+
+window.onload = function() {
+    loadExecutions();
+};
+
+async function loadExecutions() {
+    try {
+        const projectId = localStorage.getItem('globalProjectId');
+        const pageParam = `page=${currentPage}&pageSize=${pageSize}`;
+        const projectParam = projectId ? `&projectId=${projectId}` : '';
+        
+        const response = await fetch(`/api/executions?${pageParam}${projectParam}`);
+        const result = await response.json();
+        
+        if (Array.isArray(result)) {
+            executions = result;
+            totalPages = 1;
+        } else {
+            executions = result.data || [];
+            totalPages = result.totalPages || 1;
+        }
+        
+        renderTable();
+        renderPagination();
+    } catch (error) {
+        console.error('加载执行记录失败:', error);
+        document.getElementById('executionsTableBody').innerHTML = 
+            '<tr><td colspan="8" class="loading-row">加载失败</td></tr>';
+    }
+}
+
+async function renderTable() {
+    const tbody = document.getElementById('executionsTableBody');
+    
+    if (executions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="loading-row">暂无执行记录</td></tr>';
+        return;
+    }
+    
+    const getFileSize = async (execution) => {
+        try {
+            const response = await fetch(`/api/executions/${execution.id}/file-size`);
+            const data = await response.json();
+            return data.size || 0;
+        } catch (error) {
+            return 0;
+        }
+    };
+    
+    tbody.innerHTML = await Promise.all(executions.map(async (exec, index) => {
+        const fileSize = await getFileSize(exec);
+        const logsCount = exec.structuredLogs ? exec.structuredLogs.length : 0;
+        const sizeStr = fileSize < 1024 ? `${fileSize} B` : fileSize < 1024 * 1024 
+            ? `${(fileSize / 1024).toFixed(2)} KB` 
+            : `${(fileSize / (1024 * 1024)).toFixed(2)} MB`;
+        const time = new Date(exec.startTime).toLocaleString('zh-CN');
+        const statusClass = exec.status === 'passed' ? 'status-passed' 
+            : exec.status === 'failed' ? 'status-failed' 
+            : 'status-running';
+        const statusText = exec.status === 'passed' ? '通过' 
+            : exec.status === 'failed' ? '失败' 
+            : '运行中';
+        const name = exec.testCaseName || exec.scenarioName || '未知';
+        
+        return `
+            <tr class="${selectedExecutions.has(exec.id) ? 'selected' : ''}" data-id="${exec.id}">
+                <td class="checkbox-col">
+                    <input type="checkbox" class="execution-checkbox" 
+                           value="${exec.id}" 
+                           onchange="toggleSelect('${exec.id}')"
+                           ${selectedExecutions.has(exec.id) ? 'checked' : ''}>
+                </td>
+                <td><span style="font-family: monospace; font-size: 12px;">${exec.id.substring(0, 8)}...</span></td>
+                <td>${escapeHtml(name)}</td>
+                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td>${time}</td>
+                <td>${logsCount}</td>
+                <td>${sizeStr}</td>
+                <td>
+                    <button onclick="viewExecution('${exec.id}')" class="btn-action btn-view">查看</button>
+                    <button onclick="deleteExecution('${exec.id}', '${escapeHtml(name)}')" class="btn-action btn-delete">删除</button>
+                </td>
+            </tr>
+        `;
+    })).then(rows => rows.join(''));
+    
+    updateSelectAllCheckbox();
+}
+
+function renderPagination() {
+    const pagination = document.getElementById('pagination');
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let html = `
+        <button onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}>首页</button>
+        <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
+    `;
+    
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button onclick="goToPage(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</button>`;
+    }
+    
+    html += `
+        <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>
+        <button onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>末页</button>
+    `;
+    
+    pagination.innerHTML = html;
+}
+
+function goToPage(page) {
+    if (page < 1 || page > totalPages || page === currentPage) return;
+    currentPage = page;
+    loadExecutions();
+}
+
+function selectAll() {
+    executions.forEach(exec => selectedExecutions.add(exec.id));
+    renderTable();
+    updateSelectedCount();
+}
+
+function deselectAll() {
+    selectedExecutions.clear();
+    renderTable();
+    updateSelectedCount();
+}
+
+function toggleSelectAll() {
+    const checkbox = document.getElementById('selectAllCheckbox');
+    if (checkbox.checked) {
+        selectAll();
+    } else {
+        deselectAll();
+    }
+}
+
+function toggleSelect(executionId) {
+    if (selectedExecutions.has(executionId)) {
+        selectedExecutions.delete(executionId);
+    } else {
+        selectedExecutions.add(executionId);
+    }
+    renderTable();
+    updateSelectedCount();
+}
+
+function updateSelectAllCheckbox() {
+    const checkbox = document.getElementById('selectAllCheckbox');
+    checkbox.checked = executions.length > 0 && selectedExecutions.size === executions.length;
+}
+
+function updateSelectedCount() {
+    document.getElementById('selectedCount').textContent = `已选择 ${selectedExecutions.size} 项`;
+    updateSelectAllCheckbox();
+}
+
+function viewExecution(executionId) {
+    window.open(`/log-explorer`, '_blank');
+    setTimeout(() => {
+        localStorage.setItem('tempExecutionId', executionId);
+    }, 100);
+}
+
+async function deleteExecution(executionId, name) {
+    if (!confirm(`确定要删除执行记录 "${name}" 吗？此操作不可恢复！`)) return;
+    
+    try {
+        const response = await fetch(`/api/executions/${executionId}`, {
+            method: 'DELETE'
+        });
+        const result = await response.json();
+        
+        if (result.success || result.success === true) {
+            alert('删除成功！');
+            selectedExecutions.delete(executionId);
+            updateSelectedCount();
+            loadExecutions();
+        } else {
+            alert('删除失败：' + (result.error || '未知错误'));
+        }
+    } catch (error) {
+        alert('删除失败：' + error.message);
+    }
+}
+
+async function batchDelete() {
+    if (selectedExecutions.size === 0) {
+        alert('请先选择要删除的执行记录');
+        return;
+    }
+    
+    if (!confirm(`确定要删除选中的 ${selectedExecutions.size} 条执行记录吗？此操作不可恢复！`)) return;
+    
+    const ids = Array.from(selectedExecutions);
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const id of ids) {
+        try {
+            const response = await fetch(`/api/executions/${id}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+            
+            if (result.success || result.success === true) {
+                successCount++;
+            } else {
+                failCount++;
+            }
+        } catch (error) {
+            failCount++;
+        }
+    }
+    
+    alert(`批量删除完成！成功：${successCount} 条，失败：${failCount} 条`);
+    selectedExecutions.clear();
+    updateSelectedCount();
+    loadExecutions();
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>

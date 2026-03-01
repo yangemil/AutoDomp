@@ -1,0 +1,24 @@
+{
+  "id": "17afc4e8-353c-4ed6-b74c-942dd843668c",
+  "projectId": "fbde2d2c-dbb4-4ed9-86f7-aa535244628e",
+  "name": "登录",
+  "description": "",
+  "url": "/#/login?redirect=%2Fdashboard",
+  "useRelativeUrl": true,
+  "steps": [
+    {
+      "id": "749f987f-3b6c-4ffc-b015-ee8edb8f6dc5",
+      "order": 1,
+      "action": "click",
+      "selector": ".el-button",
+      "value": "登录",
+      "description": "",
+      "screenshot": true
+    }
+  ],
+  "expectedResults": [],
+  "testData": {},
+  "tags": [],
+  "createdAt": "2026-02-23T14:53:18.520Z",
+  "updatedAt": "2026-02-23T14:53:18.520Z"
+}

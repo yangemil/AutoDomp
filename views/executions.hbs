@@ -1,0 +1,433 @@
+<div class="page">
+    <div class="page-header">
+    </div>
+
+    <div id="executionsContainer" style="display: none;">
+        <div class="executions-header">
+            <h2 id="projectName"></h2>
+            <div class="filter-controls">
+                <input type="date" id="startDate" class="date-input" placeholder="开始日期" onchange="filterExecutions()">
+                <span>至</span>
+                <input type="date" id="endDate" class="date-input" placeholder="结束日期" onchange="filterExecutions()">
+                <select id="executionType" class="date-input" onchange="filterExecutions()">
+                    <option value="all">全部类型</option>
+                    <option value="test">测试用例</option>
+                    <option value="scenario" selected>测试场景</option>
+                </select>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearDateFilter()">清除日期</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="batchDeleteExecutions()" id="batchDeleteBtn" style="display:none;">批量删除</button>
+            </div>
+        </div>
+        
+        <div style="margin: 10px 0;">
+            <label>
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"> 全选
+            </label>
+        </div>
+        
+         <div id="executionsList"></div>
+    </div>
+</div>
+
+<script>
+    let currentPage = 1;
+    let totalPages = 1;
+    const pageSize = 15;
+    let currentProjectId = '';
+    let allExecutions = [];
+    
+    // 获取当天日期字符串
+    function getTodayDate() {
+        const today = new Date();
+        return today.toISOString().split('T')[0];
+    }
+    
+    // 页面加载时检查全局项目选择
+    window.onload = function() {
+        // 设置默认日期为当天
+        const today = getTodayDate();
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = today;
+        
+        loadProjectExecutions();
+        
+        window.addEventListener('globalProjectChanged', function(e) {
+            loadProjectExecutions();
+        });
+    };
+    
+    async function loadProjectExecutions() {
+        currentProjectId = localStorage.getItem('globalProjectId');
+        
+        if (!currentProjectId) {
+            document.getElementById('executionsContainer').style.display = 'none';
+            document.getElementById('projectName').textContent = '请先在导航栏选择项目';
+            document.getElementById('executionsContainer').style.display = 'block';
+            return;
+        }
+        
+        try {
+            const projectResponse = await fetch(`/api/projects/${currentProjectId}`);
+            const project = await projectResponse.json();
+            document.getElementById('projectName').textContent = project.name + ' - 执行记录';
+            
+            const [testExecutions, scenarioExecutions] = await Promise.all([
+                fetch(`/api/executions?projectId=${currentProjectId}`).then(r => r.json()),
+                fetch(`/api/scenario-executions?projectId=${currentProjectId}`).then(r => r.json())
+            ]);
+            
+            const testExecs = Array.isArray(testExecutions) ? testExecutions : (testExecutions.data || []);
+            const scenarioExecs = Array.isArray(scenarioExecutions) ? scenarioExecutions : (scenarioExecutions.data || []);
+            
+            allExecutions = [
+                ...testExecs.map(e => ({ ...e, type: 'test' })),
+                ...scenarioExecs.map(e => ({ ...e, type: 'scenario' }))
+            ].sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+            
+            renderExecutions(allExecutions);
+            document.getElementById('executionsContainer').style.display = 'block';
+            
+            // 默认按测试场景过滤
+            filterExecutions();
+        } catch (error) {
+            alert('加载失败: ' + error.message);
+        }
+    }
+    
+    function filterExecutions() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const executionType = document.getElementById('executionType').value;
+        
+        const filtered = allExecutions.filter(e => {
+            // 按类型过滤
+            if (executionType !== 'all' && e.type !== executionType) {
+                return false;
+            }
+            
+            // 日期过滤
+            if (!startDate && !endDate) {
+                return true;
+            }
+            
+            const execDate = new Date(e.startTime);
+            let matchDate = true;
+            
+            if (startDate) {
+                const start = new Date(startDate);
+                start.setHours(0, 0, 0, 0);
+                matchDate = execDate >= start;
+            }
+            
+            if (endDate && matchDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                matchDate = execDate <= end;
+            }
+            
+            return matchDate;
+        });
+        
+        renderExecutions(filtered);
+    }
+
+    function clearDateFilter() {
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        filterExecutions();
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderExecutions(allExecutions);
+        }
+    }
+
+    function nextPage() {
+        const totalCount = allExecutions.length;
+        const totalPagesCount = totalCount ? Math.ceil(totalCount / pageSize) : 1;
+        if (currentPage < totalPagesCount) {
+            currentPage++;
+            renderExecutions(allExecutions);
+        }
+    }
+
+    function renderExecutions(executions) {
+        const total = executions.length;
+        const totalPagesCount = total ? Math.ceil(total / pageSize) : 1;
+        
+        if (executions.length === 0) {
+            document.getElementById('executionsList').innerHTML = 
+                '<div class="empty-state"><p>暂无执行记录</p><a href="/test-cases" class="btn btn-primary">前往测试用例</a></div>';
+            return;
+        }
+        
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, total);
+        const pageExecutions = executions.slice(startIndex, endIndex);
+        
+        let html = '<table class="table">\n' +
+            '<thead>\n' +
+            '    <tr>\n' +
+            '        <th style="width:40px;"><input type="checkbox" id="tableSelectAll" onchange="toggleSelectAll()"></th>\n' +
+            '        <th>类型</th>\n' +
+            '        <th>名称</th>\n' +
+            '        <th>状态</th>\n' +
+            '        <th>开始时间</th>\n' +
+            '        <th>耗时</th>\n' +
+            '        <th>操作</th>\n' +
+            '    </tr>\n' +
+            '</thead>\n' +
+            '<tbody>\n';
+        
+        pageExecutions.forEach(e => {
+            const isScenario = e.scenarioId || e.type === 'scenario';
+            const name = isScenario ? (e.scenarioName || e.testCaseName) : (e.testCaseName || '-');
+            const detailFunc = isScenario ? 'viewScenarioExecution' : 'viewExecution';
+            const detailApi = isScenario ? `/api/scenario-executions/${e.id}` : `/api/executions/${e.id}`;
+            
+            html += '    <tr>\n' +
+                '        <td><input type="checkbox" class="execution-checkbox" value="' + e.id + '" data-type="' + (isScenario ? 'scenario' : 'test') + '" onchange="updateBatchDeleteButton()"></td>\n' +
+                '        <td>' + (isScenario ? '<span class="tag">场景</span>' : '<span class="tag" style="background:#dbeafe;color:#1e40af;">用例</span>') + '</td>\n' +
+                '        <td><strong>' + name + '</strong></td>\n' +
+                '        <td><span class="status-badge status-' + e.status + '">' + e.status + '</span></td>\n' +
+                '        <td>' + new Date(e.startTime).toLocaleString('zh-CN') + '</td>\n' +
+                '        <td>' + ((e.duration || 0) / 1000).toFixed(2) + ' 秒</td>\n' +
+                '        <td class="actions">\n' +
+                '            <button type="button" class="btn btn-sm" onclick="' + detailFunc + '(\'' + e.id + '\')">查看详情</button>\n' +
+                (isScenario ? '' : '            <button type="button" class="btn btn-sm btn-secondary" onclick="generateReport(\'' + e.projectId + '\', [\'' + e.id + '\'])">生成报告</button>\n') +
+                '            <button type="button" class="btn btn-sm btn-danger" onclick="deleteExecution(\'' + e.id + '\',\'' + (isScenario ? 'scenario' : 'test') + '\')">删除</button>\n' +
+                '        </td>\n' +
+                '    </tr>\n';
+        });
+        
+        html += '</tbody></table>';
+        
+        html += `
+            <div class="pagination">
+                <button type="button" class="btn btn-sm" id="prevPageBtn" onclick="prevPage()" ${currentPage <= 1 ? 'disabled' : ''}>上一页</button>
+                <span id="paginationInfo">第 ${currentPage} 页 / 共 ${totalPagesCount} 页</span>
+                <button type="button" class="btn btn-sm" id="nextPageBtn" onclick="nextPage()" ${currentPage >= totalPagesCount ? 'disabled' : ''}>下一页</button>
+            </div>
+        `;
+        
+        document.getElementById('executionsList').innerHTML = html;
+    }
+
+    function updatePaginationButtons(page, totalPagesCount) {
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        
+        if (prevBtn) {
+            prevBtn.disabled = page <= 1;
+        }
+        
+        if (nextBtn) {
+            nextBtn.disabled = page >= totalPagesCount;
+        }
+    }
+
+    async function viewExecution(executionId) {
+        try {
+            const response = await fetch(`/api/executions/${executionId}`);
+            const execution = await response.json();
+            
+            // 检查API是否返回错误响应（error字段且没有id字段）
+            if (execution.error && !execution.id) {
+                alert('执行记录不存在');
+                return;
+            }
+            
+            // 检查是否获取到有效的执行记录
+            if (!execution || !execution.id) {
+                alert('执行记录不存在');
+                return;
+            }
+            
+            // 构建详情信息
+            let details = `测试用例: ${execution.testCaseName}\n`;
+            details += `状态: ${execution.status}\n`;
+            details += `开始时间: ${new Date(execution.startTime).toLocaleString('zh-CN')}\n`;
+            details += `耗时: ${((execution.duration || 0) / 1000).toFixed(2)} 秒\n`;
+            details += `步骤数: ${execution.steps ? execution.steps.length : 0}\n`;
+            
+            // 显示执行错误（这是测试执行时的错误，不是API错误）
+            if (execution.error) {
+                details += `\n⚠️ 执行错误:\n${execution.error.substring(0, 500)}${execution.error.length > 500 ? '...' : ''}\n`;
+            }
+            
+            // 显示步骤信息
+            if (execution.steps && execution.steps.length > 0) {
+                details += `\n步骤详情:\n`;
+                execution.steps.forEach((step, index) => {
+                    const statusIcon = step.status === 'passed' ? '✓' : (step.status === 'failed' ? '✗' : '○');
+                    details += `  ${statusIcon} 步骤${step.order}: ${step.status}\n`;
+                    if (step.error) {
+                        details += `     错误: ${step.error.substring(0, 100)}...\n`;
+                    }
+                });
+            }
+            
+            alert(details);
+        } catch (error) {
+            alert('请求失败: ' + error.message);
+        }
+    }
+
+    async function viewScenarioExecution(executionId) {
+        try {
+            const response = await fetch(`/api/scenario-executions/${executionId}`);
+            const execution = await response.json();
+            
+            if (execution.error && !execution.id) {
+                alert('执行记录不存在');
+                return;
+            }
+            
+            if (!execution || !execution.id) {
+                alert('执行记录不存在');
+                return;
+            }
+            
+            let details = `场景: ${execution.scenarioName}\n`;
+            details += `状态: ${execution.status}\n`;
+            details += `开始时间: ${new Date(execution.startTime).toLocaleString('zh-CN')}\n`;
+            details += `耗时: ${((execution.duration || 0) / 1000).toFixed(2)} 秒\n`;
+            details += `总测试数: ${execution.totalTests}\n`;
+            details += `通过: ${execution.passedTests}\n`;
+            details += `失败: ${execution.failedTests}\n`;
+            
+            if (execution.logs && execution.logs.length > 0) {
+                details += `\n执行日志:\n`;
+                execution.logs.slice(-20).forEach(log => {
+                    details += `${log}\n`;
+                });
+            }
+            
+            alert(details);
+        } catch (error) {
+            alert('请求失败: ' + error.message);
+        }
+    }
+
+    async function generateReport(projectId, executionIds) {
+        if (!projectId) {
+            alert('错误: 项目ID为空');
+            return;
+        }
+        
+        if (!executionIds || executionIds.length === 0) {
+            alert('请至少选择一个执行记录');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/reports/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    projectId,
+                    executionIds,
+                    name: `测试报告 ${new Date().toLocaleString('zh-CN')}`
+                })
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                if (confirm('报告生成成功！是否立即查看？')) {
+                    window.open(`/api/reports/html/${projectId}/${result.report.htmlPath}`, '_blank');
+                }
+            } else {
+                alert('生成失败: ' + result.error);
+            }
+        } catch (error) {
+            alert('请求失败: ' + error.message);
+        }
+    }
+
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll') || document.getElementById('tableSelectAll');
+        const checkboxes = document.querySelectorAll('.execution-checkbox');
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateBatchDeleteButton();
+    }
+
+    function updateBatchDeleteButton() {
+        const checkboxes = document.querySelectorAll('.execution-checkbox:checked');
+        const batchDeleteBtn = document.getElementById('batchDeleteBtn');
+        if (checkboxes.length > 0) {
+            batchDeleteBtn.style.display = 'inline-block';
+        } else {
+            batchDeleteBtn.style.display = 'none';
+        }
+    }
+
+    async function batchDeleteExecutions() {
+        const checkboxes = document.querySelectorAll('.execution-checkbox:checked');
+        
+        if (checkboxes.length === 0) {
+            alert('请选择要删除的执行记录');
+            return;
+        }
+        
+        if (!confirm(`确定要删除选中的 ${checkboxes.length} 条执行记录吗？此操作不可恢复！`)) {
+            return;
+        }
+        
+        let successCount = 0;
+        for (const cb of checkboxes) {
+            const executionId = cb.value;
+            const type = cb.dataset.type;
+            const api = type === 'scenario' ? `/api/scenario-executions/${executionId}` : `/api/executions/${executionId}`;
+            
+            try {
+                const response = await fetch(api, { method: 'DELETE' });
+                const result = await response.json();
+                if (result.success) successCount++;
+            } catch (error) {
+                console.error('删除失败:', error);
+            }
+        }
+        
+        alert(`成功删除 ${successCount} 条执行记录`);
+        loadProjectExecutions();
+    }
+
+    async function deleteExecution(executionId, type = 'test') {
+        if (!confirm('确定要删除这个执行记录吗？此操作不可恢复！')) {
+            return;
+        }
+        
+        const api = type === 'scenario' ? `/api/scenario-executions/${executionId}` : `/api/executions/${executionId}`;
+        
+        try {
+            const response = await fetch(api, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('删除成功！');
+                loadProjectExecutions();
+            } else {
+                alert('删除失败');
+            }
+        } catch (error) {
+            alert('请求失败: ' + error.message);
+        }
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('zh-CN');
+    }
+
+    function formatDuration(duration) {
+        if (!duration) return '0 秒';
+        return (duration / 1000).toFixed(2) + ' 秒';
+    }
+</script>
+
+<style>
+</style>

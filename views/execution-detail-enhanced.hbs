@@ -1,0 +1,712 @@
+<div class="page">
+    <div class="page-header">
+        <h1>执行详情</h1>
+        <a href="/executions" class="back-link">← 返回执行记录</a>
+    </div>
+
+    <div class="detail-card">
+        <div class="detail-item">
+            <label>{{#if execution.scenarioName}}场景名称{{else}}测试用例{{/if}}</label>
+            <div>{{execution.scenarioName}}{{execution.testCaseName}}</div>
+        </div>
+        <div class="detail-item">
+            <label>状态</label>
+            <div><span class="status-badge status-{{execution.status}}">{{execution.status}}</span></div>
+        </div>
+        <div class="detail-item">
+            <label>开始时间</label>
+            <div>{{formatDate execution.startTime}}</div>
+        </div>
+        <div class="detail-item">
+            <label>耗时</label>
+            <div>{{formatDuration execution.duration}}</div>
+        </div>
+        <div class="detail-item">
+            <label>{{#if execution.scenarioName}}测试用例数{{else}}步骤数{{/if}}</label>
+            <div>{{#if execution.scenarioName}}{{execution.totalTests}}{{else}}{{execution.steps.length}}{{/if}}</div>
+        </div>
+        {{#if execution.passedTests}}
+        <div class="detail-item">
+            <label>通过/失败</label>
+            <div>
+                <span class="result-passed">{{execution.passedTests}} 通过</span> / 
+                <span class="result-failed">{{execution.failedTests}} 失败</span>
+            </div>
+        </div>
+        {{/if}}
+    </div>
+
+    <!-- 性能指标面板 -->
+    {{#if execution.performanceMetrics}}
+    <div class="section-card">
+        <div class="section-header">
+            <h2>📊 性能指标</h2>
+        </div>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">{{formatDuration execution.performanceMetrics.totalDuration}}</div>
+                <div class="metric-label">总耗时</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{formatDuration execution.performanceMetrics.averageStepDuration}}</div>
+                <div class="metric-label">平均步骤耗时</div>
+            </div>
+            <div class="metric-card highlight">
+                <div class="metric-value">
+                    <span>步骤 {{execution.performanceMetrics.slowestStep.order}}</span>
+                    <small>{{execution.performanceMetrics.slowestStep.action}}</small>
+                </div>
+                <div class="metric-label">最慢步骤</div>
+                <div class="metric-duration">{{formatDuration execution.performanceMetrics.slowestStep.duration}}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{execution.performanceMetrics.elementInteractions}}</div>
+                <div class="metric-label">元素交互次数</div>
+            </div>
+        </div>
+        
+        {{#if execution.performanceMetrics.pageLoadTimes}}
+        <div class="page-load-times">
+            <h4>页面加载时间</h4>
+            <div class="timeline-bar">
+                {{#each execution.performanceMetrics.pageLoadTimes as time}}
+                <div class="timeline-segment" style="width: {{calcPercent time execution.performanceMetrics.totalDuration}}%;">
+                    <span class="tooltip">{{formatDuration time}}</span>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        {{/if}}
+    </div>
+    {{/if}}
+
+    <!-- 环境信息面板 -->
+    {{#if execution.environmentInfo}}
+    <div class="section-card">
+        <div class="section-header">
+            <h2>🖥️ 环境信息</h2>
+        </div>
+        <div class="env-grid">
+            <div class="env-item">
+                <span class="env-label">操作系统</span>
+                <span class="env-value">{{execution.environmentInfo.os}} {{execution.environmentInfo.osVersion}}</span>
+            </div>
+            <div class="env-item">
+                <span class="env-label">Node.js 版本</span>
+                <span class="env-value">{{execution.environmentInfo.nodeVersion}}</span>
+            </div>
+            <div class="env-item">
+                <span class="env-label">浏览器</span>
+                <span class="env-value">{{execution.environmentInfo.browserVersion}}</span>
+            </div>
+            <div class="env-item">
+                <span class="env-label">分辨率</span>
+                <span class="env-value">{{execution.environmentInfo.resolution}}</span>
+            </div>
+            <div class="env-item">
+                <span class="env-label">时区</span>
+                <span class="env-value">{{execution.environmentInfo.timezone}}</span>
+            </div>
+            <div class="env-item">
+                <span class="env-label">测试平台</span>
+                <span class="env-value">{{execution.environmentInfo.testPlatform}} v{{execution.environmentInfo.testPlatformVersion}}</span>
+            </div>
+        </div>
+    </div>
+    {{/if}}
+
+    <!-- 结构化日志面板 -->
+    <div class="section-card">
+        <div class="section-header">
+            <h2>📝 执行日志</h2>
+            <div class="log-actions">
+                <button class="btn btn-sm" onclick="filterLogs('all')">全部</button>
+                <button class="btn btn-sm btn-error" onclick="filterLogs('error')">错误</button>
+                <button class="btn btn-sm btn-warn" onclick="filterLogs('warn')">警告</button>
+                <button class="btn btn-sm btn-info" onclick="filterLogs('info')">信息</button>
+                <button class="btn btn-sm btn-debug" onclick="filterLogs('debug')">调试</button>
+                <a href="/api/executions/{{execution.id}}/export-logs/json" class="btn btn-sm btn-secondary" target="_blank">导出 JSON</a>
+                <a href="/api/executions/{{execution.id}}/export-logs/csv" class="btn btn-sm btn-secondary" target="_blank">导出 CSV</a>
+            </div>
+        </div>
+        
+        {{#if execution.structuredLogs}}
+        <div class="log-summary">
+            <span class="log-count">共 {{execution.structuredLogs.length}} 条日志</span>
+            {{#if logsSummary}}
+            <span class="log-levels">
+                <span class="level-badge level-debug">{{logsSummary.byLevel.debug}} DEBUG</span>
+                <span class="level-badge level-info">{{logsSummary.byLevel.info}} INFO</span>
+                <span class="level-badge level-warn">{{logsSummary.byLevel.warn}} WARN</span>
+                <span class="level-badge level-error">{{logsSummary.byLevel.error}} ERROR</span>
+            </span>
+            {{/if}}
+        </div>
+        
+        <div class="structured-logs" id="structuredLogs">
+            {{#each execution.structuredLogs}}
+            <div class="log-entry log-{{this.level}}" data-level="{{this.level}}">
+                <span class="log-time">{{formatTime this.timestamp}}</span>
+                <span class="log-level {{this.level}}">[{{uppercase this.level}}]</span>
+                <span class="log-message">{{this.message}}</span>
+                {{#if this.stepOrder}}
+                <span class="log-step">步骤 {{this.stepOrder}}</span>
+                {{/if}}
+                {{#if this.metadata.duration}}
+                <span class="log-duration">{{this.metadata.duration}}ms</span>
+                {{/if}}
+                {{#if this.metadata.action}}
+                <span class="log-action">{{this.metadata.action}}</span>
+                {{/if}}
+            </div>
+            {{/each}}
+        </div>
+        {{else}}
+        <div class="no-logs">
+            <p>暂无结构化日志</p>
+            <p class="help-text">旧版执行记录不包含结构化日志数据</p>
+        </div>
+        {{/if}}
+    </div>
+
+    {{#if execution.error}}
+    <div class="error-section">
+        <h2>错误信息</h2>
+        <div class="error-message">{{execution.error}}</div>
+    </div>
+    {{/if}}
+
+    {{#if execution.steps}}
+    <div class="steps-section">
+        <h2>执行步骤</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>动作</th>
+                    <th>描述</th>
+                    <th>状态</th>
+                    <th>耗时</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each execution.steps}}
+                <tr class="step-{{this.status}}">
+                    <td>{{this.order}}</td>
+                    <td>{{this.action}}</td>
+                    <td>{{this.description}}</td>
+                    <td><span class="status-badge status-{{this.status}}">{{this.status}}</span></td>
+                    <td>{{formatDuration this.duration}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    {{/if}}
+
+    {{#if execution.screenshots}}
+    <div class="screenshots-section">
+        <h2>执行截图</h2>
+        <div class="screenshots-grid">
+            {{#each execution.screenshots}}
+            <div class="screenshot-item">
+                <img src="/data/screenshots/{{this}}" alt="执行截图">
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{#if execution.logs}}
+    <div class="logs-section">
+        <h2>原始日志</h2>
+        <div class="logs-list">
+            {{#each execution.logs}}
+                <div class="log-item">{{this}}</div>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+</div>
+
+<script>
+function formatDuration(duration) {
+    if (!duration) return '-';
+    const seconds = duration / 1000;
+    if (seconds < 60) {
+        return Math.round(seconds) + ' 秒';
+    } else {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.round(seconds % 60);
+        return minutes + ' 分 ' + remainingSeconds + ' 秒';
+    }
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleString('zh-CN');
+}
+
+function formatTime(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString('zh-CN');
+}
+
+function uppercase(str) {
+    return str ? str.toUpperCase() : '';
+}
+
+function filterLogs(level) {
+    const logs = document.querySelectorAll('#structuredLogs .log-entry');
+    logs.forEach(log => {
+        if (level === 'all' || log.dataset.level === level) {
+            log.style.display = 'flex';
+        } else {
+            log.style.display = 'none';
+        }
+    });
+    
+    // 更新按钮状态
+    document.querySelectorAll('.log-actions .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+</script>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.back-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(102, 126, 234, 0.1);
+    transition: all 0.2s;
+}
+
+.back-link:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+.detail-card {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.detail-item {
+    flex: 1;
+    min-width: 0;
+}
+
+.detail-item label {
+    display: block;
+    color: #666;
+    font-size: 16.8px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.detail-item div {
+    font-weight: 700;
+    font-size: 19.2px;
+    color: #1f2937;
+    text-align: center;
+}
+
+.section-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.section-header h2 {
+    font-size: 18px;
+    color: #1f2937;
+    font-weight: 600;
+    margin: 0;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.metric-card {
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.metric-card.highlight {
+    background: #fef3c7;
+    border: 2px solid #f59e0b;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.metric-value small {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.metric-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.metric-duration {
+    font-size: 18px;
+    font-weight: 600;
+    color: #f59e0b;
+    margin-top: 8px;
+}
+
+.page-load-times {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.page-load-times h4 {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.timeline-bar {
+    display: flex;
+    height: 30px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.timeline-segment {
+    background: #667eea;
+    position: relative;
+    min-width: 10px;
+}
+
+.timeline-segment:hover .tooltip {
+    display: block;
+}
+
+.tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.env-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.env-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.env-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.env-value {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 14px;
+}
+
+.log-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.log-actions .btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: none;
+    color: #666;
+}
+
+.log-actions .btn:hover,
+.log-actions .btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.log-actions .btn-error:hover { background: #ef4444; border-color: #ef4444; }
+.log-actions .btn-warn:hover { background: #f59e0b; border-color: #f59e0b; }
+.log-actions .btn-info:hover { background: #3b82f6; border-color: #3b82f6; }
+.log-actions .btn-debug:hover { background: #8b5cf6; border-color: #8b5cf6; }
+
+.log-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.log-count {
+    font-weight: 600;
+    color: #666;
+}
+
+.log-levels {
+    display: flex;
+    gap: 8px;
+}
+
+.level-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.level-debug { background: #f3e8ff; color: #8b5cf6; }
+.level-info { background: #dbeafe; color: #3b82f6; }
+.level-warn { background: #fef3c7; color: #f59e0b; }
+.level-error { background: #fee2e2; color: #ef4444; }
+
+.structured-logs {
+    max-height: 500px;
+    overflow-y: auto;
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.log-entry {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    font-size: 13px;
+    border-left: 3px solid #e5e7eb;
+}
+
+.log-entry:hover {
+    background: white;
+}
+
+.log-entry.log-debug { border-left-color: #8b5cf6; }
+.log-entry.log-info { border-left-color: #3b82f6; }
+.log-entry.log-warn { border-left-color: #f59e0b; }
+.log-entry.log-error { border-left-color: #ef4444; background: #fee2e2; }
+
+.log-time {
+    color: #666;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.log-level {
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.log-level.debug { background: #f3e8ff; color: #8b5cf6; }
+.log-level.info { background: #dbeafe; color: #3b82f6; }
+.log-level.warn { background: #fef3c7; color: #f59e0b; }
+.log-level.error { background: #fee2e2; color: #ef4444; }
+
+.log-message {
+    flex: 1;
+    color: #1f2937;
+}
+
+.log-step, .log-duration, .log-action {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #e5e7eb;
+    color: #666;
+    flex-shrink: 0;
+}
+
+.no-logs {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.no-logs .help-text {
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.error-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fee2e2;
+    border-radius: 8px;
+}
+
+.error-section h2 {
+    color: #dc2626;
+    margin-bottom: 10px;
+}
+
+.error-message {
+    color: #dc2626;
+    font-family: monospace;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+}
+
+.steps-section, .logs-section, .screenshots-section {
+    margin-top: 24px;
+}
+
+.steps-section h2, .logs-section h2, .screenshots-section h2 {
+    font-size: 18px;
+    color: #1f2937;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.logs-list {
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.log-item {
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+}
+
+.screenshots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.screenshot-item {
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.screenshot-item img {
+    width: 100%;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 16.8px;
+    font-weight: 700;
+}
+
+.result-passed {
+    color: #10b981;
+    font-weight: 700;
+}
+
+.result-failed {
+    color: #ef4444;
+    font-weight: 700;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #666;
+}
+</style>
