@@ -309,9 +309,9 @@
         window.fetch = function(...args) {
             const token = localStorage.getItem('token');
             
-            // 给 API 请求添加 token 前缀
+            // 给 API 请求添加 token 前缀（支持 /api/ 和 /auth/ 路径）
             let url = args[0];
-            if (typeof url === 'string' && url.startsWith('/api/') && token) {
+            if (typeof url === 'string' && (url.startsWith('/api/') || url.startsWith('/auth/')) && token) {
                 if (args[1] && args[1].headers) {
                     args[1].headers['Authorization'] = `Bearer ${token}`;
                 } else if (args[1]) {
