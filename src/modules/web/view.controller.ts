@@ -1,20 +1,26 @@
-import { Controller, Get, Param, Res, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Res, Query, UseGuards, Req } from '@nestjs/common';
 import { Response } from 'express';
 import { AIService } from '../ai';
 import { Public } from '../auth/decorators/public.decorator';
 import { DataService } from '../data';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PermissionsService } from '../permissions/permissions.service';
+import { Permission } from '../../common/interfaces';
 
 @Controller()
 export class ViewController {
   constructor(
     private readonly dataService: DataService,
-    private readonly aiService: AIService
+    private readonly aiService: AIService,
+    private readonly permissionsService: PermissionsService
   ) {}
 
   @Get()
-  async index(@Res() res: Response, @Query('page') page: number = 1, @Query('pageSize') pageSize: number = 10) {
-    const projects = await this.dataService.getProjects();
+  async index(@Req() req: any, @Res() res: Response, @Query('page') page: number = 1, @Query('pageSize') pageSize: number = 10) {
+    const projects = await this.permissionsService.getUserProjects(
+      req.user.userId,
+      req.user.role
+    );
     const testCases = await this.dataService.getAllTestCases({ page, pageSize });
     const executions = await this.dataService.getAllExecutions({ page, pageSize });
     const reports = await this.dataService.getReports();
@@ -58,10 +64,23 @@ export class ViewController {
   }
 
   @Get('projects/:id')
-  async projectDetail(@Param('id') id: string, @Res() res: Response) {
+  async projectDetail(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
     const project = await this.dataService.getProject(id);
     if (!project) {
       return res.status(404).send('项目不存在');
+    }
+    
+    const hasPermission = await this.permissionsService.checkPermission(
+      req.user.userId,
+      id,
+      Permission.READ
+    );
+    
+    if (!hasPermission) {
+      return res.status(403).json({
+        message: '您没有权限访问该项目',
+        statusCode: 403
+      });
     }
     
     const testCases = await this.dataService.getTestCases(id);
@@ -282,13 +301,11 @@ export class ViewController {
   }
 
   @Get('user-management')
-  @UseGuards(JwtAuthGuard)
   async userManagement(@Res() res: Response) {
     res.render('user-management', { title: '用户管理' });
   }
 
   @Get('role-menu-permissions')
-  @UseGuards(JwtAuthGuard)
   async roleMenuPermissions(@Res() res: Response) {
     res.render('role-menu-permissions', { title: '角色菜单权限' });
   }

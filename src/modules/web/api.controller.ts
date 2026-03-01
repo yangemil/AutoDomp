@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, Res, Req, Logger, UseInterceptors, UploadedFile, UseGuards, ForbiddenException } from '@nestjs/common';
+import { ProjectMemberRole } from '../../common/interfaces';
 import { Response, Request } from 'express';
 import { AIService } from '../ai';
 import { TestEngineService } from '../test-engine';
@@ -33,7 +34,8 @@ export class APIController {
     private readonly aiService: AIService,
     private readonly testEngineService: TestEngineService,
     private readonly reportService: ReportService,
-    private readonly timerService: TimerService
+    private readonly timerService: TimerService,
+    private readonly permissionsService: PermissionsService
   ) {}
 
   @Get('projects')
@@ -73,7 +75,7 @@ export class APIController {
 
   @Post('projects')
   @UseGuards(JwtAuthGuard)
-    async createProject(@Body() project: Partial<Project>) {
+    async createProject(@Body() project: Partial<Project>, @Req() req: any) {
     const newProject: Project = {
       id: uuidv4(),
       name: project.name || '未命名项目',
@@ -93,6 +95,13 @@ export class APIController {
       updatedAt: new Date()
     };
     await this.dataService.saveProject(newProject);
+    await this.permissionsService.addMemberToProject(
+      newProject.id,
+      req.user.userId,
+      req.user.username,
+      ProjectMemberRole.ADMIN,
+      [Permission.READ, Permission.WRITE, Permission.EXECUTE, Permission.MANAGE]
+    );
     return newProject;
   }
 
