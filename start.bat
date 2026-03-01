@@ -37,7 +37,20 @@ if %KILL_FAILED% equ 1 (
 echo Port 3000 is free
 echo.
 
-REM 启动服务
-echo Starting service...
+REM 构建项目
+echo Building project...
+npm run build
+if !errorlevel! neq 0 (
+    echo.
+    echo ERROR: Build failed!
+    pause
+    exit /b 1
+)
+
+echo Build completed successfully
 echo.
-npm run start:dev
+
+REM 启动服务
+echo Starting service in production mode...
+echo.
+npm run start:prod
