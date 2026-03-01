@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Param, Res, Query, UseGuards, Req, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
 import { AIService } from '../ai';
 import { Public } from '../auth/decorators/public.decorator';
@@ -16,7 +16,12 @@ export class ViewController {
   ) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   async index(@Req() req: any, @Res() res: Response, @Query('page') page: number = 1, @Query('pageSize') pageSize: number = 10) {
+    if (!req.user) {
+      throw new UnauthorizedException();
+    }
+    
     const projects = await this.permissionsService.getUserProjects(
       req.user.userId,
       req.user.role
