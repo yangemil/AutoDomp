@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 echo ========================================
 echo AutoDOMP Web Automation Testing Platform
 echo ========================================
@@ -15,7 +16,7 @@ for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000') do (
     if "%%a" neq "" if %%a gtr 0 (
         echo Killing process...
         taskkill /F /PID %%a >nul 2>&1
-        if %errorlevel% equ 0 (
+        if !errorlevel! equ 0 (
             echo Process killed successfully
         ) else (
             echo Failed to kill process
