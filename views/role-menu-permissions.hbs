@@ -1,0 +1,300 @@
+<div class="page">
+    <div class="page-header">
+        <h1>角色菜单权限管理</h1>
+        <button class="btn btn-primary" onclick="savePermissions()">保存</button>
+    </div>
+
+    <div id="rolesList"></div>
+</div>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 24px;
+        color: #333;
+    }
+
+    .role-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        background: #fff;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .role-header {
+        padding: 16px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .role-header:hover {
+        background: #e9ecef;
+    }
+
+    .role-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .role-title h3 {
+        margin: 0;
+        font-size: 16px;
+        color: #333;
+    }
+
+    .toggle-icon {
+        font-size: 12px;
+        transition: transform 0.3s;
+    }
+
+    .toggle-icon.expanded {
+        transform: rotate(90deg);
+    }
+
+    .role-description {
+        margin-left: 20px;
+        font-size: 13px;
+        color: #666;
+    }
+
+    .role-content {
+        padding: 20px;
+        display: none;
+    }
+
+    .role-content.show {
+        display: block;
+    }
+
+    .menu-tree {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        gap: 10px;
+    }
+
+    .menu-item.level-1 {
+        margin-left: 0;
+    }
+
+    .menu-item.level-2 {
+        margin-left: 30px;
+    }
+
+    .menu-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .menu-name {
+        flex: 1;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .menu-path {
+        font-size: 12px;
+        color: #999;
+        font-family: monospace;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+</style>
+
+<script>
+    let allRolePermissions = {};
+    let currentUserId = null;
+
+    async function loadPermissions() {
+        try {
+            const response = await fetch('/api/role-menu-permissions');
+            allRolePermissions = await response.json();
+            renderRoles();
+        } catch (error) {
+            console.error('加载角色菜单权限失败:', error);
+            alert('加载角色菜单权限失败');
+        }
+    }
+
+    function getCurrentUser() {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            currentUserId = user.id;
+            return user;
+        }
+        return null;
+    }
+
+    function renderRoles() {
+        const container = document.getElementById('rolesList');
+        const currentUser = getCurrentUser();
+
+        if (!currentUser || currentUser.role !== 'admin') {
+            container.innerHTML = '<p class="empty-state">只有系统管理员可以管理角色菜单权限</p>';
+            return;
+        }
+
+        const roles = Object.keys(allRolePermissions);
+
+        if (roles.length === 0) {
+            container.innerHTML = '<p class="empty-state">暂无角色配置</p>';
+            return;
+        }
+
+        container.innerHTML = roles.map(roleId => {
+            const role = allRolePermissions[roleId];
+            return `
+                <div class="role-card">
+                    <div class="role-header" onclick="toggleRole('${roleId}')">
+                        <div class="role-title">
+                            <span class="toggle-icon" id="toggle-${roleId}">▶</span>
+                            <div>
+                                <h3>${role.name} (${roleId})</h3>
+                                <p class="role-description">${role.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="role-content" id="content-${roleId}">
+                        ${renderMenuTree(role.menus, roleId)}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderMenuTree(menus, roleId, level = 1) {
+        if (!menus || menus.length === 0) {
+            return '<p class="empty-state">该角色暂无菜单权限</p>';
+        }
+
+        return menus.map(menu => `
+            <div class="menu-item level-${level}">
+                <input type="checkbox"
+                       class="menu-checkbox"
+                       data-role-id="${roleId}"
+                       data-menu-id="${menu.id}"
+                       id="checkbox-${roleId}-${menu.id}"
+                       ${level === 1 ? 'checked' : ''}
+                       ${menu.items ? `onchange="toggleChildren('${roleId}', '${menu.id}', this.checked)"` : ''}>
+                <label for="checkbox-${roleId}-${menu.id}" class="menu-name">${menu.name}</label>
+                ${menu.path ? `<span class="menu-path">${menu.path}</span>` : ''}
+            </div>
+            ${menu.items ? `
+                <div style="margin-left: 20px;">
+                    ${renderMenuTree(menu.items, roleId, level + 1)}
+                </div>
+            ` : ''}
+        `).join('');
+    }
+
+    function toggleRole(roleId) {
+        const content = document.getElementById(`content-${roleId}`);
+        const toggle = document.getElementById(`toggle-${roleId}`);
+
+        if (content.classList.contains('show')) {
+            content.classList.remove('show');
+            toggle.classList.remove('expanded');
+        } else {
+            content.classList.add('show');
+            toggle.classList.add('expanded');
+        }
+    }
+
+    function toggleChildren(roleId, menuId, checked) {
+        const checkboxes = document.querySelectorAll(`input[data-role-id="${roleId}"][data-menu-id^="${menuId}-"]`);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = checked;
+        });
+    }
+
+    async function savePermissions() {
+        const currentUser = getCurrentUser();
+
+        if (!currentUser || currentUser.role !== 'admin') {
+            alert('只有系统管理员可以保存角色菜单权限');
+            return;
+        }
+
+        const updatedRoles = Object.keys(allRolePermissions);
+        let hasChanges = false;
+
+        for (const roleId of updatedRoles) {
+            const role = allRolePermissions[roleId];
+            const updatedMenus = collectMenusFromDOM(role.menus, roleId);
+
+            if (JSON.stringify(role.menus) !== JSON.stringify(updatedMenus)) {
+                hasChanges = true;
+                role.menus = updatedMenus;
+
+                try {
+                    await fetch(`/api/role-menu-permissions/${roleId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(role)
+                    });
+                } catch (error) {
+                    alert(`保存角色 ${roleId} 失败: ${error.message}`);
+                    return;
+                }
+            }
+        }
+
+        if (hasChanges) {
+            alert('保存成功');
+        } else {
+            alert('没有需要保存的更改');
+        }
+    }
+
+    function collectMenusFromDOM(menus, roleId) {
+        return menus.map(menu => {
+            const checkbox = document.getElementById(`checkbox-${roleId}-${menu.id}`);
+            const isChecked = checkbox ? checkbox.checked : true;
+
+            const result = {
+                id: menu.id,
+                name: menu.name
+            };
+
+            if (menu.path) {
+                result.path = menu.path;
+            }
+
+            if (menu.items) {
+                result.items = collectMenusFromDOM(menu.items, roleId);
+            }
+
+            return result;
+        });
+    }
+
+    loadPermissions();
+</script>
