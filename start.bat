@@ -34,7 +34,10 @@ for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000') do (
 
 if %KILL_FAILED% equ 1 (
     echo.
+    echo ========================================
     echo ERROR: Failed to cleanup port 3000. Please check manually.
+    echo ========================================
+    pause
     exit /b 1
 )
 
