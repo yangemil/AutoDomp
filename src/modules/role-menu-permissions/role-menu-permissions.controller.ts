@@ -1,4 +1,12 @@
-import { Controller, Get, Put, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Put, Body, Param, UseGuards, Req, NotFoundException } from '@nestjs/common';
+import { Request } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    role: string;
+  };
+}
+
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
@@ -20,7 +28,7 @@ export class RoleMenuPermissionsController {
   getRolePermissions(@Param('roleId') roleId: string) {
     const permissions = this.roleMenuPermissionsService.getRolePermissions(roleId);
     if (!permissions) {
-      throw new Error('角色不存在');
+      throw new NotFoundException('角色不存在');
     }
     return permissions;
   }
@@ -41,7 +49,7 @@ export class UserMenuPermissionsController {
   constructor(private readonly roleMenuPermissionsService: RoleMenuPermissionsService) {}
 
   @Get()
-  getUserMenuPermissions(@Req() req: any) {
+  getUserMenuPermissions(@Req() req: AuthenticatedRequest) {
     const roleId = req.user.role;
     return this.roleMenuPermissionsService.getRolePermissions(roleId);
   }
