@@ -29,28 +29,28 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions('users', [Permission.MANAGE])
+  @RequirePermissions('admin')
   @Get('users')
   async getAllUsers() {
     return await this.authService.getAllUsers();
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions('users', [Permission.MANAGE])
+  @RequirePermissions('admin')
   @Post('users')
   async createUser(@Body() body: { username: string; email: string; password: string; role: UserRole }) {
     return await this.authService.createUser(body.username, body.email, body.password, body.role);
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions('users', [Permission.MANAGE])
+  @RequirePermissions('admin')
   @Put('users/:userId/role')
   async updateUserRole(@Param('userId') userId: string, @Body() body: { role: UserRole }) {
     return await this.authService.updateUserRole(userId, body.role);
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions('users', [Permission.MANAGE])
+  @RequirePermissions('admin')
   @Delete('users/:userId')
   async deleteUser(@Param('userId') userId: string) {
     return await this.authService.deleteUser(userId);
