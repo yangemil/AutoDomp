@@ -220,7 +220,7 @@
 
     async function loadUsers() {
         try {
-            const response = await fetch('/api/auth/users');
+            const response = await fetch('/auth/users');
             allUsers = await response.json();
             renderUsers();
         } catch (error) {
@@ -289,7 +289,7 @@
         }
 
         try {
-            const response = await fetch('/api/auth/users', {
+            const response = await fetch('/auth/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, email, password, role })
@@ -324,7 +324,7 @@
         const role = document.getElementById('editRole').value;
 
         try {
-            const response = await fetch(`/api/auth/users/${userId}/role`, {
+            const response = await fetch(`/auth/users/${userId}/role`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ role })
@@ -347,7 +347,7 @@
         if (!confirm(`确定要删除用户 "${username}" 吗?`)) return;
 
         try {
-            const response = await fetch(`/api/auth/users/${userId}`, {
+            const response = await fetch(`/auth/users/${userId}`, {
                 method: 'DELETE'
             });
 
