@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/style.css?v=2.3">
+
+  <style>
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-left: 20px;
+      padding: 8px 16px;
+      background: #f5f5f5;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .user-info #welcomeMessage {
+      color: #333;
+    }
+
+    .user-info #currentUser {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .btn-logout {
+      padding: 6px 12px;
+      background: #ff4757;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.3s;
+    }
+
+    .btn-logout:hover {
+      background: #ff3838;
+    }
+  </style>
+  </head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1 class="header-title">Web自动化测试平台</h1>
+            <nav class="navbar">
+                <div class="navbar-menu" id="dynamicMenu">
+                    <div class="nav-item">
+                        <a href="/" class="nav-link">加载中...</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {{{body}}}
+    </main>
+
+    <footer class="footer">
+    </footer>
+
+    <script src="/js/app.js"></script>
+    <script>
+        let globalProjects = [];
+        let userMenuPermissions = null;
+        
+        async function loadGlobalProjects() {
+            try {
+                const response = await fetch('/api/projects');
+                globalProjects = await response.json();
+                
+                const select = document.getElementById('globalProjectSelect');
+                const savedProjectId = localStorage.getItem('globalProjectId');
+                
+                globalProjects.forEach(project => {
+                    const option = document.createElement('option');
+                    option.value = project.id;
+                    option.textContent = project.name;
+                    select.appendChild(option);
+                });
+                
+                if (savedProjectId) {
+                    select.value = savedProjectId;
+                }
+            } catch (error) {
+                console.error('加载项目列表失败:', error);
+            }
+        }
+        
+        function handleGlobalProjectChange() {
+            const select = document.getElementById('globalProjectSelect');
+            const projectId = select.value;
+            
+            if (projectId) {
+                localStorage.setItem('globalProjectId', projectId);
+            } else {
+                localStorage.removeItem('globalProjectId');
+            }
+            
+            window.dispatchEvent(new CustomEvent('globalProjectChanged', { detail: { projectId } }));
+        }
+        
+        function getGlobalProjectId() {
+            return localStorage.getItem('globalProjectId');
+        }
+
+        async function loadUserMenuPermissions() {
+            try {
+                const response = await fetch('/api/user/menu-permissions');
+                if (response.ok) {
+                    userMenuPermissions = await response.json();
+                    renderDynamicMenu();
+                } else {
+                    renderDefaultMenu();
+                }
+            } catch (error) {
+                console.error('加载菜单权限失败:', error);
+                renderDefaultMenu();
+            }
+        }
+
+        function renderDynamicMenu() {
+            if (!userMenuPermissions || !userMenuPermissions.menus) {
+                renderDefaultMenu();
+                return;
+            }
+
+            const menuContainer = document.getElementById('dynamicMenu');
+            if (!menuContainer) return;
+
+            let menuHTML = '';
+
+            userMenuPermissions.menus.forEach(menu => {
+                if (menu.items && menu.items.length > 0) {
+                    menuHTML += `
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle">${menu.name}</a>
+                            <div class="dropdown-menu">
+                                ${menu.items.map(item => `
+                                    <a href="${item.path}" class="dropdown-link">${item.name}</a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else if (menu.path) {
+                    menuHTML += `
+                        <div class="nav-item">
+                            <a href="${menu.path}" class="nav-link">${menu.name}</a>
+                        </div>
+                    `;
+                }
+            });
+
+            menuHTML += `
+                <div class="global-project-selector">
+                    <select id="globalProjectSelect" onchange="handleGlobalProjectChange()">
+                        <option value="">-- 全局项目 --</option>
+                    </select>
+                </div>
+            `;
+
+            menuContainer.innerHTML = menuHTML;
+            loadGlobalProjects();
+        }
+
+        function renderDefaultMenu() {
+            const menuContainer = document.getElementById('dynamicMenu');
+            if (!menuContainer) return;
+
+            menuContainer.innerHTML = `
+                <div class="nav-item">
+                    <a href="/" class="nav-link">首页</a>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">测试管理</a>
+                    <div class="dropdown-menu">
+                        <a href="/test-cases" class="dropdown-link">测试用例</a>
+                        <a href="/scenarios" class="dropdown-link">测试场景</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">定时</a>
+                    <div class="dropdown-menu">
+                        <a href="/schedules" class="dropdown-link">待执行</a>
+                        <a href="/schedule-executions" class="dropdown-link">已执行</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">执行</a>
+                    <div class="dropdown-menu">
+                        <a href="/executions" class="dropdown-link">执行记录</a>
+                        <a href="/reports" class="dropdown-link">测试报告</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">日志</a>
+                    <div class="dropdown-menu">
+                        <a href="/log-explorer" class="dropdown-link">日志查询</a>
+                        <a href="/log-management" class="dropdown-link">日志管理</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">资源</a>
+                    <div class="dropdown-menu">
+                        <a href="/templates" class="dropdown-link">步骤模板</a>
+                        <a href="/selector-tool" class="dropdown-link">选择器工具</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">项目</a>
+                    <div class="dropdown-menu">
+                        <a href="/projects" class="dropdown-link">项目管理</a>
+                        <a href="/project-members" class="dropdown-link">项目成员</a>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <a href="/settings" class="nav-link">设置</a>
+                </div>
+                <div class="global-project-selector">
+                    <select id="globalProjectSelect" onchange="handleGlobalProjectChange()">
+                        <option value="">-- 全局项目 --</option>
+                    </select>
+                </div>
+            `;
+
+            loadGlobalProjects();
+        }
+
+        function checkPagePermission() {
+            const currentPath = window.location.pathname;
+
+            if (currentPath === '/login') {
+                return true;
+            }
+
+            if (!userMenuPermissions || !userMenuPermissions.menus) {
+                return true;
+            }
+
+            function hasPathInMenus(menus, path) {
+                for (const menu of menus) {
+                    if (menu.path && menu.path === path) {
+                        return true;
+                    }
+                    if (menu.items && hasPathInMenus(menu.items, path)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            if (!hasPathInMenus(userMenuPermissions.menus, currentPath)) {
+                alert('您没有权限访问该页面');
+                window.location.href = '/';
+                return false;
+            }
+
+            return true;
+        }
+        
+      
+        
+        // 用户认证相关
+        function checkAuth() {
+            // 如果是登录页面，不需要检查认证
+            if (window.location.pathname === '/login') {
+                return true;
+            }
+            
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (!token || !user) {
+                // 未登录,跳转到登录页
+                window.location.href = '/login';
+                return false;
+            }
+            
+            // 显示用户信息
+            const userData = JSON.parse(user);
+            const currentUserElement = document.getElementById('currentUser');
+            if (currentUserElement) {
+                currentUserElement.textContent = userData.username;
+            }
+            
+            return true;
+        }
+        
+        function logout() {
+            if (confirm('确定要退出登录吗?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }
+        }
+        
+        // 添加 token 到所有 fetch 请求
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            const token = localStorage.getItem('token');
+            
+            // 给 API 请求添加 token 前缀
+            let url = args[0];
+            if (typeof url === 'string' && url.startsWith('/api/') && token) {
+                if (args[1] && args[1].headers) {
+                    args[1].headers['Authorization'] = `Bearer ${token}`;
+                } else if (args[1]) {
+                    args[1].headers = {
+                        ...args[1].headers,
+                        'Authorization': `Bearer ${token}`
+                    };
+                } else {
+                    args[1] = {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    };
+                }
+            }
+            return originalFetch.apply(this, args);
+        };
+
+        window.addEventListener('load', function() {
+            checkAuth();
+            loadUserMenuPermissions();
+            setTimeout(checkPagePermission, 500);
+        });
+
+        window.addEventListener('menuPermissionsUpdated', function() {
+            loadUserMenuPermissions();
+        });
+
+  loadGlobalProjects();
+    </script>
+</body>
+</html>
