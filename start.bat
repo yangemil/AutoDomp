@@ -5,7 +5,7 @@ echo AutoDOMP Web Automation Testing Platform
 echo ========================================
 echo.
 
-REM 检测3000端口是否被占用
+REM Check if port 3000 is occupied
 echo [Step 1/3] Checking port 3000...
 
 set PORT_OCCUPIED=0
@@ -47,7 +47,7 @@ if %PORT_OCCUPIED% equ 0 (
 
 echo.
 
-REM 构建项目
+REM Build project
 echo [Step 2/3] Building project...
 call npm run build
 if !errorlevel! neq 0 (
@@ -62,7 +62,7 @@ if !errorlevel! neq 0 (
 echo   - Build completed successfully
 echo.
 
-REM 启动服务
+REM Start service
 echo [Step 3/3] Starting service in production mode...
 echo.
 echo ========================================
