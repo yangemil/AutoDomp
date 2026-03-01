@@ -220,7 +220,18 @@
 
     async function loadUsers() {
         try {
-            const response = await fetch('/auth/users');
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch('/auth/users', {
+                headers: headers
+            });
             allUsers = await response.json();
             renderUsers();
         } catch (error) {
@@ -289,6 +300,40 @@
         }
 
         try {
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch('/auth/users', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ username, email, password, role })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert('添加用户成功');
+                closeAddUserModal();
+                loadUsers();
+            } else {
+                alert(result.message || result.error || '添加用户失败');
+            }
+        } catch (error) {
+            alert('添加用户失败: ' + error.message);
+        }
+    }
+
+        if (password.length < 6) {
+            alert('密码至少需要6位');
+            return;
+        }
+
+        try {
             const response = await fetch('/auth/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -324,9 +369,18 @@
         const role = document.getElementById('editRole').value;
 
         try {
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
             const response = await fetch(`/auth/users/${userId}/role`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({ role })
             });
 
@@ -347,8 +401,16 @@
         if (!confirm(`确定要删除用户 "${username}" 吗?`)) return;
 
         try {
+            const token = localStorage.getItem('token');
+            const headers = {};
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
             const response = await fetch(`/auth/users/${userId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: headers
             });
 
             if (response.ok) {

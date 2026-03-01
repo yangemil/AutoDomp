@@ -134,7 +134,16 @@
 
     async function loadPermissions() {
         try {
-            const response = await fetch('/api/role-menu-permissions');
+            const token = localStorage.getItem('token');
+            const headers = {};
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch('/api/role-menu-permissions', {
+                headers: headers
+            });
             allRolePermissions = await response.json();
             renderRoles();
         } catch (error) {
@@ -255,9 +264,18 @@
                 role.menus = updatedMenus;
 
                 try {
+                    const token = localStorage.getItem('token');
+                    const headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                    
                     await fetch(`/api/role-menu-permissions/${roleId}`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: headers,
                         body: JSON.stringify(role)
                     });
                 } catch (error) {
