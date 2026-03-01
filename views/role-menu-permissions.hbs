@@ -141,6 +141,17 @@
                 headers['Authorization'] = `Bearer ${token}`;
             }
             
+            const response = await fetch('/user/menu-permissions', {
+                headers: headers
+            });
+            allRolePermissions = await response.json();
+            renderRoles();
+        } catch (error) {
+            console.error('加载角色菜单权限失败:', error);
+            alert('加载角色菜单权限失败');
+        }
+    }
+            
             const response = await fetch('/api/role-menu-permissions', {
                 headers: headers
             });

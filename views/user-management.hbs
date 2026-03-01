@@ -229,6 +229,17 @@
                 headers['Authorization'] = `Bearer ${token}`;
             }
             
+            const response = await fetch('/user/users', {
+                headers: headers
+            });
+            allUsers = await response.json();
+            renderUsers();
+        } catch (error) {
+            console.error('加载用户失败:', error);
+            alert('加载用户失败');
+        }
+    }
+            
             const response = await fetch('/auth/users', {
                 headers: headers
             });
