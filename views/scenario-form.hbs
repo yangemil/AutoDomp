@@ -1,0 +1,667 @@
+<div class="page">
+    <div class="page-header">
+        <h1>{{title}}</h1>
+        <a href="/scenarios" class="btn btn-secondary">返回列表</a>
+    </div>
+
+    <div class="form-container">
+        <form id="scenarioForm">
+            <div style="display: flex; gap: 30px;">
+                <!-- 左侧：基本信息 -->
+                <div style="width: 280px; flex-shrink: 0;">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <h3 style="margin: 0 0 20px 0; font-size: 16px; color: #333; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">基本信息</h3>
+                        
+                        <input type="hidden" id="scenarioId" value="{{scenario.id}}" />
+                        
+                        <div class="form-group">
+                            <label>项目</label>
+                            <select id="scenarioProject" class="form-control" required onchange="onProjectChange()" data-select2>
+                                {{#each projects}}
+                                <option value="{{this.id}}" {{#eq this.id ../scenario.projectId}}selected{{/eq}}>{{this.name}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>场景名称 *</label>
+                            <input type="text" id="scenarioName" class="form-control" required placeholder="请输入场景名称" value="{{scenario.name}}" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>描述</label>
+                            <textarea id="scenarioDescription" class="form-control" placeholder="请输入场景描述" rows="3">{{scenario.description}}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>系统菜单</label>
+                            <select id="scenarioMenuPath" class="form-control" data-select2>
+                                <option value="">-- 选择菜单 --</option>
+                            </select>
+                            <input type="hidden" id="scenarioMenuPathName" value="{{scenario.menuPathName}}">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧：测试用例选择 -->
+                <div style="flex: 1; min-width: 0;">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <h3 style="margin: 0 0 20px 0; font-size: 16px; color: #333; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">选择测试用例</h3>
+                        
+                        <div style="margin-bottom: 15px; padding: 10px; background: white; border-radius: 4px; border: 1px solid #e0e0e0;">
+                            <label style="font-size: 14px; color: #666; margin-right: 10px;">按被测试系统菜单:</label>
+                            <select id="menuFilterSelect" style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; min-width: 200px;" onchange="filterTestCasesByMenu()">
+                                <option value="">全部</option>
+                            </select>
+                        </div>
+                        
+                        <div class="testcase-selector" style="display: flex; gap: 20px; min-height: 400px;">
+                            <div class="available-testcases" style="width: 37.5%; flex-shrink: 0;">
+                                <h4 style="font-size: 14px; color: #666; margin-bottom: 10px;">可用测试用例</h4>
+                                <div id="availableTestCases" class="testcase-list" style="max-height: 350px; overflow-y: auto; background: white; border: 1px solid #e0e0e0; border-radius: 4px; padding: 10px;">
+                                </div>
+                            </div>
+                            
+                            <div class="selection-actions" style="width: 12.5%; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; gap: 10px;">
+                                <button type="button" class="btn btn-sm" onclick="addAllTestCases()">全部添加 →</button>
+                                <button type="button" class="btn btn-sm" onclick="removeAllTestCases()">← 全部移除</button>
+                            </div>
+                            
+                            <div class="selected-testcases" style="width: 50%; flex-shrink: 0;">
+                                <h4 style="font-size: 14px; color: #666; margin-bottom: 10px;">已选择的测试用例</h4>
+                                <div id="selectedTestCases" class="testcase-list" style="max-height: 350px; overflow-y: auto; background: white; border: 1px solid #e0e0e0; border-radius: 4px; padding: 10px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <button type="button" class="btn btn-primary" onclick="saveScenario()">保存</button>
+                <a href="/scenarios" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.tree-select-container {
+    position: relative;
+    width: 100%;
+}
+
+.tree-select-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    background: white;
+    min-height: 38px;
+}
+
+.tree-select-trigger:hover {
+    border-color: #667eea;
+}
+
+.tree-select-arrow {
+    font-size: 10px;
+    color: #999;
+    transition: transform 0.2s;
+}
+
+.tree-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 1000;
+    margin-top: 4px;
+}
+
+.tree-select-tree {
+    padding: 8px 0;
+}
+
+.tree-select-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    gap: 8px;
+}
+
+.tree-select-item:hover {
+    background: #f5f5f5;
+}
+
+.tree-select-item.selected {
+    background: #e8f4ff;
+    color: #667eea;
+    font-weight: 500;
+}
+
+.tree-select-item .toggle-btn {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #667eea;
+    font-size: 12px;
+}
+
+.tree-select-item .item-name {
+    flex: 1;
+}
+
+.tree-select-item .check-icon {
+    color: #667eea;
+    font-weight: bold;
+}
+
+.tree-select-empty {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+}
+
+.form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .testcase-selector {
+        display: flex;
+        gap: 20px;
+        min-height: 450px;
+    }
+
+    .testcase-selector h4 {
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #374151;
+        font-weight: 600;
+    }
+
+    .testcase-list {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+        min-height: 350px;
+        max-height: 500px;
+        overflow-y: auto;
+        background: #f9fafb;
+    }
+
+    .testcase-item {
+        padding: 10px;
+        margin-bottom: 8px;
+        background: #f5f5f5;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .testcase-item:hover {
+        background: #e8e8e8;
+    }
+
+    .testcase-item .btn {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    .testcase-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .testcase-name {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .testcase-name-lines {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .testcase-name-lines .testcase-name {
+        font-weight: 500;
+    }
+
+    .testcase-menu {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .testcase-loop {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .testcase-loop label {
+        font-size: 12px;
+        color: #666;
+        margin: 0;
+    }
+
+    .testcase-loop input {
+        width: 44px;
+        padding: 4px 4px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .testcase-loop input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .help-text {
+        font-size: 12px;
+        color: #999;
+        font-weight: normal;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+    }
+</style>
+
+<script>
+const projectId = '{{scenario.projectId}}';
+window.projectId = projectId;
+let allTestCasesData = [];
+let selectedTestCases = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadProjectMenuOptions();
+    await loadProjectTestCases();
+
+    {{#if scenario.testCases}}
+    selectedTestCases = [
+        {{#each scenario.testCases}}
+        { id: '{{this.id}}' },
+        {{/each}}
+    ];
+    {{/if}}
+
+    updateSelectedTestCases();
+});
+
+let scenarioMenuTreeData = [];
+
+async function loadProjectMenuOptions() {
+    const projectSelect = document.getElementById('scenarioProject');
+    const projectId = projectSelect.value;
+    
+    if (!projectId) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/projects/${projectId}/menus`);
+        const menus = await response.json();
+
+        // 加载系统菜单下拉框
+        const menuSelect = document.getElementById('scenarioMenuPath');
+        const currentMenuPath = '{{scenario.menuPath}}';
+        
+        if (!menuSelect) {
+            return;
+        }
+
+        menuSelect.innerHTML = '<option value="">-- 选择菜单 --</option>';
+        
+        function addMenuOptions(menuItems, prefix = '') {
+            menuItems.forEach(menu => {
+                const pathName = prefix ? prefix + ' > ' + menu.name : menu.name;
+                const option = document.createElement('option');
+                option.value = menu.id;
+                option.textContent = pathName;
+                option.dataset.pathName = pathName;
+
+                if (currentMenuPath === menu.id) {
+                    option.selected = true;
+                }
+
+                menuSelect.appendChild(option);
+
+                if (menu.children && menu.children.length > 0) {
+                    addMenuOptions(menu.children, pathName);
+                }
+            });
+        }
+
+        if (menus.length > 0) {
+            addMenuOptions(menus);
+        }
+
+        // 加载菜单过滤下拉框
+        const filterSelect = document.getElementById('menuFilterSelect');
+        if (filterSelect) {
+            filterSelect.innerHTML = '<option value="">全部</option>';
+
+            function addFilterOptions(menuItems, prefix = '') {
+                menuItems.forEach(menu => {
+                    const pathName = prefix ? prefix + ' > ' + menu.name : menu.name;
+                    const option = document.createElement('option');
+                    option.value = menu.id;
+                    option.textContent = pathName;
+                    filterSelect.appendChild(option);
+
+                    if (menu.children && menu.children.length > 0) {
+                        addFilterOptions(menu.children, pathName);
+                    }
+                });
+            }
+
+            if (menus.length > 0) {
+                addFilterOptions(menus);
+            }
+        }
+
+    } catch (error) {
+    }
+}
+
+function toggleScenarioMenuTree() {
+    const dropdown = document.getElementById('scenarioMenuPathDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderMenuTreeItems(items, container, level = 0, parentPath = '', onSelect) {
+    if (!items || items.length === 0) {
+        container.innerHTML = '<div class="tree-select-empty">暂无菜单</div>';
+        return;
+    }
+    
+    items.forEach((menu, index) => {
+        const hasChildren = menu.children && menu.children.length > 0;
+        const currentPath = parentPath ? `${parentPath} > ${menu.name}` : menu.name;
+        
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'tree-select-item';
+        itemDiv.style.paddingLeft = `${12 + level * 20}px`;
+        
+        const toggleBtn = hasChildren ? `<span class="toggle-btn" onclick="event.stopPropagation(); toggleSubMenu(this)">▶</span>` : '<span class="toggle-btn"></span>';
+        
+        itemDiv.innerHTML = `
+            ${toggleBtn}
+            <span class="item-name" onclick="onSelect('${menu.id}', '${currentPath.replace(/'/g, "\\'")}')">${menu.name}</span>
+        `;
+        
+        container.appendChild(itemDiv);
+        
+        if (hasChildren) {
+            const childrenContainer = document.createElement('div');
+            childrenContainer.className = 'tree-sub-menu';
+            childrenContainer.style.display = 'none';
+            container.appendChild(childrenContainer);
+            
+            const subMenuDiv = document.createElement('div');
+            childrenContainer.appendChild(subMenuDiv);
+            renderMenuTreeItems(menu.children, subMenuDiv, level + 1, currentPath, onSelect);
+        }
+    });
+}
+
+function toggleSubMenu(btn) {
+    const parent = btn.parentElement.parentElement;
+    const subMenu = parent.querySelector('.tree-sub-menu');
+    if (subMenu) {
+        const isHidden = subMenu.style.display === 'none';
+        subMenu.style.display = isHidden ? 'block' : 'none';
+        btn.textContent = isHidden ? '▼' : '▶';
+    }
+}
+
+function selectScenarioMenuItem(menuId, menuPathName) {
+    document.getElementById('scenarioMenuPath').value = menuId;
+    document.getElementById('scenarioMenuPathName').value = menuPathName;
+    document.getElementById('scenarioMenuPathDisplay').textContent = menuPathName;
+    document.getElementById('scenarioMenuPathDropdown').style.display = 'none';
+    renderScenarioMenuPathTree();
+}
+
+function renderScenarioMenuTree() {
+    const container = document.getElementById('scenarioMenuPathTree');
+    const currentValue = document.getElementById('scenarioMenuPath').value;
+    
+    renderMenuTreeItems(scenarioMenuTreeData, container, 0, '', (menuId, menuPathName) => {
+        selectScenarioMenuItem(menuId, menuPathName);
+    });
+    
+    // 高亮选中项
+    const items = container.querySelectorAll('.tree-select-item');
+    items.forEach(item => {
+        const nameSpan = item.querySelector('.item-name');
+        if (nameSpan) {
+            const currentPath = nameSpan.textContent;
+            const selectedValue = document.getElementById('scenarioMenuPath').value;
+            // 简单匹配
+            if (item.innerHTML.includes(`onclick="selectScenarioMenuItem('${selectedValue}'`)) {
+                item.classList.add('selected');
+                item.innerHTML += '<span class="check-icon">✓</span>';
+            }
+        }
+    });
+}
+
+// 点击外部关闭下拉框
+document.addEventListener('click', function(e) {
+    const menuContainer = document.getElementById('menuPathContainer');
+    
+    if (menuContainer && !menuContainer.contains(e.target)) {
+        const dropdown = document.getElementById('scenarioMenuPathDropdown');
+        if (dropdown) dropdown.style.display = 'none';
+    }
+});
+
+async function loadProjectTestCases() {
+    const projectId = document.getElementById('scenarioProject').value;
+    
+    try {
+        const response = await fetch(`/api/test-cases?projectId=${projectId}`);
+        const data = await response.json();
+        allTestCasesData = Array.isArray(data) ? data : data.data;
+        
+        renderAvailableTestCases();
+    } catch (error) {
+        console.error('加载测试用例失败:', error);
+    }
+}
+
+function renderAvailableTestCases() {
+    const container = document.getElementById('availableTestCases');
+    const filterSelect = document.getElementById('menuFilterSelect');
+    const menuId = filterSelect ? filterSelect.value : '';
+    
+    let filteredCases = allTestCasesData;
+    
+    if (menuId) {
+        filteredCases = allTestCasesData.filter(tc => tc.menuPath === menuId);
+    }
+    
+    container.innerHTML = filteredCases.map(tc => `
+        <div class="testcase-item" ondblclick="addTestCase('${tc.id}')">
+            <div class="testcase-name-lines">
+                <span class="testcase-name" title="${tc.name}">${tc.name}</span>
+                ${tc.menuPathName ? `<span class="testcase-menu">${tc.menuPathName}</span>` : ''}
+            </div>
+            <button type="button" class="btn btn-sm" onclick="addTestCase('${tc.id}')">添加</button>
+        </div>
+    `).join('');
+}
+
+function filterTestCasesByMenu() {
+    renderAvailableTestCases();
+}
+
+function addTestCase(testCaseId) {
+    if (selectedTestCases.some(tc => tc.id === testCaseId)) return;
+    
+    const testCase = allTestCasesData.find(tc => tc.id === testCaseId);
+    if (testCase) {
+        selectedTestCases.push({ id: testCase.id });
+        updateSelectedTestCases();
+    }
+}
+
+function removeTestCase(testCaseId) {
+    selectedTestCases = selectedTestCases.filter(tc => tc.id !== testCaseId);
+    updateSelectedTestCases();
+}
+
+function addAllTestCases() {
+    const items = document.querySelectorAll('#availableTestCases .testcase-item');
+    
+    items.forEach(item => {
+        const btn = item.querySelector('button');
+        if (btn && !btn.disabled) {
+            const onclick = btn.getAttribute('onclick');
+            const idMatch = onclick.match(/'([^']+)'/);
+            if (idMatch) {
+                const id = idMatch[1];
+                if (!selectedTestCases.some(tc => tc.id === id)) {
+                    selectedTestCases.push({ id });
+                }
+            }
+        }
+    });
+    
+    updateSelectedTestCases();
+}
+
+function removeAllTestCases() {
+    selectedTestCases = [];
+    updateSelectedTestCases();
+}
+
+function updateSelectedTestCases() {
+    const container = document.getElementById('selectedTestCases');
+    
+    if (selectedTestCases.length === 0) {
+        container.innerHTML = '<p class="text-muted">尚未选择测试用例</p>';
+        return;
+    }
+    
+    container.innerHTML = selectedTestCases.map(tc => {
+        const testCase = allTestCasesData.find(t => t.id === tc.id);
+        if (!testCase) return '';
+        return `
+            <div class="testcase-item">
+                <div class="testcase-info">
+                    <span class="testcase-name">${testCase.name}</span>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger" onclick="removeTestCase('${tc.id}')">移除</button>
+            </div>
+        `;
+    }).join('');
+}
+
+function onProjectChange() {
+    loadProjectMenuOptions();
+    loadProjectTestCases();
+    selectedTestCases = [];
+    updateSelectedTestCases();
+}
+
+async function saveScenario() {
+    const scenarioId = document.getElementById('scenarioId').value;
+    const projectId = document.getElementById('scenarioProject').value;
+    const name = document.getElementById('scenarioName').value.trim();
+    const description = document.getElementById('scenarioDescription').value.trim();
+    const menuPath = document.getElementById('scenarioMenuPath').value;
+    const menuPathName = document.getElementById('scenarioMenuPath').selectedOptions[0]?.text || '';
+    
+    if (!name) {
+        alert('请输入场景名称');
+        return;
+    }
+    
+    if (selectedTestCases.length === 0) {
+        alert('请至少选择一个测试用例');
+        return;
+    }
+    
+    const data = {
+        projectId,
+        name,
+        description,
+        menuPath,
+        menuPathName: menuPath === '' ? '' : menuPathName,
+        testCases: selectedTestCases
+    };
+    
+    try {
+        let url = '/api/scenarios';
+        let method = 'POST';
+        
+        if (scenarioId) {
+            url = `/api/scenarios/${scenarioId}`;
+            method = 'PUT';
+        }
+        
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            alert('保存失败: ' + result.error);
+            return;
+        }
+        
+        alert('保存成功');
+        window.location.href = '/scenarios';
+    } catch (error) {
+        alert('请求失败: ' + error.message);
+    }
+}
+
+document.getElementById('scenarioMenuPath').addEventListener('change', function() {
+    document.getElementById('scenarioMenuPathName').value = this.selectedOptions[0]?.text || '';
+});
+</script>
