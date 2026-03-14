@@ -287,6 +287,7 @@ export interface TestReport {
 }
 
 export interface AIConfig {
+  id?: string;
   enabled: boolean;
   provider: string;
   apiUrl: string;
